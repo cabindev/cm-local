@@ -1,0 +1,71 @@
+'use server'
+
+import { prisma } from '@/app/lib/prisma'
+import { revalidatePath } from 'next/cache'
+
+export type VillageFormData = {
+  villageName: string
+  villageNo: string
+  tambon: string
+  amphoe: string
+  province: string
+  zone: string
+  coordinator: string
+  phone?: string
+  registeredPopulation?: number
+  actualPopulation?: number
+  householdCount?: number
+}
+
+export async function createVillage(data: VillageFormData) {
+  const village = await prisma.village.create({ data })
+  revalidatePath('/dashboard/villages')
+  return { success: true, id: village.id }
+}
+
+export async function updateVillage(id: number, data: VillageFormData) {
+  await prisma.village.update({ where: { id }, data })
+  revalidatePath('/dashboard/villages')
+  revalidatePath(`/dashboard/villages/${id}`)
+  return { success: true }
+}
+
+export async function deleteVillage(id: number) {
+  await prisma.village.delete({ where: { id } })
+  revalidatePath('/dashboard/villages')
+  return { success: true }
+}
+
+export async function getVillages(search?: string) {
+  return prisma.village.findMany({
+    where: search
+      ? {
+          OR: [
+            { villageName: { contains: search } },
+            { tambon: { contains: search } },
+            { amphoe: { contains: search } },
+            { province: { contains: search } },
+          ],
+        }
+      : undefined,
+    orderBy: { createdAt: 'desc' },
+  })
+}
+
+export async function getVillageById(id: number) {
+  return prisma.village.findUnique({
+    where: { id },
+    include: {
+      screeningResults:    { orderBy: { year: 'asc' } },
+      alcoholParticipants: { orderBy: { year: 'asc' } },
+      alcoholResults:      { orderBy: { year: 'asc' } },
+      tobaccoParticipants: { orderBy: { year: 'asc' } },
+      tobaccoResults:      { orderBy: { year: 'asc' } },
+      drinkNotDrives:      { orderBy: { year: 'asc' } },
+      communityStats:      { orderBy: { year: 'asc' } },
+      envItems:             true,
+      communityOrgs:        true,
+      communityBackgrounds: true,
+    },
+  })
+}

@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { signOut } from 'next-auth/react'
@@ -14,6 +13,8 @@ import {
   Menu,
   X,
   ChevronRight,
+  MapPin,
+  Plus,
 } from 'lucide-react'
 
 interface SidebarProps {
@@ -26,15 +27,56 @@ interface SidebarProps {
   }
 }
 
-const menuItems = [
-  { name: 'Home', href: '/dashboard', icon: LayoutDashboard, description: 'ภาพรวม' },
-  { name: 'Profile', href: '/dashboard/profile', icon: User, description: 'ข้อมูลส่วนตัว' },
-  { name: 'User List', href: '/dashboard/users', icon: Users, description: 'รายชื่อสมาชิก' },
-  { name: 'Table', href: '/dashboard/table', icon: Table2, description: 'ตารางข้อมูล' },
+const projectMenu = [
+  { name: 'ภาพรวม', href: '/dashboard', icon: LayoutDashboard, description: 'สรุปข้อมูลโครงการ' },
+  { name: 'หมู่บ้าน', href: '/dashboard/villages', icon: MapPin, description: 'รายการหมู่บ้าน' },
+  { name: 'เพิ่มหมู่บ้าน', href: '/dashboard/villages/new', icon: Plus, description: 'ลงทะเบียนใหม่' },
 ]
 
-export default function Sidebar({ user }: SidebarProps) {
+const systemMenu = [
+  { name: 'โปรไฟล์', href: '/dashboard/profile', icon: User, description: 'ข้อมูลส่วนตัว' },
+  { name: 'ผู้ใช้งาน', href: '/dashboard/users', icon: Users, description: 'รายชื่อสมาชิก' },
+  { name: 'ตารางข้อมูล', href: '/dashboard/table', icon: Table2, description: 'ข้อมูลดิบ' },
+]
+
+function NavItem({
+  item,
+  collapsed,
+  onClick,
+}: {
+  item: { name: string; href: string; icon: React.ElementType; description: string }
+  collapsed: boolean
+  onClick: () => void
+}) {
   const pathname = usePathname()
+  const Icon = item.icon
+  const isActive =
+    pathname === item.href ||
+    (item.href !== '/dashboard' && pathname?.startsWith(item.href))
+
+  return (
+    <Link
+      href={item.href}
+      onClick={onClick}
+      title={collapsed ? item.name : ''}
+      className={`
+        flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
+        ${isActive ? 'bg-yellow-400 text-gray-900' : 'text-gray-300 hover:bg-gray-700 hover:text-white'}
+        ${collapsed ? 'justify-center' : ''}
+      `}
+    >
+      <Icon className={`flex-shrink-0 ${collapsed ? 'w-6 h-6' : 'w-5 h-5'}`} />
+      {!collapsed && (
+        <div className="ml-3">
+          <div>{item.name}</div>
+          <div className={`text-xs ${isActive ? 'text-gray-700' : 'text-gray-500'}`}>{item.description}</div>
+        </div>
+      )}
+    </Link>
+  )
+}
+
+export default function Sidebar({ user }: SidebarProps) {
   const { sidebarCollapsed, toggleSidebar, isMobileSidebarOpen, toggleMobileSidebar } = useDashboard()
 
   const handleMenuClick = () => {
@@ -67,15 +109,12 @@ export default function Sidebar({ user }: SidebarProps) {
             </div>
           </Link>
         )}
-
-        {/* Mobile close */}
         <button
           onClick={() => toggleMobileSidebar(false)}
           className="lg:hidden p-1.5 rounded-md text-gray-400 hover:text-white hover:bg-gray-700"
         >
           <X className="w-5 h-5" />
         </button>
-        {/* Desktop collapse */}
         <button
           onClick={toggleSidebar}
           className="hidden lg:block p-1.5 rounded-md text-gray-400 hover:text-white hover:bg-gray-700"
@@ -86,38 +125,30 @@ export default function Sidebar({ user }: SidebarProps) {
 
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
-        {menuItems.map((item) => {
-          const Icon = item.icon
-          const isActive =
-            pathname === item.href ||
-            (item.href !== '/dashboard' && pathname?.startsWith(item.href))
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={handleMenuClick}
-              title={sidebarCollapsed ? item.name : ''}
-              className={`
-                flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
-                ${isActive
-                  ? 'bg-yellow-400 text-gray-900'
-                  : 'text-gray-300 hover:bg-gray-700 hover:text-white'
-                }
-                ${sidebarCollapsed ? 'justify-center' : ''}
-              `}
-            >
-              <Icon className={`flex-shrink-0 ${sidebarCollapsed ? 'w-6 h-6' : 'w-5 h-5'}`} />
-              {!sidebarCollapsed && (
-                <div className="ml-3">
-                  <div>{item.name}</div>
-                  <div className={`text-xs ${isActive ? 'text-gray-700' : 'text-gray-500'}`}>
-                    {item.description}
-                  </div>
-                </div>
-              )}
-            </Link>
-          )
-        })}
+
+        {/* Section: โครงการ */}
+        {!sidebarCollapsed && (
+          <p className="px-3 pt-1 pb-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+            โครงการ
+          </p>
+        )}
+        {sidebarCollapsed && <div className="border-t border-gray-700 my-2" />}
+        {projectMenu.map((item) => (
+          <NavItem key={item.href} item={item} collapsed={sidebarCollapsed} onClick={handleMenuClick} />
+        ))}
+
+        {/* Divider */}
+        <div className="pt-4">
+          {!sidebarCollapsed && (
+            <p className="px-3 pb-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+              ระบบ
+            </p>
+          )}
+          {sidebarCollapsed && <div className="border-t border-gray-700 mb-2" />}
+          {systemMenu.map((item) => (
+            <NavItem key={item.href} item={item} collapsed={sidebarCollapsed} onClick={handleMenuClick} />
+          ))}
+        </div>
       </nav>
 
       {/* User Section */}
@@ -130,21 +161,15 @@ export default function Sidebar({ user }: SidebarProps) {
           </div>
           {!sidebarCollapsed && (
             <div className="min-w-0">
-              <p className="text-sm font-medium text-white truncate">
-                {user?.firstName} {user?.lastName}
-              </p>
+              <p className="text-sm font-medium text-white truncate">{user?.firstName} {user?.lastName}</p>
               <p className="text-xs text-gray-400 truncate">{user?.email}</p>
             </div>
           )}
         </div>
-
         <button
-          onClick={() => signOut({ callbackUrl: '/auth/signin' })}
+          onClick={() => signOut({ callbackUrl: '/' })}
           title={sidebarCollapsed ? 'ออกจากระบบ' : ''}
-          className={`
-            mt-3 flex items-center w-full px-3 py-2 text-sm text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg transition-colors
-            ${sidebarCollapsed ? 'justify-center' : ''}
-          `}
+          className={`mt-3 flex items-center w-full px-3 py-2 text-sm text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg transition-colors ${sidebarCollapsed ? 'justify-center' : ''}`}
         >
           <LogOut className="w-5 h-5 flex-shrink-0" />
           {!sidebarCollapsed && <span className="ml-3">ออกจากระบบ</span>}
