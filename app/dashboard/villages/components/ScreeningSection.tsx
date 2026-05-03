@@ -66,15 +66,15 @@ const ScreeningSection = forwardRef<ScreeningSectionHandle, { villageId: number;
         </div>
 
         {/* จำนวนคัดกรอง */}
-        <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between gap-4 bg-gray-50">
-          <div>
-            <p className="text-xs text-gray-400">จำนวนคนคัดกรองทั้งหมด</p>
-            <p className="text-2xl font-bold text-gray-900 mt-0.5">
+        <div className="px-5 py-5 border-b border-gray-100 flex flex-col items-center gap-2 bg-gray-50">
+          <p className="text-xs text-gray-400">จำนวนคนคัดกรองทั้งหมด</p>
+          <div className="flex items-center gap-3">
+            <NumInput value={fields.screenedCount} onChange={(v) => set('screenedCount', v)} accent="yellow" />
+            <p className="text-2xl font-bold text-gray-900">
               {n > 0 ? n.toLocaleString() : '—'}
               <span className="text-sm font-normal text-gray-400 ml-1">คน</span>
             </p>
           </div>
-          <NumInput value={fields.screenedCount} onChange={(v) => set('screenedCount', v)} accent="yellow" />
         </div>
 
         {/* สามกลุ่มแบบ card */}
@@ -118,8 +118,7 @@ const ScreeningSection = forwardRef<ScreeningSectionHandle, { villageId: number;
                 <span className="text-xs text-slate-800">จำนวนคนสูบ</span>
                 <NumInput value={fields.tobaccoCount} onChange={(v) => set('tobaccoCount', v)} accent="slate" />
               </div>
-              {/* spacer เพื่อให้ footer อยู่ล่าง */}
-              <div className="flex-1 bg-slate-50 min-h-[2.5rem]" />
+              <div className="flex-1 bg-slate-50" />
             </div>
             <CalcFooter
               label="จำนวนคนไม่สูบ"
@@ -146,7 +145,7 @@ const ScreeningSection = forwardRef<ScreeningSectionHandle, { villageId: number;
                   <NumInput value={fields[key]} onChange={(v) => set(key, v)} accent="teal" />
                 </div>
               ))}
-              <div className="flex-1 bg-teal-50 min-h-[2.5rem]" />
+              <div className="flex-1 bg-teal-50" />
             </div>
             <CalcFooter
               label="จำนวนคนที่ไม่ดื่ม (ไม่มีความเสี่ยง)"

@@ -30,9 +30,9 @@ export default function DashboardClient({ user, children }: DashboardClientProps
 
       <Sidebar user={user} />
 
-      <div className={`flex-1 min-h-screen flex flex-col transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
+      <div className={`flex-1 min-w-0 min-h-screen flex flex-col transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
         <TopNav />
-        <main className="flex-1 p-4 lg:p-6">
+        <main className="flex-1 p-4 lg:p-6 overflow-x-hidden">
           {children}
         </main>
       </div>

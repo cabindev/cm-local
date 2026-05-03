@@ -36,7 +36,39 @@ const DrinkNotDriveMembersTable = forwardRef<DrinkNotDriveMembersTableHandle, { 
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">ผู้ตั้งใจ</p>
           <p className="text-sm font-medium text-white mt-0.5">รายชื่อผู้ที่ตั้งใจดื่มไม่ขับ</p>
         </div>
-        <div className="overflow-x-auto">
+
+        {/* Mobile: cards */}
+        <div className="sm:hidden divide-y divide-gray-100">
+          {members.map((member, i) => (
+            <div key={i} className="p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-300 w-5 flex-shrink-0">{i + 1}</span>
+                <input type="text" value={member.name} onChange={(e) => update(i, 'name', e.target.value)}
+                  placeholder="ชื่อ-นามสกุล"
+                  className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-yellow-400 bg-gray-50 focus:bg-white" />
+                <select value={member.drinkType} onChange={(e) => update(i, 'drinkType', e.target.value)}
+                  className="px-2 py-2 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-yellow-400 bg-gray-50 focus:bg-white">
+                  {DRINK_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+                </select>
+                <button onClick={() => removeRow(i)} className="text-gray-300 hover:text-red-400 transition-colors text-sm p-1 flex-shrink-0">✕</button>
+              </div>
+              {(['year1Result', 'year2Result', 'year3Result'] as const).map((field, yi) => (
+                <div key={field}>
+                  <p className="text-[10px] text-gray-400 mb-1">ผลที่เกิดขึ้น ปีที่ {yi + 1}</p>
+                  <textarea value={member[field]} onChange={(e) => update(i, field, e.target.value)}
+                    placeholder="กรอกหรือไม่ก็ได้..." rows={2}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-yellow-400 bg-gray-50 focus:bg-white resize-none" />
+                </div>
+              ))}
+            </div>
+          ))}
+          <div className="px-4 py-3">
+            <button onClick={addRow} className="text-xs text-gray-400 hover:text-gray-700 transition-colors">+ เพิ่มรายชื่อ</button>
+          </div>
+        </div>
+
+        {/* Desktop: table */}
+        <div className="hidden sm:block overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
               <tr className="border-b border-gray-100">
@@ -72,15 +104,15 @@ const DrinkNotDriveMembersTable = forwardRef<DrinkNotDriveMembersTableHandle, { 
                     </td>
                   ))}
                   <td className="px-2 py-3">
-                    <button onClick={() => removeRow(i)} className="text-gray-300 hover:text-gray-600 transition-colors">✕</button>
+                    <button onClick={() => removeRow(i)} className="text-gray-300 hover:text-red-400 transition-colors">✕</button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
-        <div className="px-5 py-3 border-t border-gray-100">
-          <button onClick={addRow} className="text-xs text-gray-400 hover:text-gray-700 transition-colors">+ เพิ่มรายชื่อ</button>
+          <div className="px-5 py-3 border-t border-gray-100">
+            <button onClick={addRow} className="text-xs text-gray-400 hover:text-gray-700 transition-colors">+ เพิ่มรายชื่อ</button>
+          </div>
         </div>
       </div>
     )

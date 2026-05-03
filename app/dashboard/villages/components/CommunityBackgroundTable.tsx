@@ -40,8 +40,7 @@ const CommunityBackgroundTable = forwardRef<CommunityBackgroundTableHandle, { vi
         const data = await res.json()
         if (res.ok) { update(type, 'fileUrl', data.fileUrl); update(type, 'fileName', data.fileName) }
         else {
-          const msg = data.error ?? 'อัปโหลดไม่สำเร็จ'
-          setUploadError(msg)
+          setUploadError(data.error ?? 'อัปโหลดไม่สำเร็จ')
           setTimeout(() => setUploadError(null), 4000)
         }
       } finally { setUploading(null) }
@@ -62,64 +61,92 @@ const CommunityBackgroundTable = forwardRef<CommunityBackgroundTableHandle, { vi
       }
     }), [villageId, rows])
 
+    const FileCell = ({ type, row }: { type: string; row: typeof rows[0] }) => (
+      row.fileUrl ? (
+        <div className="flex items-center gap-2">
+          <a href={row.fileUrl} target="_blank" rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 px-2 py-1 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-800 hover:bg-yellow-100 transition-colors max-w-xs">
+            <span>📄</span>
+            <span className="text-xs truncate">{row.fileName}</span>
+          </a>
+          <button type="button" onClick={() => removeFile(type)}
+            className="text-gray-300 hover:text-gray-600 transition-colors text-xs flex-shrink-0">✕</button>
+        </div>
+      ) : (
+        <label className="cursor-pointer text-gray-400 hover:text-gray-700 transition-colors text-xs">
+          {uploading === type ? <span className="text-yellow-600">กำลังอัปโหลด...</span> : 'อัปโหลดไฟล์'}
+          <input type="file" accept=".pdf,.doc,.docx" className="hidden"
+            ref={(el) => { fileRefs.current[type] = el }}
+            onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFileUpload(type, f) }} />
+        </label>
+      )
+    )
+
     return (
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <div className="bg-gray-900 px-5 py-4">
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">ข้อมูลพื้นฐาน</p>
           <p className="text-sm font-medium text-white mt-0.5">ข้อมูลประวัติชุมชน</p>
         </div>
+
         {uploadError && (
-          <div className="mx-5 mt-3 px-3 py-2 bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg">
+          <div className="mx-4 mt-3 px-3 py-2 bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg">
             {uploadError}
           </div>
         )}
-        <div className="overflow-x-auto">
-        <table className="w-full text-xs">
-          <thead>
-            <tr className="border-b border-gray-100">
-              <th className="text-left px-5 py-2.5 font-medium text-gray-400">รายการ</th>
-              <th className="text-center px-4 py-2.5 font-medium text-gray-400 w-16">มี</th>
-              <th className="text-left px-5 py-2.5 font-medium text-gray-400">ไฟล์แนบ</th>
-            </tr>
-          </thead>
-          <tbody>
-            {ITEMS.map((item, i) => {
-              const row = rows.find((r) => r.type === item.type)!
-              return (
-                <tr key={item.type} className={`border-b border-gray-50 hover:bg-gray-50 transition-colors ${i === ITEMS.length - 1 ? 'border-b-0' : ''}`}>
-                  <td className="px-5 py-3 text-gray-700">{item.label}</td>
-                  <td className="px-4 py-3 text-center">
-                    <label className="flex items-center justify-center cursor-pointer p-2 -m-2">
-                      <input type="checkbox" checked={row.hasItem}
-                        onChange={(e) => update(item.type, 'hasItem', e.target.checked)}
-                        className="w-4 h-4 accent-yellow-400" />
-                    </label>
-                  </td>
-                  <td className="px-5 py-3">
-                    {row.fileUrl ? (
-                      <div className="flex items-center gap-2">
-                        <a href={row.fileUrl} target="_blank" rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 px-2 py-1 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-800 hover:bg-yellow-100 transition-colors max-w-xs">
-                          <span className="text-xs">📄</span>
-                          <span className="text-xs truncate">{row.fileName}</span>
-                        </a>
-                        <button type="button" onClick={() => removeFile(item.type)}
-                          className="text-gray-300 hover:text-gray-600 transition-colors text-xs flex-shrink-0">✕</button>
-                      </div>
-                    ) : (
-                      <label className="cursor-pointer text-gray-400 hover:text-gray-700 transition-colors">
-                        {uploading === item.type ? <span className="text-yellow-600">กำลังอัปโหลด...</span> : 'อัปโหลดไฟล์'}
-                        <input type="file" accept=".pdf,.doc,.docx" className="hidden"
-                          ref={(el) => { fileRefs.current[item.type] = el }}
-                          onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFileUpload(item.type, f) }} />
+
+        {/* Mobile: cards */}
+        <div className="sm:hidden divide-y divide-gray-100">
+          {ITEMS.map(({ type, label }) => {
+            const row = rows.find((r) => r.type === type)!
+            return (
+              <div key={type} className="p-4 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-gray-800">{label}</span>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <span className="text-xs text-gray-400">มี</span>
+                    <input type="checkbox" checked={row.hasItem}
+                      onChange={(e) => update(type, 'hasItem', e.target.checked)}
+                      className="w-4 h-4 accent-yellow-400" />
+                  </label>
+                </div>
+                <FileCell type={type} row={row} />
+              </div>
+            )
+          })}
+        </div>
+
+        {/* Desktop: table */}
+        <div className="hidden sm:block overflow-x-auto">
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="border-b border-gray-100">
+                <th className="text-left px-5 py-2.5 font-medium text-gray-400">รายการ</th>
+                <th className="text-center px-4 py-2.5 font-medium text-gray-400 w-16">มี</th>
+                <th className="text-left px-5 py-2.5 font-medium text-gray-400">ไฟล์แนบ</th>
+              </tr>
+            </thead>
+            <tbody>
+              {ITEMS.map((item, i) => {
+                const row = rows.find((r) => r.type === item.type)!
+                return (
+                  <tr key={item.type} className={`border-b border-gray-50 hover:bg-gray-50 transition-colors ${i === ITEMS.length - 1 ? 'border-b-0' : ''}`}>
+                    <td className="px-5 py-3 text-gray-700">{item.label}</td>
+                    <td className="px-4 py-3 text-center">
+                      <label className="flex items-center justify-center cursor-pointer p-2 -m-2">
+                        <input type="checkbox" checked={row.hasItem}
+                          onChange={(e) => update(item.type, 'hasItem', e.target.checked)}
+                          className="w-4 h-4 accent-yellow-400" />
                       </label>
-                    )}
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
+                    </td>
+                    <td className="px-5 py-3">
+                      <FileCell type={item.type} row={row} />
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
         </div>
       </div>
     )

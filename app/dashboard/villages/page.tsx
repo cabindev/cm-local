@@ -107,7 +107,7 @@ export default async function VillagesPage({ searchParams }: { searchParams: Pro
                       {/* Mobile: show province + zone inline */}
                       <div className="sm:hidden mt-0.5 flex items-center gap-1.5">
                         <span className="text-gray-400">{v.province}</span>
-                        <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-medium ${zoneColor[v.zone] ?? 'bg-gray-100 text-gray-600'}`}>
+                        <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-medium whitespace-nowrap ${zoneColor[v.zone] ?? 'bg-gray-100 text-gray-600'}`}>
                           {v.zone}
                         </span>
                       </div>
@@ -119,7 +119,7 @@ export default async function VillagesPage({ searchParams }: { searchParams: Pro
                     <td className="px-4 py-3 text-gray-500 hidden sm:table-cell">{v.province}</td>
 
                     <td className="px-4 py-3 hidden lg:table-cell">
-                      <span className={`px-2 py-0.5 rounded-full font-medium ${zoneColor[v.zone] ?? 'bg-gray-100 text-gray-600'}`}>
+                      <span className={`px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${zoneColor[v.zone] ?? 'bg-gray-100 text-gray-600'}`}>
                         {v.zone}
                       </span>
                     </td>

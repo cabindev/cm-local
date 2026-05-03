@@ -117,7 +117,7 @@ const TobaccoMembersTable = forwardRef<TobaccoMembersTableHandle, { villageId: n
                 <select
                   value={member.smokeType}
                   onChange={(e) => update(i, 'smokeType', e.target.value)}
-                  className="px-2 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-yellow-400 bg-gray-50 focus:bg-white flex-shrink-0"
+                  className="w-16 px-1.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-yellow-400 bg-gray-50 focus:bg-white flex-shrink-0"
                 >
                   {SMOKE_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
                 </select>

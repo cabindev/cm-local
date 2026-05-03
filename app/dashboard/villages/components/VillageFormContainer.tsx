@@ -22,7 +22,6 @@ export default function VillageFormContainer({ villageId, data }: { villageId: n
 
   const router = useRouter()
   const [saving, setSaving] = useState(false)
-  const [saved, setSaved] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isDirty, setIsDirty] = useState(false)
 
@@ -53,7 +52,6 @@ export default function VillageFormContainer({ villageId, data }: { villageId: n
   const handleSave = async () => {
     setSaving(true)
     setError(null)
-    setSaved(false)
     try {
       await Promise.all([
         bgRef.current?.save(),
@@ -86,7 +84,6 @@ export default function VillageFormContainer({ villageId, data }: { villageId: n
       {/* Sticky save bar — iOS safe area aware */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 sm:px-8 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] flex items-center justify-end gap-4 z-20">
         {error && <span className="text-xs text-red-500 font-medium">{error}</span>}
-        {saved && <span className="text-xs text-green-600 font-medium">✓ บันทึกทั้งหมดเรียบร้อย</span>}
         <button
           onClick={handleSave}
           disabled={saving}

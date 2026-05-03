@@ -80,7 +80,7 @@ export default async function VillageDetailPage({ params }: { params: Promise<{ 
 
         <div className="px-4 sm:px-6 py-4 border-b border-gray-100">
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">ข้อมูลประชากร</p>
-          <div className="grid grid-cols-3 gap-2 sm:gap-4">
+          <div className="grid grid-cols-3 gap-1.5 sm:gap-4">
             <div className="bg-yellow-50 rounded-lg p-2.5 sm:p-4 text-center">
               <Users className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600 mx-auto mb-1" />
               <p className="text-base sm:text-xl font-bold text-gray-900">{village.registeredPopulation.toLocaleString()}</p>
