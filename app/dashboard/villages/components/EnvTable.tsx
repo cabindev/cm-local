@@ -59,9 +59,11 @@ const EnvTable = forwardRef<EnvTableHandle, { villageId: number; items: EnvItemR
                 <tr key={type} className={`border-b border-gray-50 hover:bg-gray-50 transition-colors ${i === ENV_ITEMS.length - 1 ? 'border-b-0' : ''}`}>
                   <td className="px-5 py-3 text-gray-700">{label}</td>
                   <td className="px-4 py-3 text-center">
-                    <input type="checkbox" checked={row.hasItem}
-                      onChange={(e) => update(type, 'hasItem', e.target.checked)}
-                      className="w-4 h-4 accent-yellow-400 cursor-pointer" />
+                    <label className="flex items-center justify-center cursor-pointer p-2 -m-2">
+                      <input type="checkbox" checked={row.hasItem}
+                        onChange={(e) => update(type, 'hasItem', e.target.checked)}
+                        className="w-4 h-4 accent-yellow-400" />
+                    </label>
                   </td>
                   {(['result1', 'result2', 'result3'] as const).map((rk) => (
                     <td key={rk} className="px-4 py-2.5">
