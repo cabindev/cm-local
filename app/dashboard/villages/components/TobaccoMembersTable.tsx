@@ -49,21 +49,21 @@ const emptyMember = (): Member => ({
 
 function OutcomeCell({ year, member, onChange }: { year: YearKey; member: Member; onChange: (f: keyof Member, v: boolean | string) => void }) {
   return (
-    <div className="space-y-1.5 min-w-[160px]">
+    <div className="space-y-0.5 min-w-[160px]">
       {OUTCOMES.map(({ key, label, placeholder }) => {
         const checkField = `${year}${key}` as keyof Member
         const textField = `${year}${key}Text` as keyof Member
         const checked = member[checkField] as boolean
         return (
           <div key={key}>
-            <label className="flex items-center gap-1.5 cursor-pointer">
-              <input type="checkbox" checked={checked} onChange={(e) => onChange(checkField, e.target.checked)} className="w-3.5 h-3.5 accent-yellow-400 flex-shrink-0" />
+            <label className="flex items-start gap-2 py-1 cursor-pointer">
+              <input type="checkbox" checked={checked} onChange={(e) => onChange(checkField, e.target.checked)} className="w-4 h-4 mt-0.5 accent-yellow-400 flex-shrink-0" />
               <span className="text-xs text-gray-700">{label}</span>
             </label>
             {checked && (
               <input type="text" value={member[textField] as string} onChange={(e) => onChange(textField, e.target.value)}
                 placeholder={placeholder}
-                className="mt-1 ml-5 w-[calc(100%-1.25rem)] px-2 py-1 border border-gray-200 rounded text-xs focus:outline-none focus:border-yellow-400 bg-gray-50 focus:bg-white" />
+                className="mt-1 ml-6 w-[calc(100%-1.5rem)] px-2 py-1 border border-gray-200 rounded text-xs focus:outline-none focus:border-yellow-400 bg-gray-50 focus:bg-white" />
             )}
           </div>
         )
@@ -100,7 +100,46 @@ const TobaccoMembersTable = forwardRef<TobaccoMembersTableHandle, { villageId: n
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">ผู้สมัคร</p>
           <p className="text-sm font-medium text-white mt-0.5">รายชื่อผู้สมัครเข้าร่วมงดบุหรี่</p>
         </div>
-        <div className="overflow-x-auto">
+
+        {/* Mobile: card per member */}
+        <div className="sm:hidden divide-y divide-gray-100">
+          {members.map((member, i) => (
+            <div key={i} className="p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="text-gray-300 text-xs w-5 flex-shrink-0">{i + 1}</span>
+                <input
+                  type="text"
+                  value={member.name}
+                  onChange={(e) => update(i, 'name', e.target.value)}
+                  placeholder="ชื่อ-นามสกุล"
+                  className="flex-1 min-w-0 px-2 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-yellow-400 bg-gray-50 focus:bg-white"
+                />
+                <select
+                  value={member.smokeType}
+                  onChange={(e) => update(i, 'smokeType', e.target.value)}
+                  className="px-2 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-yellow-400 bg-gray-50 focus:bg-white flex-shrink-0"
+                >
+                  {SMOKE_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+                </select>
+                <button onClick={() => removeRow(i)} className="text-gray-300 hover:text-red-400 transition-colors p-1 flex-shrink-0">✕</button>
+              </div>
+              {(['y1', 'y2', 'y3'] as YearKey[]).map((year, yi) => (
+                <div key={year} className="border border-gray-100 rounded-lg overflow-hidden">
+                  <div className="bg-gray-50 px-3 py-1.5 text-xs font-medium text-gray-500">ผลที่เกิดขึ้น ปีที่ {yi + 1}</div>
+                  <div className="px-3 py-2">
+                    <OutcomeCell year={year} member={member} onChange={(f, v) => update(i, f, v)} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ))}
+          <div className="px-4 py-3">
+            <button onClick={addRow} className="text-xs text-gray-400 hover:text-gray-700 transition-colors">+ เพิ่มรายชื่อ</button>
+          </div>
+        </div>
+
+        {/* Desktop: horizontal table */}
+        <div className="hidden sm:block overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
               <tr className="border-b border-gray-100">
@@ -134,15 +173,15 @@ const TobaccoMembersTable = forwardRef<TobaccoMembersTableHandle, { villageId: n
                     </td>
                   ))}
                   <td className="px-2 py-3">
-                    <button onClick={() => removeRow(i)} className="text-gray-300 hover:text-gray-600 transition-colors">✕</button>
+                    <button onClick={() => removeRow(i)} className="text-gray-300 hover:text-red-400 transition-colors p-1">✕</button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
-        <div className="px-5 py-3 border-t border-gray-100">
-          <button onClick={addRow} className="text-xs text-gray-400 hover:text-gray-700 transition-colors">+ เพิ่มรายชื่อ</button>
+          <div className="px-5 py-3 border-t border-gray-100">
+            <button onClick={addRow} className="text-xs text-gray-400 hover:text-gray-700 transition-colors">+ เพิ่มรายชื่อ</button>
+          </div>
         </div>
       </div>
     )
