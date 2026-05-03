@@ -25,6 +25,7 @@ const CommunityBackgroundTable = forwardRef<CommunityBackgroundTableHandle, { vi
       })
     )
     const [uploading, setUploading] = useState<string | null>(null)
+    const [uploadError, setUploadError] = useState<string | null>(null)
     const fileRefs = useRef<Record<string, HTMLInputElement | null>>({})
 
     const update = (type: string, key: string, value: boolean | string | null) =>
@@ -38,7 +39,11 @@ const CommunityBackgroundTable = forwardRef<CommunityBackgroundTableHandle, { vi
         const res = await fetch('/api/upload/community', { method: 'POST', body: form })
         const data = await res.json()
         if (res.ok) { update(type, 'fileUrl', data.fileUrl); update(type, 'fileName', data.fileName) }
-        else alert(data.error ?? 'อัปโหลดไม่สำเร็จ')
+        else {
+          const msg = data.error ?? 'อัปโหลดไม่สำเร็จ'
+          setUploadError(msg)
+          setTimeout(() => setUploadError(null), 4000)
+        }
       } finally { setUploading(null) }
     }
 
@@ -63,6 +68,11 @@ const CommunityBackgroundTable = forwardRef<CommunityBackgroundTableHandle, { vi
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">ข้อมูลพื้นฐาน</p>
           <p className="text-sm font-medium text-white mt-0.5">ข้อมูลประวัติชุมชน</p>
         </div>
+        {uploadError && (
+          <div className="mx-5 mt-3 px-3 py-2 bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg">
+            {uploadError}
+          </div>
+        )}
         <div className="overflow-x-auto">
         <table className="w-full text-xs">
           <thead>
@@ -79,9 +89,11 @@ const CommunityBackgroundTable = forwardRef<CommunityBackgroundTableHandle, { vi
                 <tr key={item.type} className={`border-b border-gray-50 hover:bg-gray-50 transition-colors ${i === ITEMS.length - 1 ? 'border-b-0' : ''}`}>
                   <td className="px-5 py-3 text-gray-700">{item.label}</td>
                   <td className="px-4 py-3 text-center">
-                    <input type="checkbox" checked={row.hasItem}
-                      onChange={(e) => update(item.type, 'hasItem', e.target.checked)}
-                      className="w-4 h-4 accent-yellow-400 cursor-pointer" />
+                    <label className="flex items-center justify-center cursor-pointer p-2 -m-2">
+                      <input type="checkbox" checked={row.hasItem}
+                        onChange={(e) => update(item.type, 'hasItem', e.target.checked)}
+                        className="w-4 h-4 accent-yellow-400" />
+                    </label>
                   </td>
                   <td className="px-5 py-3">
                     {row.fileUrl ? (

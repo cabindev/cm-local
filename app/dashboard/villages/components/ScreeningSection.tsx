@@ -57,6 +57,11 @@ const ScreeningSection = forwardRef<ScreeningSectionHandle, { villageId: number;
       }
     }), [villageId, fields])
 
+    const alcoholSum = fields.alcoholRiskLow + fields.alcoholRisk + fields.alcoholDanger + fields.alcoholAddicted + fields.alcoholNone
+    const tobaccoSum = fields.tobaccoCount + fields.tobaccoNone
+    const showAlcWarning = fields.screenedCount > 0 && alcoholSum !== fields.screenedCount
+    const showTobWarning = fields.screenedCount > 0 && tobaccoSum !== fields.screenedCount
+
     return (
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <div className="bg-gray-900 px-5 py-4">
@@ -74,16 +79,32 @@ const ScreeningSection = forwardRef<ScreeningSectionHandle, { villageId: number;
           </thead>
           <tbody>
             {ROWS.map(({ key, label }, i) => (
-              <tr key={key} className={`border-b border-gray-50 hover:bg-gray-50 transition-colors ${i === ROWS.length - 1 ? 'border-b-0' : ''}`}>
-                <td className="px-5 py-3 text-gray-700">{label}</td>
-                <td className="px-5 py-2.5">
-                  <input
-                    type="number" min={0} value={fields[key] || ''} placeholder="0"
-                    onChange={(e) => set(key, Number(e.target.value))}
-                    className="w-28 px-3 py-1.5 border border-gray-200 rounded-lg text-xs text-right bg-gray-50 focus:bg-white focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 transition-colors"
-                  />
-                </td>
-              </tr>
+              <>
+                <tr key={key} className={`border-b border-gray-50 hover:bg-gray-50 transition-colors ${i === ROWS.length - 1 ? 'border-b-0' : ''}`}>
+                  <td className="px-5 py-3 text-gray-700">{label}</td>
+                  <td className="px-5 py-2.5">
+                    <input
+                      type="number" min={0} value={fields[key] || ''} placeholder="0"
+                      onChange={(e) => set(key, Number(e.target.value))}
+                      className="w-28 px-3 py-1.5 border border-gray-200 rounded-lg text-xs text-right bg-gray-50 focus:bg-white focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 transition-colors"
+                    />
+                  </td>
+                </tr>
+                {key === 'alcoholNone' && showAlcWarning && (
+                  <tr key="alc-warning" className="bg-orange-50">
+                    <td colSpan={2} className="px-5 py-1.5 text-orange-600 text-[10px]">
+                      ⚠ รวมแอลกอฮอล์ {alcoholSum} คน ≠ จำนวนคัดกรอง {fields.screenedCount} คน
+                    </td>
+                  </tr>
+                )}
+                {key === 'tobaccoNone' && showTobWarning && (
+                  <tr key="tob-warning" className="bg-orange-50">
+                    <td colSpan={2} className="px-5 py-1.5 text-orange-600 text-[10px]">
+                      ⚠ รวมบุหรี่ {tobaccoSum} คน ≠ จำนวนคัดกรอง {fields.screenedCount} คน
+                    </td>
+                  </tr>
+                )}
+              </>
             ))}
           </tbody>
         </table>
