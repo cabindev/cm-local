@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import CommunityBackgroundTable, { type CommunityBackgroundTableHandle } from './CommunityBackgroundTable'
 import ScreeningSection, { type ScreeningSectionHandle } from './ScreeningSection'
 import AlcoholMembersTable, { type AlcoholMembersTableHandle } from './AlcoholMembersTable'
@@ -17,28 +17,63 @@ export default function VillageFormContainer({ villageId, data }: { villageId: n
   const dndRef = useRef<DrinkNotDriveMembersTableHandle>(null)
   const envRef = useRef<EnvTableHandle>(null)
   const orgRef = useRef<CommunityOrgTableHandle>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [isDirty, setIsDirty] = useState(false)
+
+  // Mark dirty on any input/change inside the form
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+    const mark = () => setIsDirty(true)
+    el.addEventListener('input', mark)
+    el.addEventListener('change', mark)
+    return () => {
+      el.removeEventListener('input', mark)
+      el.removeEventListener('change', mark)
+    }
+  }, [])
+
+  // Warn before navigating away with unsaved changes
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (!isDirty) return
+      e.preventDefault()
+      e.returnValue = ''
+    }
+    window.addEventListener('beforeunload', handler)
+    return () => window.removeEventListener('beforeunload', handler)
+  }, [isDirty])
 
   const handleSave = async () => {
     setSaving(true)
-    await Promise.all([
-      bgRef.current?.save(),
-      screeningRef.current?.save(),
-      alcoholRef.current?.save(),
-      tobaccoRef.current?.save(),
-      dndRef.current?.save(),
-      envRef.current?.save(),
-      orgRef.current?.save(),
-    ])
-    setSaving(false)
-    setSaved(true)
-    setTimeout(() => setSaved(false), 3000)
+    setError(null)
+    setSaved(false)
+    try {
+      await Promise.all([
+        bgRef.current?.save(),
+        screeningRef.current?.save(),
+        alcoholRef.current?.save(),
+        tobaccoRef.current?.save(),
+        dndRef.current?.save(),
+        envRef.current?.save(),
+        orgRef.current?.save(),
+      ])
+      setSaved(true)
+      setIsDirty(false)
+      setTimeout(() => setSaved(false), 3000)
+    } catch {
+      setError('บันทึกไม่สำเร็จ กรุณาลองใหม่')
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
-    <div className="space-y-6 pb-24">
+    <div ref={containerRef} className="space-y-6 pb-24">
       <CommunityBackgroundTable ref={bgRef} villageId={villageId} items={data.communityBackgrounds} />
       <ScreeningSection ref={screeningRef} villageId={villageId} screeningResults={data.screeningResults} />
       <AlcoholMembersTable ref={alcoholRef} villageId={villageId} initial={data.alcoholMembers} />
@@ -47,8 +82,9 @@ export default function VillageFormContainer({ villageId, data }: { villageId: n
       <EnvTable ref={envRef} villageId={villageId} items={data.envItems} />
       <CommunityOrgTable ref={orgRef} villageId={villageId} orgs={data.communityOrgs} />
 
-      {/* Sticky save bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 sm:px-8 py-3 flex items-center justify-end gap-4 z-20">
+      {/* Sticky save bar — iOS safe area aware */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 sm:px-8 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] flex items-center justify-end gap-4 z-20">
+        {error && <span className="text-xs text-red-500 font-medium">{error}</span>}
         {saved && <span className="text-xs text-green-600 font-medium">✓ บันทึกทั้งหมดเรียบร้อย</span>}
         <button
           onClick={handleSave}
