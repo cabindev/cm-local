@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef, useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import CommunityBackgroundTable, { type CommunityBackgroundTableHandle } from './CommunityBackgroundTable'
 import ScreeningSection, { type ScreeningSectionHandle } from './ScreeningSection'
 import AlcoholMembersTable, { type AlcoholMembersTableHandle } from './AlcoholMembersTable'
@@ -19,6 +20,7 @@ export default function VillageFormContainer({ villageId, data }: { villageId: n
   const orgRef = useRef<CommunityOrgTableHandle>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
+  const router = useRouter()
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -62,9 +64,8 @@ export default function VillageFormContainer({ villageId, data }: { villageId: n
         envRef.current?.save(),
         orgRef.current?.save(),
       ])
-      setSaved(true)
       setIsDirty(false)
-      setTimeout(() => setSaved(false), 3000)
+      router.push(`/dashboard/villages?saved=${villageId}`)
     } catch {
       setError('บันทึกไม่สำเร็จ กรุณาลองใหม่')
     } finally {

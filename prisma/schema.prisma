@@ -56,19 +56,13 @@ model Village {
   actualPopulation     Int @default(0) // ประชากรที่อาศัยอยู่จริง
   householdCount       Int @default(0) // จำนวนครัวเรือน
 
-  screeningResults      ScreeningResult[]
-  alcoholParticipants   AlcoholParticipant[]
-  alcoholResults        AlcoholResult[]
-  alcoholMembers        AlcoholMember[]
-  tobaccoMembers          TobaccoMember[]
-  tobaccoParticipants     TobaccoParticipant[]
-  drinkNotDriveMembers    DrinkNotDriveMember[]
-  tobaccoResults        TobaccoResult[]
-  drinkNotDrives        DrinkNotDrive[]
-  communityStats        CommunityStats[]
-  envItems              EnvItem[]
-  communityOrgs         CommunityOrg[]
-  communityBackgrounds  CommunityBackground[]
+  screeningResults     ScreeningResult[]
+  alcoholMembers       AlcoholMember[]
+  tobaccoMembers       TobaccoMember[]
+  drinkNotDriveMembers DrinkNotDriveMember[]
+  envItems             EnvItem[]
+  communityOrgs        CommunityOrg[]
+  communityBackgrounds CommunityBackground[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -95,95 +89,6 @@ model ScreeningResult {
   tobaccoNone     Int @default(0) // ไม่สูบบุหรี่
   drinkAndDrive   Int @default(0) // ดื่มแล้วขับ
   drinkNotDriveN  Int @default(0) // ดื่มไม่ขับ
-
-  @@unique([villageId, year])
-  @@index([villageId])
-}
-
-// ผู้เข้าร่วมโครงการเลิกเหล้า (per year)
-model AlcoholParticipant {
-  id               Int     @id @default(autoincrement())
-  villageId        Int
-  village          Village @relation(fields: [villageId], references: [id], onDelete: Cascade)
-  year             Int
-  targetCount      Int @default(0)
-  participantCount Int @default(0)
-  quitCount        Int @default(0)
-  reducedCount     Int @default(0)
-
-  @@unique([villageId, year])
-  @@index([villageId])
-}
-
-// ผลติดตาม 3/6 เดือน — เหล้า (per year)
-model AlcoholResult {
-  id            Int     @id @default(autoincrement())
-  villageId     Int
-  village       Village @relation(fields: [villageId], references: [id], onDelete: Cascade)
-  year          Int
-  month3Quit    Int @default(0)
-  month3Reduced Int @default(0)
-  month6Quit    Int @default(0)
-  month6Reduced Int @default(0)
-
-  @@unique([villageId, year])
-  @@index([villageId])
-}
-
-// ผู้เข้าร่วมโครงการเลิกบุหรี่ (per year)
-model TobaccoParticipant {
-  id               Int     @id @default(autoincrement())
-  villageId        Int
-  village          Village @relation(fields: [villageId], references: [id], onDelete: Cascade)
-  year             Int
-  targetCount      Int @default(0)
-  participantCount Int @default(0)
-  quitCount        Int @default(0)
-  reducedCount     Int @default(0)
-
-  @@unique([villageId, year])
-  @@index([villageId])
-}
-
-// ผลติดตาม 3/6 เดือน — บุหรี่ (per year)
-model TobaccoResult {
-  id            Int     @id @default(autoincrement())
-  villageId     Int
-  village       Village @relation(fields: [villageId], references: [id], onDelete: Cascade)
-  year          Int
-  month3Quit    Int @default(0)
-  month3Reduced Int @default(0)
-  month6Quit    Int @default(0)
-  month6Reduced Int @default(0)
-
-  @@unique([villageId, year])
-  @@index([villageId])
-}
-
-// ไม่ดื่มไม่ขับ (per year)
-model DrinkNotDrive {
-  id              Int     @id @default(autoincrement())
-  villageId       Int
-  village         Village @relation(fields: [villageId], references: [id], onDelete: Cascade)
-  year            Int
-  pledgeCount     Int @default(0)
-  checkpointCount Int @default(0)
-  violationCount  Int @default(0)
-
-  @@unique([villageId, year])
-  @@index([villageId])
-}
-
-// สถิติการมีส่วนร่วม — ตัวเลข (per year)
-model CommunityStats {
-  id               Int     @id @default(autoincrement())
-  villageId        Int
-  village          Village @relation(fields: [villageId], references: [id], onDelete: Cascade)
-  year             Int
-  meetingCount     Int   @default(0)
-  participantCount Int   @default(0)
-  fundAmount       Float @default(0)
-  activityCount    Int   @default(0)
 
   @@unique([villageId, year])
   @@index([villageId])

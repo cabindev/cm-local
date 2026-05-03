@@ -14,8 +14,9 @@ const zoneColor: Record<string, string> = {
   'ใต้ล่าง': 'bg-cyan-100 text-cyan-700',
 }
 
-export default async function VillagesPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
-  const { q } = await searchParams
+export default async function VillagesPage({ searchParams }: { searchParams: Promise<{ q?: string; saved?: string }> }) {
+  const { q, saved } = await searchParams
+  const savedId = saved ? Number(saved) : null
   const villages = await getVillages(q)
 
   return (
@@ -90,12 +91,19 @@ export default async function VillagesPage({ searchParams }: { searchParams: Pro
                     <td className="px-4 py-3 text-gray-300">{i + 1}</td>
 
                     <td className="px-4 py-3">
-                      <Link
-                        href={`/dashboard/villages/${v.id}`}
-                        className="font-medium text-gray-900 hover:text-yellow-700 transition-colors"
-                      >
-                        บ้าน{v.villageName}
-                      </Link>
+                      <div className="flex items-center gap-2">
+                        <Link
+                          href={`/dashboard/villages/${v.id}`}
+                          className="font-medium text-gray-900 hover:text-yellow-700 transition-colors"
+                        >
+                          บ้าน{v.villageName}
+                        </Link>
+                        {savedId === v.id && (
+                          <span className="px-1.5 py-0.5 bg-yellow-400 text-gray-900 text-[10px] font-bold rounded-full whitespace-nowrap">
+                            ล่าสุด
+                          </span>
+                        )}
+                      </div>
                       {/* Mobile: show province + zone inline */}
                       <div className="sm:hidden mt-0.5 flex items-center gap-1.5">
                         <span className="text-gray-400">{v.province}</span>

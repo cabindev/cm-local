@@ -1,12 +1,12 @@
 import { notFound } from 'next/navigation'
-import { getVillageById } from '@/app/actions/village'
+import { prisma } from '@/app/lib/prisma'
 import VillageForm from '../../components/VillageForm'
 
 export const metadata = { title: 'แก้ไขหมู่บ้าน | Conmunity' }
 
 export default async function EditVillagePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const village = await getVillageById(Number(id))
+  const village = await prisma.village.findUnique({ where: { id: Number(id) } })
   if (!village) notFound()
 
   return (

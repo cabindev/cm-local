@@ -52,20 +52,3 @@ export async function getVillages(search?: string) {
   })
 }
 
-export async function getVillageById(id: number) {
-  return prisma.village.findUnique({
-    where: { id },
-    include: {
-      screeningResults:    { orderBy: { year: 'asc' } },
-      alcoholParticipants: { orderBy: { year: 'asc' } },
-      alcoholResults:      { orderBy: { year: 'asc' } },
-      tobaccoParticipants: { orderBy: { year: 'asc' } },
-      tobaccoResults:      { orderBy: { year: 'asc' } },
-      drinkNotDrives:      { orderBy: { year: 'asc' } },
-      communityStats:      { orderBy: { year: 'asc' } },
-      envItems:             true,
-      communityOrgs:        true,
-      communityBackgrounds: true,
-    },
-  })
-}
