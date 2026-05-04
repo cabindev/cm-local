@@ -2,7 +2,7 @@ import { getServerSession } from 'next-auth'
 import authOptions from '@/app/lib/configs/auth/authOptions'
 import { prisma } from '@/app/lib/prisma'
 import Link from 'next/link'
-import { MapPin, Users, Cigarette, Plus, ArrowRight, Wine } from 'lucide-react'
+import { MapPin, Users, Cigarette, Plus, ArrowRight, Wine, Car } from 'lucide-react'
 import ZoneBarChart from './components/ZoneBarChart'
 import OutcomeDonutChart from './components/OutcomeDonutChart'
 
@@ -105,7 +105,7 @@ export default async function DashboardHome() {
       </div>
 
       {/* Stat Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
         <StatCard
           color="bg-yellow-50 border-yellow-200"
           icon={<MapPin className="w-5 h-5 text-yellow-600" />}
@@ -133,6 +133,13 @@ export default async function DashboardHome() {
           icon={<Cigarette className="w-5 h-5 text-slate-500" />}
           label="ผู้สมัครงดบุหรี่"
           value={stats.tobTotal}
+          unit="คน"
+        />
+        <StatCard
+          color="bg-teal-50 border-teal-200"
+          icon={<Car className="w-5 h-5 text-teal-600" />}
+          label="ดื่มไม่ขับ"
+          value={stats.dndTotal}
           unit="คน"
         />
       </div>
