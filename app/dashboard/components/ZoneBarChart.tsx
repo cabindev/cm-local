@@ -5,7 +5,7 @@ import {
   ResponsiveContainer, CartesianGrid,
 } from 'recharts'
 
-type ZoneData = { zone: string; villages: number; alcohol: number; tobacco: number }
+type ZoneData = { zone: string; villages: number; alcohol: number; tobacco: number; dnd: number }
 
 export default function ZoneBarChart({ data }: { data: ZoneData[] }) {
   return (
@@ -37,6 +37,7 @@ export default function ZoneBarChart({ data }: { data: ZoneData[] }) {
             <Legend wrapperStyle={{ fontSize: 10, paddingTop: 8 }} />
             <Bar dataKey="alcohol" name="งดเหล้า" fill="#f59e0b" radius={[3, 3, 0, 0]} />
             <Bar dataKey="tobacco" name="งดบุหรี่" fill="#374151" radius={[3, 3, 0, 0]} />
+            <Bar dataKey="dnd" name="ดื่มไม่ขับ" fill="#0d9488" radius={[3, 3, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>

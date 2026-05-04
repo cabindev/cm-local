@@ -51,9 +51,11 @@ function Donut({ title, success, total, color }: DonutProps) {
 }
 
 export default function OutcomeDonutChart({
-  alcSuccess, alcTotal, tobSuccess, tobTotal,
+  alcSuccess, alcTotal, tobSuccess, tobTotal, dndSuccess, dndTotal,
 }: {
-  alcSuccess: number; alcTotal: number; tobSuccess: number; tobTotal: number
+  alcSuccess: number; alcTotal: number
+  tobSuccess: number; tobTotal: number
+  dndSuccess: number; dndTotal: number
 }) {
   return (
     <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
@@ -61,10 +63,16 @@ export default function OutcomeDonutChart({
         <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">ผลสำเร็จ</p>
         <p className="text-sm font-medium text-white mt-0.5">อัตราสำเร็จปีที่ 1</p>
       </div>
-      <div className="flex items-center justify-around px-4 py-6">
-        <Donut title="งดเหล้า" success={alcSuccess} total={alcTotal} color="#f59e0b" />
-        <div className="w-px h-24 bg-gray-100" />
-        <Donut title="งดบุหรี่" success={tobSuccess} total={tobTotal} color="#374151" />
+      <div className="grid grid-cols-3 divide-x divide-gray-100 px-2 py-5">
+        <div className="flex justify-center">
+          <Donut title="งดเหล้า" success={alcSuccess} total={alcTotal} color="#f59e0b" />
+        </div>
+        <div className="flex justify-center">
+          <Donut title="งดบุหรี่" success={tobSuccess} total={tobTotal} color="#374151" />
+        </div>
+        <div className="flex justify-center">
+          <Donut title="ดื่มไม่ขับ" success={dndSuccess} total={dndTotal} color="#0d9488" />
+        </div>
       </div>
     </div>
   )

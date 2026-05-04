@@ -21,6 +21,7 @@ async function getDashboardStats() {
     tobTotal,
     tobWithOutcome,
     dndTotal,
+    dndWithResult,
     recentVillages,
     villagesWithCounts,
   ] = await Promise.all([
@@ -30,6 +31,7 @@ async function getDashboardStats() {
     prisma.tobaccoMember.count(),
     prisma.tobaccoMember.count({ where: outcomeWhere }),
     prisma.drinkNotDriveMember.count(),
+    prisma.drinkNotDriveMember.count({ where: { year1Result: { not: null } } }),
     prisma.village.findMany({
       take: 6,
       orderBy: { createdAt: 'desc' },
@@ -41,7 +43,7 @@ async function getDashboardStats() {
       select: {
         zone: true,
         registeredPopulation: true,
-        _count: { select: { alcoholMembers: true, tobaccoMembers: true } },
+        _count: { select: { alcoholMembers: true, tobaccoMembers: true, drinkNotDriveMembers: true } },
       },
     }),
   ])
@@ -50,13 +52,14 @@ async function getDashboardStats() {
   const tobSuccessRate = tobTotal > 0 ? Math.round((tobWithOutcome / tobTotal) * 100) : 0
 
   const zoneOrder = ['เหนือ', 'กลาง', 'อีสาน', 'ตะวันออก', 'ตะวันตก', 'ใต้บน', 'ใต้ล่าง']
-  const zoneMap = new Map<string, { villages: number; alcohol: number; tobacco: number; population: number }>()
+  const zoneMap = new Map<string, { villages: number; alcohol: number; tobacco: number; dnd: number; population: number }>()
   for (const v of villagesWithCounts) {
-    const e = zoneMap.get(v.zone) ?? { villages: 0, alcohol: 0, tobacco: 0, population: 0 }
+    const e = zoneMap.get(v.zone) ?? { villages: 0, alcohol: 0, tobacco: 0, dnd: 0, population: 0 }
     zoneMap.set(v.zone, {
       villages: e.villages + 1,
       alcohol: e.alcohol + v._count.alcoholMembers,
       tobacco: e.tobacco + v._count.tobaccoMembers,
+      dnd: e.dnd + v._count.drinkNotDriveMembers,
       population: e.population + v.registeredPopulation,
     })
   }
@@ -66,7 +69,7 @@ async function getDashboardStats() {
 
   const totalPopulation = villagesWithCounts.reduce((s, v) => s + v.registeredPopulation, 0)
 
-  return { villageCount, alcTotal, alcWithOutcome, alcSuccessRate, tobTotal, tobWithOutcome, tobSuccessRate, dndTotal, recentVillages, zoneData, totalPopulation }
+  return { villageCount, alcTotal, alcWithOutcome, alcSuccessRate, tobTotal, tobWithOutcome, tobSuccessRate, dndTotal, dndWithResult, recentVillages, zoneData, totalPopulation }
 }
 
 const zoneColor: Record<string, string> = {
@@ -154,6 +157,8 @@ export default async function DashboardHome() {
           alcTotal={stats.alcTotal}
           tobSuccess={stats.tobWithOutcome}
           tobTotal={stats.tobTotal}
+          dndSuccess={stats.dndWithResult}
+          dndTotal={stats.dndTotal}
         />
       </div>
 
