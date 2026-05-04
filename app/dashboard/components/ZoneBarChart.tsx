@@ -14,8 +14,8 @@ export default function ZoneBarChart({ data }: { data: ZoneData[] }) {
         <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">ภาพรวม</p>
         <p className="text-sm font-medium text-white mt-0.5">จำนวนสมาชิกแยกตามภาค</p>
       </div>
-      <div className="p-4">
-        <ResponsiveContainer width="100%" height={220}>
+      <div className="p-4 min-w-0">
+        <ResponsiveContainer width="100%" height={220} minWidth={0}>
           <BarChart data={data} margin={{ top: 4, right: 8, left: -20, bottom: 0 }} barCategoryGap="30%">
             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
             <XAxis

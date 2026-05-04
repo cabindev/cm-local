@@ -1,6 +1,6 @@
 'use client'
 
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
+import { PieChart, Pie, Cell, Tooltip } from 'recharts'
 
 type DonutProps = {
   title: string
@@ -19,28 +19,26 @@ function Donut({ title, success, total, color }: DonutProps) {
     <div className="flex flex-col items-center gap-1">
       <p className="text-xs font-medium text-gray-600">{title}</p>
       <div className="relative w-28 h-28">
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
-            <Pie
-              data={data}
-              cx="50%"
-              cy="50%"
-              innerRadius={36}
-              outerRadius={52}
-              startAngle={90}
-              endAngle={-270}
-              dataKey="value"
-              strokeWidth={0}
-            >
-              <Cell fill={color} />
-              <Cell fill="#f3f4f6" />
-            </Pie>
-            <Tooltip
-              contentStyle={{ fontSize: 10, border: '1px solid #e5e7eb', borderRadius: 6, boxShadow: 'none' }}
-              formatter={(v: unknown) => [`${v} คน`]}
-            />
-          </PieChart>
-        </ResponsiveContainer>
+        <PieChart width={112} height={112}>
+          <Pie
+            data={data}
+            cx={56}
+            cy={56}
+            innerRadius={36}
+            outerRadius={52}
+            startAngle={90}
+            endAngle={-270}
+            dataKey="value"
+            strokeWidth={0}
+          >
+            <Cell fill={color} />
+            <Cell fill="#f3f4f6" />
+          </Pie>
+          <Tooltip
+            contentStyle={{ fontSize: 10, border: '1px solid #e5e7eb', borderRadius: 6, boxShadow: 'none' }}
+            formatter={(v: unknown) => [`${v} คน`]}
+          />
+        </PieChart>
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
           <span className="text-xl font-bold text-gray-900">{pct}%</span>
         </div>
