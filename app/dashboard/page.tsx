@@ -4,34 +4,34 @@ import { prisma } from '@/app/lib/prisma'
 import Link from 'next/link'
 import { MapPin, Users, Cigarette, Plus, ArrowRight, Wine, Car } from 'lucide-react'
 import ZoneBarChart from './components/ZoneBarChart'
-import OutcomeDonutChart from './components/OutcomeDonutChart'
+import ProgressFunnel from './components/ProgressFunnel'
 
-const outcomeWhere = {
-  OR: [
-    { y1Money: true }, { y1Property: true }, { y1Family: true },
-    { y1Health: true }, { y1Work: true }, { y1Accepted: true }, { y1Other: true },
-  ],
-}
+const y1Where = { OR: [{ y1Money: true }, { y1Property: true }, { y1Family: true }, { y1Health: true }, { y1Work: true }, { y1Accepted: true }, { y1Other: true }] }
+const y2Where = { OR: [{ y2Money: true }, { y2Property: true }, { y2Family: true }, { y2Health: true }, { y2Work: true }, { y2Accepted: true }, { y2Other: true }] }
+const y3Where = { OR: [{ y3Money: true }, { y3Property: true }, { y3Family: true }, { y3Health: true }, { y3Work: true }, { y3Accepted: true }, { y3Other: true }] }
 
 async function getDashboardStats() {
   const [
-    villageCount,
-    alcTotal,
-    alcWithOutcome,
-    tobTotal,
-    tobWithOutcome,
-    dndTotal,
-    dndWithResult,
-    recentVillages,
-    villagesWithCounts,
+    villageCount, totalPopArr,
+    alcTotal, alcY1, alcY2, alcY3,
+    tobTotal, tobY1, tobY2, tobY3,
+    dndTotal, dndY1, dndY2, dndY3,
+    recentVillages, villagesWithCounts,
   ] = await Promise.all([
     prisma.village.count(),
+    prisma.village.aggregate({ _sum: { registeredPopulation: true } }),
     prisma.alcoholMember.count(),
-    prisma.alcoholMember.count({ where: outcomeWhere }),
+    prisma.alcoholMember.count({ where: y1Where }),
+    prisma.alcoholMember.count({ where: y2Where }),
+    prisma.alcoholMember.count({ where: y3Where }),
     prisma.tobaccoMember.count(),
-    prisma.tobaccoMember.count({ where: outcomeWhere }),
+    prisma.tobaccoMember.count({ where: y1Where }),
+    prisma.tobaccoMember.count({ where: y2Where }),
+    prisma.tobaccoMember.count({ where: y3Where }),
     prisma.drinkNotDriveMember.count(),
     prisma.drinkNotDriveMember.count({ where: { year1Result: { not: null } } }),
+    prisma.drinkNotDriveMember.count({ where: { year2Result: { not: null } } }),
+    prisma.drinkNotDriveMember.count({ where: { year3Result: { not: null } } }),
     prisma.village.findMany({
       take: 6,
       orderBy: { createdAt: 'desc' },
@@ -48,8 +48,7 @@ async function getDashboardStats() {
     }),
   ])
 
-  const alcSuccessRate = alcTotal > 0 ? Math.round((alcWithOutcome / alcTotal) * 100) : 0
-  const tobSuccessRate = tobTotal > 0 ? Math.round((tobWithOutcome / tobTotal) * 100) : 0
+  const totalPopulation = totalPopArr._sum.registeredPopulation ?? 0
 
   const zoneOrder = ['เหนือ', 'กลาง', 'อีสาน', 'ตะวันออก', 'ตะวันตก', 'ใต้บน', 'ใต้ล่าง']
   const zoneMap = new Map<string, { villages: number; alcohol: number; tobacco: number; dnd: number; population: number }>()
@@ -63,13 +62,14 @@ async function getDashboardStats() {
       population: e.population + v.registeredPopulation,
     })
   }
-  const zoneData = zoneOrder
-    .filter((z) => zoneMap.has(z))
-    .map((z) => ({ zone: z, ...zoneMap.get(z)! }))
+  const zoneData = zoneOrder.filter((z) => zoneMap.has(z)).map((z) => ({ zone: z, ...zoneMap.get(z)! }))
 
-  const totalPopulation = villagesWithCounts.reduce((s, v) => s + v.registeredPopulation, 0)
-
-  return { villageCount, alcTotal, alcWithOutcome, alcSuccessRate, tobTotal, tobWithOutcome, tobSuccessRate, dndTotal, dndWithResult, recentVillages, zoneData, totalPopulation }
+  return {
+    villageCount, totalPopulation, zoneData, recentVillages,
+    alcTotal, alcY1, alcY2, alcY3,
+    tobTotal, tobY1, tobY2, tobY3,
+    dndTotal, dndY1, dndY2, dndY3,
+  }
 }
 
 const zoneColor: Record<string, string> = {
@@ -148,19 +148,14 @@ export default async function DashboardHome() {
       </div>
 
       {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="lg:col-span-2">
-          <ZoneBarChart data={stats.zoneData} />
-        </div>
-        <OutcomeDonutChart
-          alcSuccess={stats.alcWithOutcome}
-          alcTotal={stats.alcTotal}
-          tobSuccess={stats.tobWithOutcome}
-          tobTotal={stats.tobTotal}
-          dndSuccess={stats.dndWithResult}
-          dndTotal={stats.dndTotal}
-        />
-      </div>
+      <ZoneBarChart data={stats.zoneData} />
+
+      {/* Progress funnel */}
+      <ProgressFunnel
+        alcTotal={stats.alcTotal} alcY1={stats.alcY1} alcY2={stats.alcY2} alcY3={stats.alcY3}
+        tobTotal={stats.tobTotal} tobY1={stats.tobY1} tobY2={stats.tobY2} tobY3={stats.tobY3}
+        dndTotal={stats.dndTotal} dndY1={stats.dndY1} dndY2={stats.dndY2} dndY3={stats.dndY3}
+      />
 
       {/* Zone statistics table */}
       {stats.zoneData.length > 0 && (
