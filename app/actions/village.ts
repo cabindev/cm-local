@@ -22,7 +22,8 @@ export type VillageFormData = {
 
 export async function createVillage(data: VillageFormData) {
   const session = await getServerSession(authOptions)
-  const village = await prisma.village.create({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const village = await (prisma.village.create as any)({
     data: { ...data, creatorId: session?.user?.id ?? null },
   })
   revalidatePath('/dashboard/villages')
