@@ -4,7 +4,12 @@ import { useState, forwardRef, useImperativeHandle } from 'react'
 import { saveTobaccoMembers } from '@/app/actions/health-data'
 
 type YearKey = 'y1' | 'y2' | 'y3'
-const SMOKE_TYPES = ['สูบ', 'ไม่สูบ'] as const
+const SMOKE_TYPES = [
+  { value: 'สูบประจำ',       label: 'สูบประจำ',        hint: 'สูบทุกวันหรือเกือบทุกวัน',                  badge: 'bg-gray-900 text-yellow-400'   },
+  { value: 'สูบนานๆ ครั้ง', label: 'สูบนานๆ ครั้ง',  hint: 'สูบเป็นครั้งคราว ไม่สม่ำเสมอ',              badge: 'bg-yellow-400 text-gray-900'   },
+  { value: 'เพิ่งเลิก',     label: 'เพิ่งเลิก',       hint: 'เลิกได้ไม่เกิน 6 เดือน ยังอยู่ในช่วงเสี่ยง', badge: 'bg-yellow-100 text-yellow-800' },
+  { value: 'ไม่สูบ',        label: 'ไม่สูบ',           hint: 'ไม่สูบ หรือเสี่ยงจากควันบุหรี่มือสอง',       badge: 'bg-gray-100 text-gray-500'    },
+] as const
 const OUTCOMES = [
   { key: 'Money',    label: 'จำนวนเงินประหยัด',  placeholder: 'ประหยัดได้เท่าไหร่...' },
   { key: 'Property', label: 'ทรัพย์สิน',          placeholder: 'รายละเอียด...' },
@@ -32,7 +37,7 @@ type Member = {
 }
 
 const emptyMember = (): Member => ({
-  name: '', smokeType: 'สูบ',
+  name: '', smokeType: 'สูบประจำ' as string,
   y1Money: false, y1MoneyText: '', y1Property: false, y1PropertyText: '',
   y1Family: false, y1FamilyText: '', y1Health: false, y1HealthText: '',
   y1Work: false, y1WorkText: '', y1Accepted: false, y1AcceptedText: '',
@@ -97,7 +102,7 @@ const TobaccoMembersTable = forwardRef<TobaccoMembersTableHandle, { villageId: n
     return (
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <div className="bg-gray-900 px-5 py-4">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">ผู้สมัคร</p>
+          <p className="text-xs font-semibold text-yellow-400 uppercase tracking-wider">ผู้สมัคร</p>
           <p className="text-sm font-medium text-white mt-0.5">รายชื่อผู้สมัครเข้าร่วมงดบุหรี่</p>
         </div>
 
@@ -119,7 +124,7 @@ const TobaccoMembersTable = forwardRef<TobaccoMembersTableHandle, { villageId: n
                   onChange={(e) => update(i, 'smokeType', e.target.value)}
                   className="w-16 px-1.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-yellow-400 bg-gray-50 focus:bg-white flex-shrink-0"
                 >
-                  {SMOKE_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+                  {SMOKE_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
                 </select>
                 <button onClick={() => removeRow(i)} className="text-gray-300 hover:text-red-400 transition-colors p-1 flex-shrink-0">✕</button>
               </div>
@@ -161,11 +166,20 @@ const TobaccoMembersTable = forwardRef<TobaccoMembersTableHandle, { villageId: n
                       placeholder="ชื่อ-นามสกุล"
                       className="w-full px-2 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-yellow-400 bg-gray-50 focus:bg-white" />
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 min-w-[160px]">
                     <select value={member.smokeType} onChange={(e) => update(i, 'smokeType', e.target.value)}
                       className="w-full px-2 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-yellow-400 bg-gray-50 focus:bg-white">
-                      {SMOKE_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+                      {SMOKE_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
                     </select>
+                    {(() => {
+                      const t = SMOKE_TYPES.find(d => d.value === member.smokeType)
+                      return t ? (
+                        <div className="mt-1.5 flex items-start gap-1.5">
+                          <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium whitespace-nowrap ${t.badge}`}>{t.label}</span>
+                          <span className="text-[10px] text-gray-400 leading-tight">{t.hint}</span>
+                        </div>
+                      ) : null
+                    })()}
                   </td>
                   {(['y1', 'y2', 'y3'] as YearKey[]).map((year) => (
                     <td key={year} className="px-4 py-3">

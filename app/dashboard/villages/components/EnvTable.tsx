@@ -38,7 +38,7 @@ const EnvTable = forwardRef<EnvTableHandle, { villageId: number; items: EnvItemR
     return (
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <div className="bg-gray-900 px-5 py-4">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">สิ่งแวดล้อม</p>
+          <p className="text-xs font-semibold text-yellow-400 uppercase tracking-wider">สิ่งแวดล้อม</p>
           <p className="text-sm font-medium text-white mt-0.5">องค์ประกอบแวดล้อม</p>
         </div>
 

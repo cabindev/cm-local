@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -24,6 +24,8 @@ model User {
   resetTokenCreatedAt DateTime?
   resetTokenExpiresAt DateTime?
   lastPasswordReset   DateTime?
+
+  villages  Village[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -52,6 +54,9 @@ model Village {
   coordinator String
   phone       String?
 
+  creatorId Int?
+  creator   User? @relation(fields: [creatorId], references: [id], onDelete: SetNull)
+
   registeredPopulation Int @default(0) // ประชากรตามทะเบียนบ้าน
   actualPopulation     Int @default(0) // ประชากรที่อาศัยอยู่จริง
   householdCount       Int @default(0) // จำนวนครัวเรือน
@@ -67,6 +72,7 @@ model Village {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([creatorId])
   @@index([province])
   @@index([amphoe])
   @@index([tambon])
@@ -135,7 +141,7 @@ model AlcoholMember {
   villageId Int
   village   Village @relation(fields: [villageId], references: [id], onDelete: Cascade)
   name      String
-  drinkType String  // เสี่ยงต่ำ | เสี่ยง | อันตราย | ติด
+  drinkType String  // ดื่มนานๆ ครั้ง | เสี่ยงต่ำ | เสี่ยง | อันตราย | ติด | กำลังบำบัด
 
   // ผลปีที่ 1
   y1Money    Boolean @default(false)
@@ -196,7 +202,7 @@ model TobaccoMember {
   villageId Int
   village   Village @relation(fields: [villageId], references: [id], onDelete: Cascade)
   name      String
-  smokeType String  // สูบ | ไม่สูบ
+  smokeType String  // สูบประจำ | สูบนานๆ ครั้ง | เพิ่งเลิก | ไม่สูบ
 
   y1Money    Boolean @default(false)
   y1MoneyText    String? @db.Text
@@ -254,7 +260,7 @@ model DrinkNotDriveMember {
   villageId Int
   village   Village @relation(fields: [villageId], references: [id], onDelete: Cascade)
   name      String
-  drinkType String  // ดื่มแล้วขับ | ดื่มไม่ขับ | ไม่ดื่ม
+  drinkType String  // ดื่มแล้วขับ | ดื่มไม่ขับ | ใช้บริการรับส่ง | ไม่ดื่ม
 
   year1Result String? @db.Text
   year2Result String? @db.Text

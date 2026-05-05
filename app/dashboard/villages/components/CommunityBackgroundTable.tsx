@@ -85,7 +85,7 @@ const CommunityBackgroundTable = forwardRef<CommunityBackgroundTableHandle, { vi
     return (
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <div className="bg-gray-900 px-5 py-4">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">ข้อมูลพื้นฐาน</p>
+          <p className="text-xs font-semibold text-yellow-400 uppercase tracking-wider">ข้อมูลพื้นฐาน</p>
           <p className="text-sm font-medium text-white mt-0.5">ข้อมูลประวัติชุมชน</p>
         </div>
 

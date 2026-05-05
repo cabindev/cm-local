@@ -4,7 +4,14 @@ import { useState, forwardRef, useImperativeHandle } from 'react'
 import { saveAlcoholMembers } from '@/app/actions/health-data'
 
 type YearKey = 'y1' | 'y2' | 'y3'
-const DRINK_TYPES = ['เสี่ยงต่ำ', 'เสี่ยง', 'อันตราย', 'ติด'] as const
+const DRINK_TYPES = [
+  { value: 'ดื่มนานๆ ครั้ง',  label: 'ดื่มนานๆ ครั้ง',  hint: 'ดื่มเป็นครั้งคราว ยังไม่เข้าเกณฑ์เสี่ยง',     badge: 'bg-gray-100 text-gray-600'          },
+  { value: 'เสี่ยงต่ำ',       label: 'เสี่ยงต่ำ',        hint: 'AUDIT 1–7 · ดื่มแต่ยังควบคุมได้',            badge: 'bg-yellow-100 text-yellow-700'       },
+  { value: 'เสี่ยง',           label: 'เสี่ยง',            hint: 'AUDIT 8–15 · เริ่มส่งผลต่อสุขภาพ/ชีวิต',    badge: 'bg-yellow-300 text-yellow-900'       },
+  { value: 'อันตราย',          label: 'อันตราย',           hint: 'AUDIT 16–19 · ส่งผลร้ายแรงต่อร่างกาย',       badge: 'bg-yellow-400 text-gray-900'         },
+  { value: 'ติด',              label: 'ติดสุรา',           hint: 'AUDIT 20+ · ต้องการการบำบัดทางการแพทย์',     badge: 'bg-gray-900 text-yellow-400'         },
+  { value: 'กำลังบำบัด',      label: 'กำลังบำบัด',       hint: 'อยู่ระหว่างบำบัดรักษากับสถานพยาบาล',         badge: 'bg-yellow-50 text-gray-700 border border-yellow-300' },
+] as const
 const OUTCOMES = [
   { key: 'Money',    label: 'จำนวนเงินประหยัด',  placeholder: 'ประหยัดได้เท่าไหร่...' },
   { key: 'Property', label: 'ทรัพย์สิน',          placeholder: 'รายละเอียด...' },
@@ -32,7 +39,7 @@ type Member = {
 }
 
 const emptyMember = (): Member => ({
-  name: '', drinkType: 'เสี่ยงต่ำ',
+  name: '', drinkType: 'เสี่ยงต่ำ' as string,
   y1Money: false, y1MoneyText: '', y1Property: false, y1PropertyText: '',
   y1Family: false, y1FamilyText: '', y1Health: false, y1HealthText: '',
   y1Work: false, y1WorkText: '', y1Accepted: false, y1AcceptedText: '',
@@ -97,7 +104,7 @@ const AlcoholMembersTable = forwardRef<AlcoholMembersTableHandle, { villageId: n
     return (
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <div className="bg-gray-900 px-5 py-4">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">ผู้สมัคร</p>
+          <p className="text-xs font-semibold text-yellow-400 uppercase tracking-wider">ผู้สมัคร</p>
           <p className="text-sm font-medium text-white mt-0.5">รายชื่อผู้สมัครเข้าร่วมงดเหล้า</p>
         </div>
 
@@ -119,7 +126,7 @@ const AlcoholMembersTable = forwardRef<AlcoholMembersTableHandle, { villageId: n
                   onChange={(e) => update(i, 'drinkType', e.target.value)}
                   className="w-20 px-1.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-yellow-400 bg-gray-50 focus:bg-white flex-shrink-0"
                 >
-                  {DRINK_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+                  {DRINK_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
                 </select>
                 <button onClick={() => removeRow(i)} className="text-gray-300 hover:text-red-400 transition-colors p-1 flex-shrink-0">✕</button>
               </div>
@@ -161,11 +168,20 @@ const AlcoholMembersTable = forwardRef<AlcoholMembersTableHandle, { villageId: n
                       placeholder="ชื่อ-นามสกุล"
                       className="w-full px-2 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-yellow-400 bg-gray-50 focus:bg-white" />
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 min-w-[160px]">
                     <select value={member.drinkType} onChange={(e) => update(i, 'drinkType', e.target.value)}
                       className="w-full px-2 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-yellow-400 bg-gray-50 focus:bg-white">
-                      {DRINK_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+                      {DRINK_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
                     </select>
+                    {(() => {
+                      const t = DRINK_TYPES.find(d => d.value === member.drinkType)
+                      return t ? (
+                        <div className="mt-1.5 flex items-start gap-1.5">
+                          <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium whitespace-nowrap ${t.badge}`}>{t.label}</span>
+                          <span className="text-[10px] text-gray-400 leading-tight">{t.hint}</span>
+                        </div>
+                      ) : null
+                    })()}
                   </td>
                   {(['y1', 'y2', 'y3'] as YearKey[]).map((year) => (
                     <td key={year} className="px-4 py-3">

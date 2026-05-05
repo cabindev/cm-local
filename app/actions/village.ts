@@ -2,6 +2,9 @@
 
 import { prisma } from '@/app/lib/prisma'
 import { revalidatePath } from 'next/cache'
+import { Prisma } from '@prisma/client'
+import { getServerSession } from 'next-auth'
+import authOptions from '@/app/lib/configs/auth/authOptions'
 
 export type VillageFormData = {
   villageName: string
@@ -18,7 +21,10 @@ export type VillageFormData = {
 }
 
 export async function createVillage(data: VillageFormData) {
-  const village = await prisma.village.create({ data })
+  const session = await getServerSession(authOptions)
+  const village = await prisma.village.create({
+    data: { ...data, creatorId: session?.user?.id ?? null },
+  })
   revalidatePath('/dashboard/villages')
   return { success: true, id: village.id }
 }
@@ -36,19 +42,88 @@ export async function deleteVillage(id: number) {
   return { success: true }
 }
 
-export async function getVillages(search?: string) {
-  return prisma.village.findMany({
-    where: search
-      ? {
-          OR: [
-            { villageName: { contains: search } },
-            { tambon: { contains: search } },
-            { amphoe: { contains: search } },
-            { province: { contains: search } },
-          ],
-        }
-      : undefined,
-    orderBy: { createdAt: 'desc' },
-  })
+export type VillageFilters = {
+  q?: string
+  zone?: string
+  province?: string
+  amphoe?: string
+  tambon?: string
 }
 
+function buildWhere(filters: VillageFilters): Prisma.VillageWhereInput {
+  const { q, zone, province, amphoe, tambon } = filters
+  const where: Prisma.VillageWhereInput = {}
+  if (zone) where.zone = zone
+  if (province) where.province = province
+  if (amphoe) where.amphoe = amphoe
+  if (tambon) where.tambon = tambon
+  if (q) {
+    where.OR = [
+      { villageName: { contains: q } },
+      { tambon: { contains: q } },
+      { amphoe: { contains: q } },
+      { province: { contains: q } },
+    ]
+  }
+  return where
+}
+
+export async function getVillages(filters: VillageFilters = {}, page = 1, limit = 10) {
+  const where = buildWhere(filters)
+
+  const [villages, total] = await Promise.all([
+    prisma.village.findMany({
+      where,
+      include: {
+        _count: { select: { alcoholMembers: true, tobaccoMembers: true, drinkNotDriveMembers: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+      skip: (page - 1) * limit,
+      take: limit,
+    }),
+    prisma.village.count({ where }),
+  ])
+
+  return { villages, total, page, pageSize: limit, totalPages: Math.ceil(total / limit) }
+}
+
+export async function getFilterOptions(zone?: string, province?: string, amphoe?: string) {
+  const [zones, provinces, amphoes, tambons] = await Promise.all([
+    prisma.village.findMany({
+      select: { zone: true },
+      distinct: ['zone'],
+      orderBy: { zone: 'asc' },
+    }),
+    zone
+      ? prisma.village.findMany({
+          where: { zone },
+          select: { province: true },
+          distinct: ['province'],
+          orderBy: { province: 'asc' },
+        })
+      : Promise.resolve([]),
+    province
+      ? prisma.village.findMany({
+          where: { ...(zone ? { zone } : {}), province },
+          select: { amphoe: true },
+          distinct: ['amphoe'],
+          orderBy: { amphoe: 'asc' },
+        })
+      : Promise.resolve([]),
+    amphoe
+      ? prisma.village.findMany({
+          where: { ...(zone ? { zone } : {}), ...(province ? { province } : {}), amphoe },
+          select: { tambon: true },
+          distinct: ['tambon'],
+          orderBy: { tambon: 'asc' },
+        })
+      : Promise.resolve([]),
+  ])
+
+  return {
+    zones: zones.map(z => z.zone),
+    provinces: (provinces as { province: string }[]).map(p => p.province),
+    amphoes: (amphoes as { amphoe: string }[]).map(a => a.amphoe),
+    tambons: (tambons as { tambon: string }[]).map(t => t.tambon),
+  }
+}

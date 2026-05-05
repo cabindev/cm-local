@@ -40,7 +40,7 @@ const CommunityOrgTable = forwardRef<CommunityOrgTableHandle, { villageId: numbe
     return (
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <div className="bg-gray-900 px-5 py-4">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">การมีส่วนร่วม</p>
+          <p className="text-xs font-semibold text-yellow-400 uppercase tracking-wider">การมีส่วนร่วม</p>
           <p className="text-sm font-medium text-white mt-0.5">การมีส่วนร่วมของชุมชน</p>
         </div>
 

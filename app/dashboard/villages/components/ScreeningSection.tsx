@@ -61,7 +61,7 @@ const ScreeningSection = forwardRef<ScreeningSectionHandle, { villageId: number;
     return (
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <div className="bg-gray-900 px-5 py-4">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">ผลคัดกรอง</p>
+          <p className="text-xs font-semibold text-yellow-400 uppercase tracking-wider">ผลคัดกรอง</p>
           <p className="text-sm font-medium text-white mt-0.5">ผลการคัดกรองประชากร</p>
         </div>
 
@@ -69,7 +69,7 @@ const ScreeningSection = forwardRef<ScreeningSectionHandle, { villageId: number;
         <div className="px-5 py-5 border-b border-gray-100 flex flex-col items-center gap-2 bg-gray-50">
           <p className="text-xs text-gray-400">จำนวนคนคัดกรองทั้งหมด</p>
           <div className="flex items-center gap-3">
-            <NumInput value={fields.screenedCount} onChange={(v) => set('screenedCount', v)} accent="yellow" />
+            <NumInput value={fields.screenedCount} onChange={(v) => set('screenedCount', v)} />
             <p className="text-2xl font-bold text-gray-900">
               {n > 0 ? n.toLocaleString() : '—'}
               <span className="text-sm font-normal text-gray-400 ml-1">คน</span>
@@ -82,19 +82,19 @@ const ScreeningSection = forwardRef<ScreeningSectionHandle, { villageId: number;
 
           {/* ── การ์ดแอลกอฮอล์ ── */}
           <div className="flex flex-col">
-            <div className="bg-orange-400 px-4 py-3">
-              <p className="text-xs font-bold text-white">กลุ่มแอลกอฮอล์</p>
+            <div className="bg-yellow-400 px-4 py-3">
+              <p className="text-xs font-bold text-gray-900">กลุ่มแอลกอฮอล์</p>
             </div>
-            <div className="flex-1 divide-y divide-orange-100">
+            <div className="flex-1 divide-y divide-yellow-100">
               {([
                 ['alcoholRiskLow',  'จำนวนคนดื่มแบบเสี่ยงต่ำ'],
                 ['alcoholRisk',     'จำนวนคนที่ดื่มแบบเสี่ยง'],
                 ['alcoholDanger',   'จำนวนคนที่ดื่มแบบอันตราย'],
                 ['alcoholAddicted', 'จำนวนคนที่ดื่มแบบติด'],
               ] as [FieldKey, string][]).map(([key, label]) => (
-                <div key={key} className="flex items-center justify-between px-4 py-2.5 bg-orange-50 hover:bg-orange-100 transition-colors">
-                  <span className="text-xs text-orange-900">{label}</span>
-                  <NumInput value={fields[key]} onChange={(v) => set(key, v)} accent="orange" />
+                <div key={key} className="flex items-center justify-between px-4 py-2.5 bg-yellow-50 hover:bg-yellow-100 transition-colors">
+                  <span className="text-xs text-gray-900">{label}</span>
+                  <NumInput value={fields[key]} onChange={(v) => set(key, v)} />
                 </div>
               ))}
             </div>
@@ -103,57 +103,51 @@ const ScreeningSection = forwardRef<ScreeningSectionHandle, { villageId: number;
               screenedCount={n}
               normal={alcoholNormal}
               over={alcoholSum > n && n > 0}
-              bgClass="bg-orange-100"
-              textClass="text-orange-700"
             />
           </div>
 
           {/* ── การ์ดบุหรี่ ── */}
           <div className="flex flex-col">
-            <div className="bg-slate-500 px-4 py-3">
+            <div className="bg-yellow-600 px-4 py-3">
               <p className="text-xs font-bold text-white">กลุ่มบุหรี่</p>
             </div>
-            <div className="flex-1 divide-y divide-slate-100">
-              <div className="flex items-center justify-between px-4 py-2.5 bg-slate-50 hover:bg-slate-100 transition-colors">
-                <span className="text-xs text-slate-800">จำนวนคนสูบ</span>
-                <NumInput value={fields.tobaccoCount} onChange={(v) => set('tobaccoCount', v)} accent="slate" />
+            <div className="flex-1 divide-y divide-yellow-100">
+              <div className="flex items-center justify-between px-4 py-2.5 bg-yellow-50 hover:bg-yellow-100 transition-colors">
+                <span className="text-xs text-gray-900">จำนวนคนสูบ</span>
+                <NumInput value={fields.tobaccoCount} onChange={(v) => set('tobaccoCount', v)} />
               </div>
-              <div className="flex-1 bg-slate-50" />
+              <div className="flex-1 bg-yellow-50" />
             </div>
             <CalcFooter
               label="จำนวนคนไม่สูบ"
               screenedCount={n}
               normal={tobaccoNormal}
               over={fields.tobaccoCount > n && n > 0}
-              bgClass="bg-slate-100"
-              textClass="text-slate-600"
             />
           </div>
 
           {/* ── การ์ดขับขี่ ── */}
           <div className="flex flex-col">
-            <div className="bg-teal-500 px-4 py-3">
-              <p className="text-xs font-bold text-white">กลุ่มการขับขี่หลังดื่ม</p>
+            <div className="bg-gray-900 px-4 py-3">
+              <p className="text-xs font-bold text-yellow-400">กลุ่มการขับขี่หลังดื่ม</p>
             </div>
-            <div className="flex-1 divide-y divide-teal-100">
+            <div className="flex-1 divide-y divide-yellow-100">
               {([
                 ['drinkAndDrive',  'จำนวนคนดื่มแล้วขับ'],
                 ['drinkNotDriveN', 'จำนวนคนดื่มไม่ขับ'],
               ] as [FieldKey, string][]).map(([key, label]) => (
-                <div key={key} className="flex items-center justify-between px-4 py-2.5 bg-teal-50 hover:bg-teal-100 transition-colors">
-                  <span className="text-xs text-teal-900">{label}</span>
-                  <NumInput value={fields[key]} onChange={(v) => set(key, v)} accent="teal" />
+                <div key={key} className="flex items-center justify-between px-4 py-2.5 bg-yellow-50 hover:bg-yellow-100 transition-colors">
+                  <span className="text-xs text-gray-900">{label}</span>
+                  <NumInput value={fields[key]} onChange={(v) => set(key, v)} />
                 </div>
               ))}
-              <div className="flex-1 bg-teal-50" />
+              <div className="flex-1 bg-yellow-50" />
             </div>
             <CalcFooter
               label="จำนวนคนที่ไม่ดื่ม (ไม่มีความเสี่ยง)"
               screenedCount={n}
               normal={driveNormal}
               over={driveSum > n && n > 0}
-              bgClass="bg-teal-100"
-              textClass="text-teal-700"
             />
           </div>
 
@@ -164,35 +158,29 @@ const ScreeningSection = forwardRef<ScreeningSectionHandle, { villageId: number;
 )
 
 function CalcFooter({
-  label, screenedCount, normal, over, bgClass, textClass,
+  label, screenedCount, normal, over,
 }: {
-  label: string; screenedCount: number; normal: number; over: boolean; bgClass: string; textClass: string
+  label: string; screenedCount: number; normal: number; over: boolean
 }) {
   return (
-    <div className={`px-4 py-3 border-t border-gray-200 ${bgClass}`}>
-      <p className={`text-xs font-medium ${textClass}`}>{label}</p>
-      <p className={`text-[10px] italic ${textClass} opacity-60 mt-0.5`}>
+    <div className="px-4 py-3 border-t border-yellow-200 bg-yellow-100">
+      <p className="text-xs font-medium text-yellow-800">{label}</p>
+      <p className="text-[10px] italic text-yellow-700 opacity-70 mt-0.5">
         คำนวณจากตัวเลขคัดกรอง {screenedCount > 0 ? `${screenedCount.toLocaleString()} คน` : '—'}
       </p>
-      <p className={`text-lg font-bold mt-1 ${over ? 'text-red-600' : textClass}`}>
+      <p className={`text-lg font-bold mt-1 ${over ? 'text-red-600' : 'text-gray-900'}`}>
         {screenedCount === 0 ? '—' : over ? 'เกินจำนวน' : `${normal.toLocaleString()} คน`}
       </p>
     </div>
   )
 }
 
-function NumInput({ value, onChange, accent }: { value: number; onChange: (v: number) => void; accent: 'orange' | 'slate' | 'teal' | 'yellow' }) {
-  const ring = {
-    orange: 'focus:border-orange-400 focus:ring-orange-300',
-    slate:  'focus:border-slate-400 focus:ring-slate-300',
-    teal:   'focus:border-teal-400 focus:ring-teal-300',
-    yellow: 'focus:border-yellow-400 focus:ring-yellow-300',
-  }[accent]
+function NumInput({ value, onChange }: { value: number; onChange: (v: number) => void }) {
   return (
     <input
       type="number" min={0} value={value || ''} placeholder="0"
       onChange={(e) => onChange(Number(e.target.value))}
-      className={`w-20 px-2 py-1.5 border border-gray-200 rounded-lg text-xs text-right bg-white focus:outline-none focus:ring-1 transition-colors ${ring}`}
+      className="w-20 px-2 py-1.5 border border-gray-200 rounded-lg text-xs text-right bg-white focus:outline-none focus:ring-1 focus:border-yellow-400 focus:ring-yellow-300 transition-colors"
     />
   )
 }

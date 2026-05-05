@@ -3,10 +3,15 @@
 import { useState, forwardRef, useImperativeHandle } from 'react'
 import { saveDrinkNotDriveMembers } from '@/app/actions/health-data'
 
-const DRINK_TYPES = ['ดื่มแล้วขับ', 'ดื่มไม่ขับ', 'ไม่ดื่ม'] as const
+const DRINK_TYPES = [
+  { value: 'ดื่มแล้วขับ',        label: 'ดื่มแล้วขับ',         hint: 'กลุ่มเป้าหมายหลัก ต้องติดตามเปลี่ยนพฤติกรรม', badge: 'bg-gray-900 text-yellow-400'   },
+  { value: 'ดื่มไม่ขับ',         label: 'ดื่มไม่ขับ',          hint: 'ดื่มแต่มีวินัย ไม่ขับขี่ยานพาหนะ',            badge: 'bg-yellow-400 text-gray-900'   },
+  { value: 'ใช้บริการรับส่ง',    label: 'ใช้บริการรับส่ง',     hint: 'มีคนขับให้หรือใช้ขนส่งสาธารณะ',               badge: 'bg-yellow-100 text-yellow-800' },
+  { value: 'ไม่ดื่ม',            label: 'ไม่ดื่มเลย',           hint: 'ไม่ดื่มแอลกอฮอล์เลย ปลอดภัยสูงสุด',           badge: 'bg-gray-100 text-gray-500'    },
+] as const
 
 type Member = { id?: number; name: string; drinkType: string; year1Result: string; year2Result: string; year3Result: string }
-const emptyMember = (): Member => ({ name: '', drinkType: 'ดื่มไม่ขับ', year1Result: '', year2Result: '', year3Result: '' })
+const emptyMember = (): Member => ({ name: '', drinkType: 'ดื่มไม่ขับ' as string, year1Result: '', year2Result: '', year3Result: '' })
 
 export type DrinkNotDriveMembersTableHandle = { save: () => Promise<void> }
 
@@ -33,7 +38,7 @@ const DrinkNotDriveMembersTable = forwardRef<DrinkNotDriveMembersTableHandle, { 
     return (
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <div className="bg-gray-900 px-5 py-4">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">ผู้ตั้งใจ</p>
+          <p className="text-xs font-semibold text-yellow-400 uppercase tracking-wider">ผู้ตั้งใจ</p>
           <p className="text-sm font-medium text-white mt-0.5">รายชื่อผู้ที่ตั้งใจดื่มไม่ขับ</p>
         </div>
 
@@ -48,7 +53,7 @@ const DrinkNotDriveMembersTable = forwardRef<DrinkNotDriveMembersTableHandle, { 
                   className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-yellow-400 bg-gray-50 focus:bg-white" />
                 <select value={member.drinkType} onChange={(e) => update(i, 'drinkType', e.target.value)}
                   className="px-2 py-2 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-yellow-400 bg-gray-50 focus:bg-white">
-                  {DRINK_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+                  {DRINK_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
                 </select>
                 <button onClick={() => removeRow(i)} className="text-gray-300 hover:text-red-400 transition-colors text-sm p-1 flex-shrink-0">✕</button>
               </div>
@@ -90,11 +95,20 @@ const DrinkNotDriveMembersTable = forwardRef<DrinkNotDriveMembersTableHandle, { 
                       placeholder="ชื่อ-นามสกุล"
                       className="w-full px-2 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-yellow-400 bg-gray-50 focus:bg-white" />
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 min-w-[170px]">
                     <select value={member.drinkType} onChange={(e) => update(i, 'drinkType', e.target.value)}
                       className="w-full px-2 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-yellow-400 bg-gray-50 focus:bg-white">
-                      {DRINK_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+                      {DRINK_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
                     </select>
+                    {(() => {
+                      const t = DRINK_TYPES.find(d => d.value === member.drinkType)
+                      return t ? (
+                        <div className="mt-1.5 flex items-start gap-1.5">
+                          <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium whitespace-nowrap ${t.badge}`}>{t.label}</span>
+                          <span className="text-[10px] text-gray-400 leading-tight">{t.hint}</span>
+                        </div>
+                      ) : null
+                    })()}
                   </td>
                   {(['year1Result', 'year2Result', 'year3Result'] as const).map((field) => (
                     <td key={field} className="px-4 py-3">
