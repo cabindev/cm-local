@@ -7,8 +7,6 @@ import { useDashboard } from '../context/DashboardContext'
 import {
   LayoutDashboard,
   User,
-  Users,
-  Table2,
   LogOut,
   Menu,
   X,
@@ -35,8 +33,6 @@ const projectMenu = [
 
 const systemMenu = [
   { name: 'โปรไฟล์', href: '/dashboard/profile', icon: User, description: 'ข้อมูลส่วนตัว' },
-  { name: 'ผู้ใช้งาน', href: '/dashboard/users', icon: Users, description: 'รายชื่อสมาชิก' },
-  { name: 'ตารางข้อมูล', href: '/dashboard/table', icon: Table2, description: 'ข้อมูลดิบ' },
 ]
 
 function NavItem({
