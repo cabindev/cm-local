@@ -31,7 +31,7 @@ export default async function TablePage({
   const [allVillages, filterOptions] = await Promise.all([
     prisma.village.findMany({
       where: villageWhere,
-      orderBy: [{ zone: 'asc' }, { province: 'asc' }, { amphoe: 'asc' }],
+      orderBy: { createdAt: 'desc' },
     }),
     getFilterOptions(zone, province, amphoe),
   ])
