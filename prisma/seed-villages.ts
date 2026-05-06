@@ -27,7 +27,9 @@ async function main() {
     { villageName: 'มาบตาพุด',    villageNo: '6', tambon: 'มาบตาพุด',      amphoe: 'เมืองระยอง',      province: 'ระยอง',           zone: 'ตะวันออก',  coordinator: 'นายเอกชัย รุ่งเรือง',  phone: '0812345607', registeredPopulation: 623, actualPopulation: 541, householdCount: 178 },
     { villageName: 'ไทรโยค',      villageNo: '3', tambon: 'ไทรโยค',        amphoe: 'ไทรโยค',           province: 'กาญจนบุรี',      zone: 'ตะวันตก',   coordinator: 'นายณรงค์ พรมดี',       phone: '0812345608', registeredPopulation: 256, actualPopulation: 221, householdCount: 67  },
     { villageName: 'คีรีวง',      villageNo: '2', tambon: 'กำโลน',         amphoe: 'ลานสกา',           province: 'นครศรีธรรมราช', zone: 'ใต้บน',     coordinator: 'นายอนันต์ รักษ์ดี',    phone: '0812345609', registeredPopulation: 312, actualPopulation: 275, householdCount: 88  },
-    { villageName: 'ปะนาเระ',     villageNo: '5', tambon: 'ปะนาเระ',       amphoe: 'ปะนาเระ',          province: 'ปัตตานี',        zone: 'ใต้ล่าง',   coordinator: 'นายอับดุลรอหมาน มานะ', phone: '0812345610', registeredPopulation: 445, actualPopulation: 389, householdCount: 124 },
+    { villageName: 'ปะนาเระ',     villageNo: '5', tambon: 'ปะนาเระ',       amphoe: 'ปะนาเระ',          province: 'ปัตตานี',        zone: 'ใต้ล่าง',          coordinator: 'นายอับดุลรอหมาน มานะ', phone: '0812345610', registeredPopulation: 445, actualPopulation: 389, householdCount: 124 },
+    { villageName: 'ลาดกระบัง',   villageNo: '8', tambon: 'ลาดกระบัง',     amphoe: 'ลาดกระบัง',        province: 'กรุงเทพมหานคร',  zone: 'กรุงเทพมหานคร',   coordinator: 'นางสาวพรทิพย์ สว่างใจ', phone: '0812345611', registeredPopulation: 892, actualPopulation: 743, householdCount: 234 },
+    { villageName: 'เถิน',         villageNo: '5', tambon: 'เถิน',           amphoe: 'เถิน',              province: 'ลำปาง',          zone: 'เหนือล่าง',        coordinator: 'นายธีรยุทธ คำมา',        phone: '0812345612', registeredPopulation: 287, actualPopulation: 251, householdCount: 71  },
   ]
 
   const OUTCOMES_BASE = {
