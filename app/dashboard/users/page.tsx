@@ -1,8 +1,9 @@
-import { PrismaClient } from '@prisma/client'
 import { getServerSession } from 'next-auth'
 import authOptions from '@/app/lib/configs/auth/authOptions'
+import { prisma } from '@/app/lib/prisma'
+import { RoleToggle } from './RoleToggle'
 
-const prisma = new PrismaClient()
+export const metadata = { title: 'สมาชิก | Conmunity' }
 
 export default async function UsersPage() {
   const session = await getServerSession(authOptions)
@@ -21,50 +22,63 @@ export default async function UsersPage() {
   })
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 p-4 sm:p-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold text-gray-900">รายชื่อสมาชิก</h2>
-        <span className="text-sm text-gray-400">{users.length} คน</span>
+        <h1 className="text-lg font-bold text-gray-900">รายชื่อสมาชิก</h1>
+        <span className="text-xs text-gray-400 bg-yellow-100 text-yellow-800 px-2.5 py-1 rounded-full font-medium">
+          {users.length} คน
+        </span>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-        <div className="grid gap-0">
-          {/* Header */}
-          <div className="hidden sm:grid grid-cols-5 px-6 py-3 bg-gray-50 border-b border-gray-100 text-xs font-bold text-gray-400 uppercase tracking-wide">
-            <div>ชื่อ</div>
-            <div>อีเมล</div>
-            <div>Zone</div>
-            <div>จังหวัด</div>
-            <div>สิทธิ์</div>
-          </div>
+      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        {/* Header */}
+        <div className="hidden sm:grid grid-cols-6 px-5 py-3 bg-gray-50 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
+          <div className="col-span-2">ชื่อ-นามสกุล</div>
+          <div>อีเมล</div>
+          <div>ภาค</div>
+          <div>จังหวัด</div>
+          <div>สิทธิ์</div>
+        </div>
 
-          {users.map((u, idx) => (
+        {users.map((u, idx) => {
+          const isSelf = session?.user?.id === u.id
+          return (
             <div
               key={u.id}
-              className={`grid grid-cols-1 sm:grid-cols-5 px-6 py-4 gap-1 sm:gap-0 items-center border-b border-gray-50 last:border-0 ${idx % 2 === 0 ? '' : 'bg-gray-50/50'}`}
+              className={`grid grid-cols-1 sm:grid-cols-6 px-5 py-3.5 gap-2 sm:gap-0 items-center border-b border-gray-50 last:border-0 transition-colors hover:bg-yellow-50 ${
+                isSelf ? 'bg-yellow-50/60' : idx % 2 !== 0 ? 'bg-gray-50/30' : ''
+              }`}
             >
               {/* Avatar + Name */}
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-yellow-400 flex items-center justify-center flex-shrink-0">
+              <div className="col-span-2 flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-yellow-400 flex items-center justify-center shrink-0">
                   <span className="text-xs font-bold text-gray-900">
                     {u.firstName.charAt(0)}{u.lastName.charAt(0)}
                   </span>
                 </div>
-                <span className="text-sm font-semibold text-gray-900">{u.firstName} {u.lastName}</span>
+                <div>
+                  <p className="text-sm font-semibold text-gray-900 leading-tight">
+                    {u.firstName} {u.lastName}
+                  </p>
+                  <p className="text-xs text-gray-400 sm:hidden">{u.email}</p>
+                </div>
               </div>
-              <div className="text-sm text-gray-500 truncate">{u.email}</div>
-              <div className="text-sm text-gray-600">{u.zone || '—'}</div>
-              <div className="text-sm text-gray-600">{u.province || '—'}</div>
+
+              <div className="hidden sm:block text-xs text-gray-500 truncate pr-2">{u.email}</div>
+              <div className="hidden sm:block text-xs text-gray-500">{u.zone || '—'}</div>
+              <div className="hidden sm:block text-xs text-gray-500">{u.province || '—'}</div>
+
+              {/* Role Toggle */}
               <div>
-                <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold ${
-                  u.role === 'ADMIN' ? 'bg-gray-900 text-yellow-400' : 'bg-yellow-400 text-gray-900'
-                }`}>
-                  {u.role === 'ADMIN' ? 'Admin' : 'Member'}
-                </span>
+                <RoleToggle
+                  userId={u.id}
+                  currentRole={u.role as 'ADMIN' | 'MEMBER'}
+                  isSelf={isSelf}
+                />
               </div>
             </div>
-          ))}
-        </div>
+          )
+        })}
       </div>
     </div>
   )
