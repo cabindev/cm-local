@@ -15,8 +15,6 @@ export default async function UsersPage() {
       lastName: true,
       email: true,
       role: true,
-      province: true,
-      zone: true,
       createdAt: true,
     },
   })
@@ -32,11 +30,9 @@ export default async function UsersPage() {
 
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
         {/* Header */}
-        <div className="hidden sm:grid grid-cols-6 px-5 py-3 bg-gray-50 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
+        <div className="hidden sm:grid grid-cols-4 px-5 py-3 bg-gray-50 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
           <div className="col-span-2">ชื่อ-นามสกุล</div>
           <div>อีเมล</div>
-          <div>ภาค</div>
-          <div>จังหวัด</div>
           <div>สิทธิ์</div>
         </div>
 
@@ -45,7 +41,7 @@ export default async function UsersPage() {
           return (
             <div
               key={u.id}
-              className={`grid grid-cols-1 sm:grid-cols-6 px-5 py-3.5 gap-2 sm:gap-0 items-center border-b border-gray-50 last:border-0 transition-colors hover:bg-yellow-50 ${
+              className={`grid grid-cols-1 sm:grid-cols-4 px-5 py-3.5 gap-2 sm:gap-0 items-center border-b border-gray-50 last:border-0 transition-colors hover:bg-yellow-50 ${
                 isSelf ? 'bg-yellow-50/60' : idx % 2 !== 0 ? 'bg-gray-50/30' : ''
               }`}
             >
@@ -65,8 +61,6 @@ export default async function UsersPage() {
               </div>
 
               <div className="hidden sm:block text-xs text-gray-500 truncate pr-2">{u.email}</div>
-              <div className="hidden sm:block text-xs text-gray-500">{u.zone || '—'}</div>
-              <div className="hidden sm:block text-xs text-gray-500">{u.province || '—'}</div>
 
               {/* Role Toggle */}
               <div>
