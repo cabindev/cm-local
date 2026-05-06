@@ -36,10 +36,11 @@ function GroupCard({ g }: { g: GroupData }) {
         <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{g.label}</p>
         <p className="text-2xl font-bold text-gray-900 leading-none mt-1">
           {g.total.toLocaleString()}
-          <span className="text-xs font-normal text-gray-400 ml-1">คนทั้งหมด</span>
+          <span className="text-xs font-normal text-gray-400 ml-1">คนสมัครทั้งหมด</span>
         </p>
       </div>
-      <div className="space-y-2.5 pt-1 border-t border-gray-200">
+      <div className="space-y-2.5 pt-2 border-t border-gray-200">
+        <p className="text-[10px] text-gray-400">มีผลบันทึกติดตาม</p>
         <YearBar year={1} count={g.y1} total={g.total} color={g.color} />
         <YearBar year={2} count={g.y2} total={g.total} color={g.color} />
         <YearBar year={3} count={g.y3} total={g.total} color={g.color} />
@@ -56,9 +57,9 @@ type Props = {
 
 export default function ProgressFunnel(p: Props) {
   const groups: GroupData[] = [
-    { label: 'งดเหล้า',   total: p.alcTotal, y1: p.alcY1, y2: p.alcY2, y3: p.alcY3, color: '#f59e0b', bg: 'bg-orange-50', border: 'border-orange-200' },
-    { label: 'งดบุหรี่',  total: p.tobTotal, y1: p.tobY1, y2: p.tobY2, y3: p.tobY3, color: '#374151', bg: 'bg-slate-50',  border: 'border-slate-200'  },
-    { label: 'ดื่มไม่ขับ', total: p.dndTotal, y1: p.dndY1, y2: p.dndY2, y3: p.dndY3, color: '#0d9488', bg: 'bg-teal-50',  border: 'border-teal-200'   },
+    { label: 'งดเหล้า',   total: p.alcTotal, y1: p.alcY1, y2: p.alcY2, y3: p.alcY3, color: '#eab308', bg: 'bg-yellow-50',  border: 'border-yellow-200' },
+    { label: 'งดบุหรี่',  total: p.tobTotal, y1: p.tobY1, y2: p.tobY2, y3: p.tobY3, color: '#ca8a04', bg: 'bg-yellow-50',  border: 'border-yellow-300' },
+    { label: 'ดื่มไม่ขับ', total: p.dndTotal, y1: p.dndY1, y2: p.dndY2, y3: p.dndY3, color: '#111827', bg: 'bg-gray-50',   border: 'border-gray-200'   },
   ]
 
   return (

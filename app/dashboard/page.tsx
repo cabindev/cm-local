@@ -50,7 +50,7 @@ async function getDashboardStats() {
 
   const totalPopulation = totalPopArr._sum.registeredPopulation ?? 0
 
-  const zoneOrder = ['เหนือ', 'กลาง', 'อีสาน', 'ตะวันออก', 'ตะวันตก', 'ใต้บน', 'ใต้ล่าง']
+  const zoneOrder = ['กรุงเทพมหานคร', 'กลาง', 'เหนือบน', 'เหนือล่าง', 'อีสานบน', 'อีสานล่าง', 'ตะวันออก', 'ตะวันตก', 'ใต้บน', 'ใต้ล่าง']
   const zoneMap = new Map<string, { villages: number; alcohol: number; tobacco: number; dnd: number; population: number }>()
   for (const v of villagesWithCounts) {
     const e = zoneMap.get(v.zone) ?? { villages: 0, alcohol: 0, tobacco: 0, dnd: 0, population: 0 }
@@ -73,13 +73,16 @@ async function getDashboardStats() {
 }
 
 const zoneColor: Record<string, string> = {
-  'เหนือ': 'bg-blue-100 text-blue-700',
-  'กลาง': 'bg-green-100 text-green-700',
-  'อีสาน': 'bg-orange-100 text-orange-700',
-  'ตะวันออก': 'bg-purple-100 text-purple-700',
-  'ตะวันตก': 'bg-pink-100 text-pink-700',
-  'ใต้บน': 'bg-teal-100 text-teal-700',
-  'ใต้ล่าง': 'bg-cyan-100 text-cyan-700',
+  'กรุงเทพมหานคร': 'bg-gray-900 text-yellow-400',
+  'กลาง':          'bg-yellow-100 text-yellow-800',
+  'เหนือบน':       'bg-yellow-200 text-yellow-900',
+  'เหนือล่าง':     'bg-yellow-300 text-yellow-900',
+  'อีสานบน':       'bg-yellow-400 text-gray-900',
+  'อีสานล่าง':     'bg-yellow-500 text-gray-900',
+  'ตะวันออก':      'bg-yellow-600 text-white',
+  'ตะวันตก':       'bg-yellow-700 text-white',
+  'ใต้บน':         'bg-gray-700 text-yellow-300',
+  'ใต้ล่าง':       'bg-gray-900 text-yellow-400',
 }
 
 export default async function DashboardHome() {
@@ -125,22 +128,22 @@ export default async function DashboardHome() {
           unit="คน"
         />
         <StatCard
-          color="bg-orange-50 border-orange-200"
-          icon={<Wine className="w-5 h-5 text-orange-500" />}
+          color="bg-yellow-50 border-yellow-200"
+          icon={<Wine className="w-5 h-5 text-yellow-600" />}
           label="ผู้สมัครงดเหล้า"
           value={stats.alcTotal}
           unit="คน"
         />
         <StatCard
-          color="bg-slate-50 border-slate-200"
-          icon={<Cigarette className="w-5 h-5 text-slate-500" />}
+          color="bg-yellow-50 border-yellow-300"
+          icon={<Cigarette className="w-5 h-5 text-yellow-700" />}
           label="ผู้สมัครงดบุหรี่"
           value={stats.tobTotal}
           unit="คน"
         />
         <StatCard
-          color="bg-teal-50 border-teal-200"
-          icon={<Car className="w-5 h-5 text-teal-600" />}
+          color="bg-gray-50 border-gray-200"
+          icon={<Car className="w-5 h-5 text-gray-600" />}
           label="ดื่มไม่ขับ"
           value={stats.dndTotal}
           unit="คน"
@@ -173,7 +176,8 @@ export default async function DashboardHome() {
                   <th className="text-right px-4 py-2.5 font-medium text-gray-400">ประชากร</th>
                   <th className="text-right px-4 py-2.5 font-medium text-gray-400">งดเหล้า</th>
                   <th className="text-right px-4 py-2.5 font-medium text-gray-400">งดบุหรี่</th>
-                  <th className="text-right px-5 py-2.5 font-medium text-gray-400">รวม</th>
+                  <th className="text-right px-4 py-2.5 font-medium text-gray-400">ดื่มไม่ขับ</th>
+                  <th className="text-right px-5 py-2.5 font-medium text-gray-400">รวมสมาชิก</th>
                 </tr>
               </thead>
               <tbody>
@@ -189,18 +193,20 @@ export default async function DashboardHome() {
                     </td>
                     <td className="px-4 py-3 text-right text-gray-700 font-medium">{z.villages}</td>
                     <td className="px-4 py-3 text-right text-gray-500">{z.population.toLocaleString()}</td>
-                    <td className="px-4 py-3 text-right text-orange-600 font-medium">{z.alcohol}</td>
-                    <td className="px-4 py-3 text-right text-gray-600 font-medium">{z.tobacco}</td>
-                    <td className="px-5 py-3 text-right text-gray-900 font-semibold">{z.alcohol + z.tobacco}</td>
+                    <td className="px-4 py-3 text-right text-gray-700 font-medium">{z.alcohol}</td>
+                    <td className="px-4 py-3 text-right text-gray-700 font-medium">{z.tobacco}</td>
+                    <td className="px-4 py-3 text-right text-gray-700 font-medium">{z.dnd}</td>
+                    <td className="px-5 py-3 text-right text-gray-900 font-semibold">{z.alcohol + z.tobacco + z.dnd}</td>
                   </tr>
                 ))}
                 <tr className="bg-gray-50 border-t border-gray-200">
                   <td className="px-5 py-2.5 text-xs font-semibold text-gray-500">รวมทั้งหมด</td>
                   <td className="px-4 py-2.5 text-right text-xs font-semibold text-gray-700">{stats.villageCount}</td>
                   <td className="px-4 py-2.5 text-right text-xs font-semibold text-gray-500">{stats.totalPopulation.toLocaleString()}</td>
-                  <td className="px-4 py-2.5 text-right text-xs font-semibold text-orange-600">{stats.alcTotal}</td>
-                  <td className="px-4 py-2.5 text-right text-xs font-semibold text-gray-600">{stats.tobTotal}</td>
-                  <td className="px-5 py-2.5 text-right text-xs font-bold text-gray-900">{stats.alcTotal + stats.tobTotal}</td>
+                  <td className="px-4 py-2.5 text-right text-xs font-semibold text-gray-700">{stats.alcTotal}</td>
+                  <td className="px-4 py-2.5 text-right text-xs font-semibold text-gray-700">{stats.tobTotal}</td>
+                  <td className="px-4 py-2.5 text-right text-xs font-semibold text-gray-700">{stats.dndTotal}</td>
+                  <td className="px-5 py-2.5 text-right text-xs font-bold text-gray-900">{stats.alcTotal + stats.tobTotal + stats.dndTotal}</td>
                 </tr>
               </tbody>
             </table>
