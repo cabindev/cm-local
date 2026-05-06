@@ -129,7 +129,7 @@ export default async function TablePage({
           <p className="text-xs text-gray-400 mt-0.5">รายละเอียดพร้อมผลติดตามและการแจกแจงตามประเภท</p>
         </div>
         <a href={exportUrl}
-          className="inline-flex items-center gap-1.5 px-3 py-2 bg-emerald-500 hover:bg-emerald-400 text-white text-xs font-medium rounded-lg transition-colors">
+          className="inline-flex items-center gap-1.5 px-3 py-2 bg-yellow-400 hover:bg-yellow-300 text-gray-900 text-xs font-medium rounded-lg transition-colors">
           <FileDown className="w-3.5 h-3.5" />
           Export{zone || province ? ' (ที่กรอง)' : ''}
         </a>
