@@ -1,9 +1,7 @@
 'use client'
 
-import { useState, useEffect, useMemo, useRef, FormEvent } from 'react'
+import { useState, FormEvent } from 'react'
 import Link from 'next/link'
-import { data as regions } from '@/app/data/regions'
-import { Search, X, MapPin } from 'lucide-react'
 
 interface FormData {
   firstName: string
@@ -20,60 +18,11 @@ interface FormData {
 export default function SignUpForm() {
   const [formData, setFormData] = useState<FormData>({
     firstName: '', lastName: '', email: '', password: '',
-    image: null, zone: '', province: '', amphoe: '', district: '',
+    image: null, zone: '', province: '', amphoe: '', district: '',  // location set by admin later
   })
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-
-  // Location search state
-  const [searchTerm, setSearchTerm]       = useState('')
-  const [debounced, setDebounced]         = useState('')
-  const [showDropdown, setShowDropdown]   = useState(false)
-  const [locationSelected, setLocationSelected] = useState(false)
-  const searchRef = useRef<HTMLDivElement>(null)
-
-  // Debounce
-  useEffect(() => {
-    const t = setTimeout(() => setDebounced(searchTerm), 250)
-    return () => clearTimeout(t)
-  }, [searchTerm])
-
-  // Close dropdown on outside click
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(e.target as Node))
-        setShowDropdown(false)
-    }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [])
-
-  const results = useMemo(() => {
-    if (!debounced || debounced.length < 2 || locationSelected) return []
-    const term = debounced.toLowerCase()
-    return regions
-      .filter(r =>
-        r.district.toLowerCase().includes(term) ||
-        r.amphoe.toLowerCase().includes(term) ||
-        r.province.toLowerCase().includes(term)
-      )
-      .slice(0, 10)
-  }, [debounced, locationSelected])
-
-  const handleSelect = (r: typeof regions[0]) => {
-    setFormData(prev => ({ ...prev, district: r.district, amphoe: r.amphoe, province: r.province, zone: r.zone }))
-    setSearchTerm(`${r.district} • ${r.amphoe} • ${r.province}`)
-    setLocationSelected(true)
-    setShowDropdown(false)
-  }
-
-  const clearLocation = () => {
-    setFormData(prev => ({ ...prev, district: '', amphoe: '', province: '', zone: '' }))
-    setSearchTerm('')
-    setLocationSelected(false)
-    setShowDropdown(false)
-  }
 
   // Image
   const compressImage = async (file: File): Promise<File> => {
@@ -197,76 +146,6 @@ export default function SignUpForm() {
             <input type="password" required className={inputClass} placeholder="อย่างน้อย 5 ตัวอักษร"
               value={formData.password}
               onChange={e => setFormData(p => ({ ...p, password: e.target.value }))} />
-          </div>
-
-          {/* ค้นหาตำบล */}
-          <div>
-            <label className={labelClass}>พื้นที่ดูแล <span className="text-gray-400 font-normal">(ไม่บังคับ)</span></label>
-            <div className="relative" ref={searchRef}>
-              <div className={`flex items-center border rounded-lg overflow-hidden transition-colors ${
-                locationSelected ? 'border-yellow-400 bg-yellow-50' : 'border-gray-200 bg-white focus-within:border-yellow-400'
-              }`}>
-                {locationSelected
-                  ? <MapPin className="w-4 h-4 text-yellow-500 ml-3 flex-shrink-0" />
-                  : <Search className="w-4 h-4 text-gray-400 ml-3 flex-shrink-0" />
-                }
-                <input
-                  type="text"
-                  placeholder="พิมพ์ชื่อตำบล อำเภอ หรือจังหวัด..."
-                  value={searchTerm}
-                  readOnly={locationSelected}
-                  onChange={e => { setSearchTerm(e.target.value); setShowDropdown(true) }}
-                  onFocus={() => { if (!locationSelected) setShowDropdown(true) }}
-                  className="flex-1 px-3 py-2.5 text-sm bg-transparent focus:outline-none"
-                />
-                {(searchTerm || locationSelected) && (
-                  <button type="button" onClick={clearLocation} className="p-2 text-gray-300 hover:text-gray-500 flex-shrink-0">
-                    <X className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
-
-              {/* Dropdown results */}
-              {showDropdown && results.length > 0 && (
-                <div className="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
-                  {results.map((r, i) => (
-                    <div key={`${r.district_code}-${i}`}
-                      onMouseDown={() => handleSelect(r)}
-                      className="px-4 py-2.5 hover:bg-yellow-50 cursor-pointer border-b border-gray-50 last:border-0">
-                      <div className="flex items-center gap-2">
-                        <MapPin className="w-3.5 h-3.5 text-yellow-500 flex-shrink-0" />
-                        <span className="font-semibold text-gray-900 text-sm">ต.{r.district}</span>
-                        <span className="text-gray-400 text-xs">อ.{r.amphoe} · {r.province}</span>
-                      </div>
-                      <span className="ml-5.5 text-[10px] text-yellow-600 font-medium">{r.zone}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {showDropdown && debounced.length >= 2 && results.length === 0 && !locationSelected && (
-                <div className="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg px-4 py-3 text-sm text-gray-400">
-                  ไม่พบผลลัพธ์
-                </div>
-              )}
-            </div>
-
-            {/* แสดงข้อมูลที่เลือก */}
-            {locationSelected && (
-              <div className="mt-2 grid grid-cols-2 gap-2">
-                {[
-                  { label: 'ตำบล', value: formData.district },
-                  { label: 'อำเภอ', value: formData.amphoe },
-                  { label: 'จังหวัด', value: formData.province },
-                  { label: 'ภาค', value: formData.zone },
-                ].map(row => (
-                  <div key={row.label} className="bg-yellow-50 border border-yellow-100 rounded-lg px-3 py-1.5">
-                    <p className="text-[10px] text-yellow-700 font-medium">{row.label}</p>
-                    <p className="text-xs font-semibold text-gray-900">{row.value}</p>
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
 
           {/* รูปโปรไฟล์ */}
