@@ -32,11 +32,13 @@ export async function POST(request: NextRequest) {
 
     let imagePath = '';
     if (image && image.size > 0) {
+      const imgDir = path.join(process.cwd(), 'public/img');
+      await fs.mkdir(imgDir, { recursive: true });
       const bufferData = Buffer.from(await image.arrayBuffer());
       const timestamp = new Date().getTime();
       const fileExtension = path.extname(image.name) || '.jpg';
       const fileName = `${timestamp}${fileExtension}`;
-      const imageSavePath = path.join(process.cwd(), 'public/img', fileName);
+      const imageSavePath = path.join(imgDir, fileName);
       await fs.writeFile(imageSavePath, bufferData);
       imagePath = `/img/${fileName}`;
     }
