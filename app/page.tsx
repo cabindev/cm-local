@@ -21,7 +21,7 @@ export default async function Home() {
           <div className="w-8 h-8 bg-yellow-400 rounded-lg flex items-center justify-center">
             <span className="text-gray-900 font-black text-xs">CM</span>
           </div>
-          <span className="text-white font-bold">Conmunity</span>
+          <span className="text-white font-bold">Community Driven</span>
         </div>
         <div className="flex items-center gap-3">
           {session ? (
@@ -54,7 +54,7 @@ export default async function Home() {
           <MapPin className="w-8 h-8 text-gray-900" />
         </div>
         <h1 className="text-4xl sm:text-5xl font-black text-white mb-4 leading-tight">
-          Conmunity
+          Community Driven
         </h1>
         <p className="text-gray-400 text-lg max-w-md mb-3">
           ระบบบันทึกข้อมูลโครงการ
@@ -118,10 +118,30 @@ export default async function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-gray-800 py-4 text-center">
-        <div className="flex items-center justify-center gap-1.5 text-gray-500 text-xs">
-          <Shield className="w-3.5 h-3.5" />
-          <span>เฉพาะผู้ดูแลระบบเท่านั้นที่สามารถเข้าถึงข้อมูลได้</span>
+      <footer className="border-t border-gray-800 py-8 px-6">
+        <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center sm:items-start justify-between gap-6">
+          {/* Brand */}
+          <div className="flex flex-col items-center sm:items-start gap-2">
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 bg-yellow-400 rounded-lg flex items-center justify-center">
+                <span className="text-gray-900 font-black text-xs">CM</span>
+              </div>
+              <span className="text-white font-bold text-sm">Community Driven</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-gray-500 text-xs">
+              <Shield className="w-3 h-3 shrink-0" />
+              <span>เฉพาะผู้ดูแลระบบเท่านั้นที่สามารถเข้าถึงข้อมูลได้</span>
+            </div>
+          </div>
+
+          {/* Address */}
+          <div className="text-center sm:text-right">
+            <p className="text-gray-500 text-xs leading-relaxed">
+              110/287-288 ม.6 ซอยโพธิ์แก้ว แยก 4<br />
+              ถ.โพธิ์แก้ว แขวงคลองกุ่ม เขตบึงกุ่ม<br />
+              กรุงเทพมหานคร 10240
+            </p>
+          </div>
         </div>
       </footer>
     </div>
