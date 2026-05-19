@@ -52,7 +52,7 @@ export default function SignInForm() {
                 id="email"
                 type="email"
                 required
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-yellow-400 focus:border-yellow-400 outline-none"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-yellow-400 focus:border-yellow-400 outline-none text-gray-900 [&:-webkit-autofill]:[-webkit-text-fill-color:#111827] [&:-webkit-autofill]:[box-shadow:0_0_0px_1000px_white_inset]"
                 placeholder="your.email@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -65,7 +65,7 @@ export default function SignInForm() {
                 id="password"
                 type="password"
                 required
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-yellow-400 focus:border-yellow-400 outline-none"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-yellow-400 focus:border-yellow-400 outline-none text-gray-900 [&:-webkit-autofill]:[-webkit-text-fill-color:#111827] [&:-webkit-autofill]:[box-shadow:0_0_0px_1000px_white_inset]"
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
