@@ -27,7 +27,7 @@ export default function SignInForm() {
       if (result?.error) {
         setError('อีเมลหรือรหัสผ่านไม่ถูกต้อง')
       } else {
-        router.replace('/dashboard')
+        router.replace('/')
       }
     } catch {
       setError('เกิดข้อผิดพลาด โปรดลองอีกครั้ง')
