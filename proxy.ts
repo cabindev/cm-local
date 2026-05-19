@@ -10,11 +10,13 @@ export async function proxy(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
-  if (pathname.startsWith('/dashboard') && (!token || token.role !== 'ADMIN')) {
+  const isAdmin = token?.role === 'ADMIN' || token?.role === 'SUPERADMIN'
+
+  if (pathname.startsWith('/dashboard') && (!token || !isAdmin)) {
     return NextResponse.redirect(new URL('/auth/signin', request.url));
   }
 
-  if (pathname.startsWith('/auth/signin') && token?.role === 'ADMIN') {
+  if (pathname.startsWith('/auth/signin') && isAdmin) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
