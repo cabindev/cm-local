@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <title>รีเซ็ตรหัสผ่าน - Conmunity</title>
+  <title>รีเซ็ตรหัสผ่าน - Community Driven</title>
 </head>
 <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0;">
   <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
       <td>
         <h2 style="color: #2563eb;">รีเซ็ตรหัสผ่านของคุณ</h2>
         <p>เรียน คุณ${user.firstName},</p>
-        <p>เราได้รับคำขอให้รีเซ็ตรหัสผ่านสำหรับบัญชีของคุณที่ Conmunity</p>
+        <p>เราได้รับคำขอให้รีเซ็ตรหัสผ่านสำหรับบัญชีของคุณที่ Community Driven</p>
         <p>คลิกที่ปุ่มด้านล่างเพื่อรีเซ็ตรหัสผ่านของคุณ:</p>
         <table border="0" cellpadding="0" cellspacing="0" width="100%">
           <tr>
@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
           </tr>
         </table>
         <p>ลิงก์นี้จะหมดอายุภายใน 1 ชั่วโมง</p>
-        <p>ขอแสดงความนับถือ,<br>ทีมงาน Conmunity</p>
+        <p>ขอแสดงความนับถือ,<br>ทีมงาน Community Driven</p>
       </td>
     </tr>
   </table>
@@ -70,9 +70,9 @@ export async function POST(req: NextRequest) {
 </html>`;
 
     await transporter.sendMail({
-      from: '"Conmunity" <noreply@conmunity.local>',
+      from: '"Community Driven" <noreply@conmunity.local>',
       to: email,
-      subject: 'รีเซ็ตรหัสผ่าน - Conmunity',
+      subject: 'รีเซ็ตรหัสผ่าน - Community Driven',
       html: htmlContent,
     });
 

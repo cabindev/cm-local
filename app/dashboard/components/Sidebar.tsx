@@ -7,47 +7,23 @@ import { useDashboard } from '../context/DashboardContext'
 import {
   LayoutDashboard,
   User,
-  Users,
-  Table2,
   LogOut,
   Menu,
   X,
   ChevronRight,
   MapPin,
-  Plus,
+  Users,
+  TableProperties,
+  ShieldCheck,
 } from 'lucide-react'
 
-interface SidebarProps {
-  user: {
-    firstName?: string
-    lastName?: string
-    email?: string
-    image?: string
-    role?: string
-  }
-}
-
-const projectMenu = [
-  { name: 'ภาพรวม', href: '/dashboard', icon: LayoutDashboard, description: 'สรุปข้อมูลโครงการ' },
-  { name: 'หมู่บ้าน', href: '/dashboard/villages', icon: MapPin, description: 'รายการหมู่บ้าน' },
-  { name: 'เพิ่มหมู่บ้าน', href: '/dashboard/villages/new', icon: Plus, description: 'ลงทะเบียนใหม่' },
-]
-
-const systemMenu = [
-  { name: 'โปรไฟล์', href: '/dashboard/profile', icon: User, description: 'ข้อมูลส่วนตัว' },
-  { name: 'ผู้ใช้งาน', href: '/dashboard/users', icon: Users, description: 'รายชื่อสมาชิก' },
-  { name: 'ตารางข้อมูล', href: '/dashboard/table', icon: Table2, description: 'ข้อมูลดิบ' },
-]
-
-function NavItem({
-  item,
-  collapsed,
-  onClick,
-}: {
+interface NavItemProps {
   item: { name: string; href: string; icon: React.ElementType; description: string }
   collapsed: boolean
   onClick: () => void
-}) {
+}
+
+function NavItem({ item, collapsed, onClick }: NavItemProps) {
   const pathname = usePathname()
   const Icon = item.icon
   const isActive =
@@ -76,6 +52,16 @@ function NavItem({
   )
 }
 
+interface SidebarProps {
+  user: {
+    firstName?: string
+    lastName?: string
+    email?: string
+    image?: string
+    role?: string
+  }
+}
+
 export default function Sidebar({ user }: SidebarProps) {
   const { sidebarCollapsed, toggleSidebar, isMobileSidebarOpen, toggleMobileSidebar } = useDashboard()
 
@@ -83,6 +69,29 @@ export default function Sidebar({ user }: SidebarProps) {
     if (typeof window !== 'undefined' && window.innerWidth < 1024) {
       toggleMobileSidebar(false)
     }
+  }
+
+  const overviewMenu = [
+    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, description: 'สรุปข้อมูลโครงการ' },
+  ]
+
+  const dataMenu = [
+    { name: 'หมู่บ้าน', href: '/dashboard/villages', icon: MapPin,          description: 'จัดการข้อมูลหมู่บ้าน' },
+    { name: 'สมาชิก',  href: '/dashboard/members',  icon: Users,           description: 'ค้นหาสมาชิกทุกหมู่บ้าน' },
+    { name: 'รายงาน',  href: '/dashboard/report',   icon: TableProperties, description: 'ตารางข้อมูล · Export Excel' },
+  ]
+
+  const systemMenu = [
+    { name: 'โปรไฟล์', href: '/dashboard/profile', icon: User, description: 'ข้อมูลส่วนตัว' },
+  ]
+
+  if (user.role === 'ADMIN') {
+    systemMenu.push({
+      name: 'จัดการผู้ใช้งาน',
+      href: '/dashboard/users',
+      icon: ShieldCheck,
+      description: 'กำหนดสิทธิ์ Admin',
+    })
   }
 
   return (
@@ -100,7 +109,7 @@ export default function Sidebar({ user }: SidebarProps) {
             <div className="w-8 h-8 bg-yellow-400 rounded-lg flex items-center justify-center flex-shrink-0">
               <span className="text-gray-900 font-black text-xs">CM</span>
             </div>
-            <span className="font-bold text-white text-sm">Conmunity</span>
+            <span className="font-bold text-white text-sm">Community Driven</span>
           </Link>
         ) : (
           <Link href="/dashboard" className="mx-auto" onClick={handleMenuClick}>
@@ -126,25 +135,32 @@ export default function Sidebar({ user }: SidebarProps) {
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
 
-        {/* Section: โครงการ */}
-        {!sidebarCollapsed && (
-          <p className="px-3 pt-1 pb-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-            โครงการ
-          </p>
-        )}
-        {sidebarCollapsed && <div className="border-t border-gray-700 my-2" />}
-        {projectMenu.map((item) => (
+        {/* ภาพรวม */}
+        {overviewMenu.map((item) => (
           <NavItem key={item.href} item={item} collapsed={sidebarCollapsed} onClick={handleMenuClick} />
         ))}
 
-        {/* Divider */}
-        <div className="pt-4">
+        {/* ข้อมูล ก.พ.ร */}
+        <div className="pt-3">
+          <div className="border-t border-gray-700 mb-3" />
+          {!sidebarCollapsed && (
+            <p className="px-3 pb-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+              ข้อมูล ก.พ.ร
+            </p>
+          )}
+          {dataMenu.map((item) => (
+            <NavItem key={item.href} item={item} collapsed={sidebarCollapsed} onClick={handleMenuClick} />
+          ))}
+        </div>
+
+        {/* ระบบ */}
+        <div className="pt-3">
+          <div className="border-t border-gray-700 mb-3" />
           {!sidebarCollapsed && (
             <p className="px-3 pb-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
               ระบบ
             </p>
           )}
-          {sidebarCollapsed && <div className="border-t border-gray-700 mb-2" />}
           {systemMenu.map((item) => (
             <NavItem key={item.href} item={item} collapsed={sidebarCollapsed} onClick={handleMenuClick} />
           ))}

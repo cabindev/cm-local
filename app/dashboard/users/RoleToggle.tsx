@@ -3,54 +3,39 @@
 import { useState, useTransition } from 'react'
 import { toggleUserRole } from '@/app/actions/user'
 
-interface Props {
-  userId: number
-  currentRole: 'ADMIN' | 'MEMBER'
-  isSelf: boolean
-}
+export default function RoleToggle({ userId, initialRole, currentUserId }: { userId: number; initialRole: string, currentUserId: number }) {
+  const [isPending, startTransition] = useTransition()
+  const [isAdmin, setIsAdmin] = useState(initialRole === 'ADMIN')
 
-export function RoleToggle({ userId, currentRole, isSelf }: Props) {
-  const [role, setRole] = useState(currentRole)
-  const [pending, startTransition] = useTransition()
-
-  const isAdmin = role === 'ADMIN'
-
-  function handleToggle() {
-    if (isSelf) return
+  async function handleToggle() {
+    if (userId === currentUserId) return // Prevent self-demotion
+    
     startTransition(async () => {
-      await toggleUserRole(userId)
-      setRole(prev => prev === 'ADMIN' ? 'MEMBER' : 'ADMIN')
+      try {
+        await toggleUserRole(userId)
+        setIsAdmin(!isAdmin)
+      } catch (err: any) {
+        alert(err.message || 'เกิดข้อผิดพลาด')
+      }
     })
   }
 
-  if (isSelf) {
-    return (
-      <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-gray-900 text-yellow-400">
-        Admin (ฉัน)
-      </span>
-    )
-  }
+  const isDisabled = userId === currentUserId || isPending
 
   return (
     <button
       onClick={handleToggle}
-      disabled={pending}
-      className="flex items-center gap-2 group"
-      title={isAdmin ? 'คลิกเพื่อลดสิทธิ์เป็น Member' : 'คลิกเพื่อเพิ่มสิทธิ์เป็น Admin'}
+      disabled={isDisabled}
+      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 
+        ${isAdmin ? 'bg-yellow-400' : 'bg-gray-200'}
+        ${isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+      `}
     >
-      {/* Toggle switch */}
-      <div className={`relative w-10 h-5 rounded-full transition-colors duration-200 ${
-        pending ? 'opacity-50' : ''
-      } ${isAdmin ? 'bg-gray-900' : 'bg-gray-200'}`}>
-        <div className={`absolute top-0.5 w-4 h-4 rounded-full transition-all duration-200 ${
-          isAdmin ? 'left-5 bg-yellow-400' : 'left-0.5 bg-white shadow'
-        }`} />
-      </div>
-      <span className={`text-xs font-bold ${
-        isAdmin ? 'text-gray-900' : 'text-gray-400'
-      }`}>
-        {pending ? '...' : isAdmin ? 'Admin' : 'Member'}
-      </span>
+      <span
+        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ease-in-out
+          ${isAdmin ? 'translate-x-6' : 'translate-x-1'}
+        `}
+      />
     </button>
   )
 }

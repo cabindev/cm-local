@@ -1,33 +1,32 @@
 import { notFound } from 'next/navigation'
-import { prisma } from '@/app/lib/prisma'
-import VillageForm from '../../components/VillageForm'
+import { getVillage } from '@/app/actions/village'
+import VillageEditForm from './VillageEditForm'
+import Link from 'next/link'
+import { ArrowLeft } from 'lucide-react'
 
-export const metadata = { title: 'แก้ไขหมู่บ้าน | Conmunity' }
+type Props = { params: Promise<{ id: string }> }
 
-export default async function EditVillagePage({ params }: { params: Promise<{ id: string }> }) {
+export default async function EditVillagePage({ params }: Props) {
   const { id } = await params
-  const village = await prisma.village.findUnique({ where: { id: Number(id) } })
+  const village = await getVillage(parseInt(id))
   if (!village) notFound()
 
   return (
-    <div className="p-6 max-w-2xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">แก้ไขหมู่บ้าน</h1>
+    <div className="max-w-2xl mx-auto space-y-4">
+      <Link
+        href={`/dashboard/villages/${village.id}`}
+        className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        กลับ บ้าน{village.villageName}
+      </Link>
+
+      <div>
+        <h1 className="text-2xl font-black text-gray-900">แก้ไขข้อมูลหมู่บ้าน</h1>
         <p className="text-sm text-gray-500 mt-0.5">บ้าน{village.villageName} หมู่ {village.villageNo}</p>
       </div>
-      <VillageForm
-        defaultValues={{
-          id: village.id,
-          villageName: village.villageName,
-          villageNo: village.villageNo,
-          tambon: village.tambon,
-          amphoe: village.amphoe,
-          province: village.province,
-          zone: village.zone,
-          coordinator: village.coordinator,
-          phone: village.phone ?? '',
-        }}
-      />
+
+      <VillageEditForm village={village} />
     </div>
   )
 }

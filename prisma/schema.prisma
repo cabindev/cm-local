@@ -24,265 +24,362 @@ model User {
   resetTokenCreatedAt DateTime?
   resetTokenExpiresAt DateTime?
   lastPasswordReset   DateTime?
-
-  villages  Village[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  villages            Village[]
 
   @@index([email])
   @@index([role])
 }
 
-enum Role {
-  MEMBER
-  ADMIN
-}
-
-// =========================================
-// โครงการลด เลิก เหล้า บุหรี่ระดับชุมชน
-// =========================================
-
 model Village {
-  id          Int    @id @default(autoincrement())
-  villageName String
-  villageNo   String
-  tambon      String
-  amphoe      String
-  province    String
-  zone        String
-  coordinator String
-  phone       String?
-
-  creatorId Int?
-  creator   User? @relation(fields: [creatorId], references: [id], onDelete: SetNull)
-
-  registeredPopulation Int @default(0) // ประชากรตามทะเบียนบ้าน
-  actualPopulation     Int @default(0) // ประชากรที่อาศัยอยู่จริง
-  householdCount       Int @default(0) // จำนวนครัวเรือน
-
-  screeningResults     ScreeningResult[]
+  id                   Int                   @id @default(autoincrement())
+  villageName          String
+  villageNo            String
+  tambon               String
+  amphoe               String
+  province             String
+  zone                 String
+  coordinator          String
+  phone                String?
+  registeredPopulation Int                   @default(0)
+  actualPopulation     Int                   @default(0)
+  householdCount       Int                   @default(0)
+  creatorId            Int?
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
   alcoholMembers       AlcoholMember[]
-  tobaccoMembers       TobaccoMember[]
+  communityBackgrounds CommunityBackground[]
+  communityOrgs        CommunityOrg[]
   drinkNotDriveMembers DrinkNotDriveMember[]
   envItems             EnvItem[]
-  communityOrgs        CommunityOrg[]
-  communityBackgrounds CommunityBackground[]
+  persons              Person[]
+  screeningResults     ScreeningResult[]
+  tobaccoMembers       TobaccoMember[]
+  creator              User?                 @relation(fields: [creatorId], references: [id])
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([creatorId])
   @@index([province])
   @@index([amphoe])
   @@index([tambon])
+  @@index([creatorId])
 }
 
-// ผลการคัดกรอง (per year)
 model ScreeningResult {
-  id            Int     @id @default(autoincrement())
-  villageId     Int
-  village       Village @relation(fields: [villageId], references: [id], onDelete: Cascade)
-  year          Int
-
-  screenedCount   Int @default(0) // จำนวนคนคัดกรอง
-  alcoholRiskLow  Int @default(0) // ดื่มแบบเสี่ยงต่ำ
-  alcoholRisk     Int @default(0) // ดื่มแบบเสี่ยง
-  alcoholDanger   Int @default(0) // ดื่มแบบอันตราย
-  alcoholAddicted Int @default(0) // ดื่มแบบติด
-  alcoholNone     Int @default(0) // ไม่ดื่ม
-  tobaccoCount    Int @default(0) // สูบบุหรี่
-  tobaccoNone     Int @default(0) // ไม่สูบบุหรี่
-  drinkAndDrive   Int @default(0) // ดื่มแล้วขับ
-  drinkNotDriveN  Int @default(0) // ดื่มไม่ขับ
+  id              Int     @id @default(autoincrement())
+  villageId       Int
+  year            Int
+  screenedCount   Int     @default(0)
+  alcoholRiskLow  Int     @default(0)
+  alcoholRisk     Int     @default(0)
+  alcoholDanger   Int     @default(0)
+  alcoholAddicted Int     @default(0)
+  alcoholNone     Int     @default(0)
+  tobaccoCount    Int     @default(0)
+  tobaccoNone     Int     @default(0)
+  drinkAndDrive   Int     @default(0)
+  drinkNotDriveN  Int     @default(0)
+  village         Village @relation(fields: [villageId], references: [id], onDelete: Cascade)
 
   @@unique([villageId, year])
   @@index([villageId])
 }
 
-// สิ่งแวดล้อม — แต่ละประเภท + ผลทั้ง 3 ปีในแถวเดียว
-// itemType: funeral | tradition | shop | bannedPlace
-model EnvItem {
+model CommunityBackground {
   id        Int     @id @default(autoincrement())
   villageId Int
+  itemType  String
+  hasItem   Boolean @default(false)
+  fileUrl   String?
+  fileName  String?
   village   Village @relation(fields: [villageId], references: [id], onDelete: Cascade)
-  itemType  String  // funeral | tradition | shop | bannedPlace
-
-  hasItem   Boolean @default(false) // มี/ไม่มี (funeral, tradition)
-  itemCount Int     @default(0)     // จำนวน (shop, bannedPlace)
-  result1   String? @db.Text        // ผลปีที่ 1
-  result2   String? @db.Text        // ผลปีที่ 2
-  result3   String? @db.Text        // ผลปีที่ 3
 
   @@unique([villageId, itemType])
   @@index([villageId])
 }
 
-// การมีส่วนร่วม — แต่ละหน่วยงาน + ผลทั้ง 3 ปีในแถวเดียว
-// orgType: school | temple | localGov | villageAdmin | healthStation | organization
-model CommunityOrg {
-  id        Int     @id @default(autoincrement())
-  villageId Int
-  village   Village @relation(fields: [villageId], references: [id], onDelete: Cascade)
-  orgType   String
+model AlcoholMember {
+  id          Int      @id @default(autoincrement())
+  villageId   Int
+  name        String
+  drinkType   String
+  status      String?
+  y1Money     Boolean  @default(false)
+  y1Property  Boolean  @default(false)
+  y1Family    Boolean  @default(false)
+  y1Health    Boolean  @default(false)
+  y1Work      Boolean  @default(false)
+  y1Accepted  Boolean  @default(false)
+  y1Other     Boolean  @default(false)
+  y1OtherText String?  @db.Text
+  y2Money     Boolean  @default(false)
+  y2Property  Boolean  @default(false)
+  y2Family    Boolean  @default(false)
+  y2Health    Boolean  @default(false)
+  y2Work      Boolean  @default(false)
+  y2Accepted  Boolean  @default(false)
+  y2Other     Boolean  @default(false)
+  y2OtherText String?  @db.Text
+  y3Money     Boolean  @default(false)
+  y3Property  Boolean  @default(false)
+  y3Family    Boolean  @default(false)
+  y3Health    Boolean  @default(false)
+  y3Work      Boolean  @default(false)
+  y3Accepted  Boolean  @default(false)
+  y3Other     Boolean  @default(false)
+  y3OtherText String?  @db.Text
+  createdAt   DateTime @default(now())
+  village     Village  @relation(fields: [villageId], references: [id], onDelete: Cascade)
 
-  hasParticipation Boolean @default(false) // มี/ไม่มี
-  result1          String? @db.Text        // ผลปีที่ 1
-  result2          String? @db.Text        // ผลปีที่ 2
-  result3          String? @db.Text        // ผลปีที่ 3
+  @@index([villageId])
+}
+
+model TobaccoMember {
+  id             Int      @id @default(autoincrement())
+  villageId      Int
+  name           String
+  smokeType      String
+  y1Money        Boolean  @default(false)
+  y1MoneyText    String?  @db.Text
+  y1Property     Boolean  @default(false)
+  y1PropertyText String?  @db.Text
+  y1Family       Boolean  @default(false)
+  y1FamilyText   String?  @db.Text
+  y1Health       Boolean  @default(false)
+  y1HealthText   String?  @db.Text
+  y1Work         Boolean  @default(false)
+  y1WorkText     String?  @db.Text
+  y1Accepted     Boolean  @default(false)
+  y1AcceptedText String?  @db.Text
+  y1Other        Boolean  @default(false)
+  y1OtherText    String?  @db.Text
+  y2Money        Boolean  @default(false)
+  y2MoneyText    String?  @db.Text
+  y2Property     Boolean  @default(false)
+  y2PropertyText String?  @db.Text
+  y2Family       Boolean  @default(false)
+  y2FamilyText   String?  @db.Text
+  y2Health       Boolean  @default(false)
+  y2HealthText   String?  @db.Text
+  y2Work         Boolean  @default(false)
+  y2WorkText     String?  @db.Text
+  y2Accepted     Boolean  @default(false)
+  y2AcceptedText String?  @db.Text
+  y2Other        Boolean  @default(false)
+  y2OtherText    String?  @db.Text
+  y3Money        Boolean  @default(false)
+  y3MoneyText    String?  @db.Text
+  y3Property     Boolean  @default(false)
+  y3PropertyText String?  @db.Text
+  y3Family       Boolean  @default(false)
+  y3FamilyText   String?  @db.Text
+  y3Health       Boolean  @default(false)
+  y3HealthText   String?  @db.Text
+  y3Work         Boolean  @default(false)
+  y3WorkText     String?  @db.Text
+  y3Accepted     Boolean  @default(false)
+  y3AcceptedText String?  @db.Text
+  y3Other        Boolean  @default(false)
+  y3OtherText    String?  @db.Text
+  createdAt      DateTime @default(now())
+  village        Village  @relation(fields: [villageId], references: [id], onDelete: Cascade)
+
+  @@index([villageId])
+}
+
+model DrinkNotDriveMember {
+  id          Int      @id @default(autoincrement())
+  villageId   Int
+  name        String
+  drinkType   String
+  year1Result String?  @db.Text
+  year2Result String?  @db.Text
+  year3Result String?  @db.Text
+  createdAt   DateTime @default(now())
+  village     Village  @relation(fields: [villageId], references: [id], onDelete: Cascade)
+
+  @@index([villageId])
+}
+
+model EnvItem {
+  id               Int      @id @default(autoincrement())
+  villageId        Int
+  itemType         String
+  hasItem          Boolean  @default(false)
+  result1          String?  @db.Text
+  result2          String?  @db.Text
+  result3          String?  @db.Text
+  hasPolicy            Boolean? // งานศพ: มีนโยบาย
+  policyFileUrl        String?
+  policyFileName       String?
+  hasCommunityRule     Boolean? // งานศพ: มีกติกาชุมชน
+  communityRuleFileUrl  String?
+  communityRuleFileName String?
+  noAlcohol        Boolean? // ร้านค้า: ไม่ขายเหล้าเลย
+  shopNames        String?  @db.Text // ร้านค้า: ชื่อร้าน (JSON string[])
+  hasShopLegal     Boolean? // ร้านค้า: ร้านขายเข้าร่วมตามกฎหมาย
+  shopLegalNames   String?  @db.Text // ร้านค้า: ชื่อร้านเข้าร่วมตามกฎหมาย (JSON string[])
+  village          Village  @relation(fields: [villageId], references: [id], onDelete: Cascade)
+
+  @@unique([villageId, itemType])
+  @@index([villageId])
+}
+
+model CommunityOrg {
+  id               Int     @id @default(autoincrement())
+  villageId        Int
+  orgType          String
+  hasParticipation Boolean @default(false)
+  orgNames         String?  @db.Text // JSON string[]
+  result1          String? @db.Text
+  result2          String? @db.Text
+  result3          String? @db.Text
+  village          Village @relation(fields: [villageId], references: [id], onDelete: Cascade)
 
   @@unique([villageId, orgType])
   @@index([villageId])
 }
 
-// รายชื่อผู้สมัครเข้าร่วมงดเหล้า + ผลแต่ละปี
-model AlcoholMember {
-  id        Int     @id @default(autoincrement())
+model Person {
+  id        Int            @id @default(autoincrement())
   villageId Int
-  village   Village @relation(fields: [villageId], references: [id], onDelete: Cascade)
   name      String
-  drinkType String  // ดื่มนานๆ ครั้ง | เสี่ยงต่ำ | เสี่ยง | อันตราย | ติด | กำลังบำบัด
-
-  // ผลปีที่ 1
-  y1Money    Boolean @default(false)
-  y1MoneyText    String? @db.Text
-  y1Property Boolean @default(false)
-  y1PropertyText String? @db.Text
-  y1Family   Boolean @default(false)
-  y1FamilyText   String? @db.Text
-  y1Health   Boolean @default(false)
-  y1HealthText   String? @db.Text
-  y1Work     Boolean @default(false)
-  y1WorkText     String? @db.Text
-  y1Accepted Boolean @default(false)
-  y1AcceptedText String? @db.Text
-  y1Other    Boolean @default(false)
-  y1OtherText    String? @db.Text
-
-  // ผลปีที่ 2
-  y2Money    Boolean @default(false)
-  y2MoneyText    String? @db.Text
-  y2Property Boolean @default(false)
-  y2PropertyText String? @db.Text
-  y2Family   Boolean @default(false)
-  y2FamilyText   String? @db.Text
-  y2Health   Boolean @default(false)
-  y2HealthText   String? @db.Text
-  y2Work     Boolean @default(false)
-  y2WorkText     String? @db.Text
-  y2Accepted Boolean @default(false)
-  y2AcceptedText String? @db.Text
-  y2Other    Boolean @default(false)
-  y2OtherText    String? @db.Text
-
-  // ผลปีที่ 3
-  y3Money    Boolean @default(false)
-  y3MoneyText    String? @db.Text
-  y3Property Boolean @default(false)
-  y3PropertyText String? @db.Text
-  y3Family   Boolean @default(false)
-  y3FamilyText   String? @db.Text
-  y3Health   Boolean @default(false)
-  y3HealthText   String? @db.Text
-  y3Work     Boolean @default(false)
-  y3WorkText     String? @db.Text
-  y3Accepted Boolean @default(false)
-  y3AcceptedText String? @db.Text
-  y3Other    Boolean @default(false)
-  y3OtherText    String? @db.Text
-
-  createdAt DateTime @default(now())
+  gender    String?
+  createdAt DateTime       @default(now())
+  village   Village        @relation(fields: [villageId], references: [id], onDelete: Cascade)
+  alcohol   PersonAlcohol?
+  dnd       PersonDnd?
+  tobacco   PersonTobacco?
 
   @@index([villageId])
 }
 
-// รายชื่อผู้สมัครเข้าร่วมงดบุหรี่ + ผลแต่ละปี
-model TobaccoMember {
-  id        Int     @id @default(autoincrement())
-  villageId Int
-  village   Village @relation(fields: [villageId], references: [id], onDelete: Cascade)
-  name      String
-  smokeType String  // สูบประจำ | สูบนานๆ ครั้ง | เพิ่งเลิก | ไม่สูบ
-
-  y1Money    Boolean @default(false)
-  y1MoneyText    String? @db.Text
-  y1Property Boolean @default(false)
-  y1PropertyText String? @db.Text
-  y1Family   Boolean @default(false)
-  y1FamilyText   String? @db.Text
-  y1Health   Boolean @default(false)
-  y1HealthText   String? @db.Text
-  y1Work     Boolean @default(false)
-  y1WorkText     String? @db.Text
-  y1Accepted Boolean @default(false)
-  y1AcceptedText String? @db.Text
-  y1Other    Boolean @default(false)
-  y1OtherText    String? @db.Text
-
-  y2Money    Boolean @default(false)
-  y2MoneyText    String? @db.Text
-  y2Property Boolean @default(false)
-  y2PropertyText String? @db.Text
-  y2Family   Boolean @default(false)
-  y2FamilyText   String? @db.Text
-  y2Health   Boolean @default(false)
-  y2HealthText   String? @db.Text
-  y2Work     Boolean @default(false)
-  y2WorkText     String? @db.Text
-  y2Accepted Boolean @default(false)
-  y2AcceptedText String? @db.Text
-  y2Other    Boolean @default(false)
-  y2OtherText    String? @db.Text
-
-  y3Money    Boolean @default(false)
-  y3MoneyText    String? @db.Text
-  y3Property Boolean @default(false)
-  y3PropertyText String? @db.Text
-  y3Family   Boolean @default(false)
-  y3FamilyText   String? @db.Text
-  y3Health   Boolean @default(false)
-  y3HealthText   String? @db.Text
-  y3Work     Boolean @default(false)
-  y3WorkText     String? @db.Text
-  y3Accepted Boolean @default(false)
-  y3AcceptedText String? @db.Text
-  y3Other    Boolean @default(false)
-  y3OtherText    String? @db.Text
-
-  createdAt DateTime @default(now())
-
-  @@index([villageId])
+model PersonAlcohol {
+  id             Int     @id @default(autoincrement())
+  personId       Int     @unique
+  drinkType      String  @default("เสี่ยงต่ำ")
+  statusY1       String  @default("ตั้งใจเลิก")
+  statusY2       String?
+  statusY3       String?
+  noteY1         String? @db.LongText
+  noteY2         String? @db.LongText
+  noteY3         String? @db.LongText
+  y1Money        Boolean @default(false)
+  y1MoneyText    String? @db.LongText
+  y1Property     Boolean @default(false)
+  y1PropertyText String? @db.LongText
+  y1Family       Boolean @default(false)
+  y1FamilyText   String? @db.LongText
+  y1Health       Boolean @default(false)
+  y1HealthText   String? @db.LongText
+  y1Work         Boolean @default(false)
+  y1WorkText     String? @db.LongText
+  y1Accepted     Boolean @default(false)
+  y1AcceptedText String? @db.LongText
+  y1Other        Boolean @default(false)
+  y1OtherText    String? @db.LongText
+  y2Money        Boolean @default(false)
+  y2MoneyText    String? @db.LongText
+  y2Property     Boolean @default(false)
+  y2PropertyText String? @db.LongText
+  y2Family       Boolean @default(false)
+  y2FamilyText   String? @db.LongText
+  y2Health       Boolean @default(false)
+  y2HealthText   String? @db.LongText
+  y2Work         Boolean @default(false)
+  y2WorkText     String? @db.LongText
+  y2Accepted     Boolean @default(false)
+  y2AcceptedText String? @db.LongText
+  y2Other        Boolean @default(false)
+  y2OtherText    String? @db.LongText
+  y3Money        Boolean @default(false)
+  y3MoneyText    String? @db.LongText
+  y3Property     Boolean @default(false)
+  y3PropertyText String? @db.LongText
+  y3Family       Boolean @default(false)
+  y3FamilyText   String? @db.LongText
+  y3Health       Boolean @default(false)
+  y3HealthText   String? @db.LongText
+  y3Work         Boolean @default(false)
+  y3WorkText     String? @db.LongText
+  y3Accepted     Boolean @default(false)
+  y3AcceptedText String? @db.LongText
+  y3Other        Boolean @default(false)
+  y3OtherText    String? @db.LongText
+  y1MoneyNote    String? @db.LongText
+  y2MoneyNote    String? @db.LongText
+  y3MoneyNote    String? @db.LongText
+  person         Person  @relation(fields: [personId], references: [id], onDelete: Cascade)
 }
 
-// รายชื่อผู้ที่ตั้งใจดื่มไม่ขับ
-model DrinkNotDriveMember {
-  id        Int     @id @default(autoincrement())
-  villageId Int
-  village   Village @relation(fields: [villageId], references: [id], onDelete: Cascade)
-  name      String
-  drinkType String  // ดื่มแล้วขับ | ดื่มไม่ขับ | ใช้บริการรับส่ง | ไม่ดื่ม
-
-  year1Result String? @db.Text
-  year2Result String? @db.Text
-  year3Result String? @db.Text
-
-  createdAt DateTime @default(now())
-
-  @@index([villageId])
+model PersonTobacco {
+  id             Int     @id @default(autoincrement())
+  personId       Int     @unique
+  smokeType      String  @default("สูบประจำ")
+  statusY1       String  @default("ตั้งใจเลิก")
+  statusY2       String?
+  statusY3       String?
+  noteY1         String? @db.LongText
+  noteY2         String? @db.LongText
+  noteY3         String? @db.LongText
+  y1Money        Boolean @default(false)
+  y1MoneyText    String? @db.LongText
+  y1Property     Boolean @default(false)
+  y1PropertyText String? @db.LongText
+  y1Family       Boolean @default(false)
+  y1FamilyText   String? @db.LongText
+  y1Health       Boolean @default(false)
+  y1HealthText   String? @db.LongText
+  y1Work         Boolean @default(false)
+  y1WorkText     String? @db.LongText
+  y1Accepted     Boolean @default(false)
+  y1AcceptedText String? @db.LongText
+  y1Other        Boolean @default(false)
+  y1OtherText    String? @db.LongText
+  y2Money        Boolean @default(false)
+  y2MoneyText    String? @db.LongText
+  y2Property     Boolean @default(false)
+  y2PropertyText String? @db.LongText
+  y2Family       Boolean @default(false)
+  y2FamilyText   String? @db.LongText
+  y2Health       Boolean @default(false)
+  y2HealthText   String? @db.LongText
+  y2Work         Boolean @default(false)
+  y2WorkText     String? @db.LongText
+  y2Accepted     Boolean @default(false)
+  y2AcceptedText String? @db.LongText
+  y2Other        Boolean @default(false)
+  y2OtherText    String? @db.LongText
+  y3Money        Boolean @default(false)
+  y3MoneyText    String? @db.LongText
+  y3Property     Boolean @default(false)
+  y3PropertyText String? @db.LongText
+  y3Family       Boolean @default(false)
+  y3FamilyText   String? @db.LongText
+  y3Health       Boolean @default(false)
+  y3HealthText   String? @db.LongText
+  y3Work         Boolean @default(false)
+  y3WorkText     String? @db.LongText
+  y3Accepted     Boolean @default(false)
+  y3AcceptedText String? @db.LongText
+  y3Other        Boolean @default(false)
+  y3OtherText    String? @db.LongText
+  y1MoneyNote    String? @db.LongText
+  y2MoneyNote    String? @db.LongText
+  y3MoneyNote    String? @db.LongText
+  person         Person  @relation(fields: [personId], references: [id], onDelete: Cascade)
 }
 
-// ข้อมูลประวัติชุมชน (มี/ไม่มี + ไฟล์แนบ)
-// itemType: calendar | riskArea | participation | teamCapacity | history
-model CommunityBackground {
-  id        Int     @id @default(autoincrement())
-  villageId Int
-  village   Village @relation(fields: [villageId], references: [id], onDelete: Cascade)
-  itemType  String
+model PersonDnd {
+  id          Int     @id @default(autoincrement())
+  personId    Int     @unique
+  drinkType   String  @default("เสี่ยงต่ำ")
+  year1Result String? @db.LongText
+  year2Result String? @db.LongText
+  year3Result String? @db.LongText
+  person      Person  @relation(fields: [personId], references: [id], onDelete: Cascade)
+}
 
-  hasItem   Boolean @default(false)
-  fileUrl   String? // path ไฟล์ที่อัปโหลด
-  fileName  String? // ชื่อไฟล์ต้นฉบับ
-
-  @@unique([villageId, itemType])
-  @@index([villageId])
+enum Role {
+  MEMBER
+  ADMIN
 }

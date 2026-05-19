@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Conmunity",
+  title: "Community Driven",
   description: "เชื่อมต่อชุมชน",
 };
 
@@ -33,6 +33,7 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col overflow-x-hidden">
         <Providers>{children}</Providers>

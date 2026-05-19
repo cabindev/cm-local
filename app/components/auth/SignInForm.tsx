@@ -1,10 +1,12 @@
 'use client'
 
 import { useState, FormEvent } from 'react'
-import { signIn, getSession } from 'next-auth/react'
+import { signIn } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
 export default function SignInForm() {
+  const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -25,12 +27,7 @@ export default function SignInForm() {
       if (result?.error) {
         setError('อีเมลหรือรหัสผ่านไม่ถูกต้อง')
       } else {
-        const session = await getSession()
-        if (session?.user.role === 'ADMIN') {
-          window.location.href = '/dashboard'
-        } else {
-          window.location.href = '/'
-        }
+        router.replace('/dashboard')
       }
     } catch {
       setError('เกิดข้อผิดพลาด โปรดลองอีกครั้ง')
@@ -43,7 +40,7 @@ export default function SignInForm() {
     <div className="min-h-screen flex items-center justify-center bg-gray-900">
       <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-xl shadow-2xl">
         <div className="text-center">
-          <h2 className="text-3xl font-extrabold text-gray-900 mb-1">Conmunity</h2>
+          <h2 className="text-3xl font-extrabold text-gray-900 mb-1">Community Driven</h2>
           <p className="text-sm text-gray-500">เข้าสู่ระบบเพื่อใช้งาน</p>
         </div>
 

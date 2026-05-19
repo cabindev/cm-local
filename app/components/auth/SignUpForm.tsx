@@ -111,7 +111,7 @@ export default function SignUpForm() {
         {/* Header */}
         <div className="bg-yellow-400 px-8 py-6">
           <h2 className="text-2xl font-black text-gray-900">สมัครสมาชิก</h2>
-          <p className="text-sm text-yellow-800 mt-0.5">Conmunity — เชื่อมต่อชุมชน</p>
+          <p className="text-sm text-yellow-800 mt-0.5">Community Driven — เชื่อมต่อชุมชน</p>
         </div>
 
         <form className="px-8 py-6 space-y-4" onSubmit={handleSubmit}>

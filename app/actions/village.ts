@@ -1,12 +1,10 @@
 'use server'
 
 import { prisma } from '@/app/lib/prisma'
+import { requireAdmin } from '@/app/lib/auth'
 import { revalidatePath } from 'next/cache'
-import { Prisma } from '@prisma/client'
-import { getServerSession } from 'next-auth'
-import authOptions from '@/app/lib/configs/auth/authOptions'
 
-export type VillageFormData = {
+export async function createVillage(data: {
   villageName: string
   villageNo: string
   tambon: string
@@ -18,113 +16,84 @@ export type VillageFormData = {
   registeredPopulation?: number
   actualPopulation?: number
   householdCount?: number
-}
+}) {
+  const session = await requireAdmin()
 
-export async function createVillage(data: VillageFormData) {
-  const session = await getServerSession(authOptions)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const village = await (prisma.village.create as any)({
-    data: { ...data, creatorId: session?.user?.id ?? null },
+  // Verify user exists in DB before setting FK (session may outlive a DB reset)
+  const userId = Number(session.user.id)
+  const userExists = await prisma.user.findUnique({ where: { id: userId }, select: { id: true } })
+
+  const village = await prisma.village.create({
+    data: {
+      ...data,
+      registeredPopulation: data.registeredPopulation ?? 0,
+      actualPopulation: data.actualPopulation ?? 0,
+      householdCount: data.householdCount ?? 0,
+      creatorId: userExists ? userId : null,
+    },
   })
   revalidatePath('/dashboard/villages')
-  return { success: true, id: village.id }
+  return village
 }
 
-export async function updateVillage(id: number, data: VillageFormData) {
-  await prisma.village.update({ where: { id }, data })
+export async function updateVillage(
+  id: number,
+  data: {
+    villageName?: string
+    villageNo?: string
+    tambon?: string
+    amphoe?: string
+    province?: string
+    zone?: string
+    coordinator?: string
+    phone?: string
+    registeredPopulation?: number
+    actualPopulation?: number
+    householdCount?: number
+  }
+) {
+  await requireAdmin()
+
+  const village = await prisma.village.update({ where: { id }, data })
   revalidatePath('/dashboard/villages')
   revalidatePath(`/dashboard/villages/${id}`)
-  return { success: true }
+  return village
 }
 
 export async function deleteVillage(id: number) {
+  await requireAdmin()
+
   await prisma.village.delete({ where: { id } })
   revalidatePath('/dashboard/villages')
-  return { success: true }
 }
 
-export type VillageFilters = {
-  q?: string
-  zone?: string
-  province?: string
-  amphoe?: string
-  tambon?: string
+export async function getVillages() {
+  await requireAdmin()
+
+  return prisma.village.findMany({
+    orderBy: { createdAt: 'desc' },
+    include: {
+      _count: { select: { persons: true } },
+    },
+  })
 }
 
-function buildWhere(filters: VillageFilters): Prisma.VillageWhereInput {
-  const { q, zone, province, amphoe, tambon } = filters
-  const where: Prisma.VillageWhereInput = {}
-  if (zone) where.zone = zone
-  if (province) where.province = province
-  if (amphoe) where.amphoe = amphoe
-  if (tambon) where.tambon = tambon
-  if (q) {
-    where.OR = [
-      { villageName: { contains: q } },
-      { tambon: { contains: q } },
-      { amphoe: { contains: q } },
-      { province: { contains: q } },
-    ]
-  }
-  return where
-}
-
-export async function getVillages(filters: VillageFilters = {}, page = 1, limit = 10) {
-  const where = buildWhere(filters)
-
-  const [villages, total] = await Promise.all([
-    prisma.village.findMany({
-      where,
-      include: {
-        _count: { select: { alcoholMembers: true, tobaccoMembers: true, drinkNotDriveMembers: true } },
+export async function getVillage(id: number) {
+  return prisma.village.findUnique({
+    where: { id },
+    include: {
+      screeningResults: { orderBy: { year: 'asc' } },
+      communityBackgrounds: true,
+      envItems: true,
+      communityOrgs: true,
+      persons: {
+        orderBy: { createdAt: 'desc' },
+        include: {
+          alcohol: { select: { drinkType: true, statusY1: true, statusY2: true, statusY3: true } },
+          tobacco: { select: { smokeType: true,  statusY1: true, statusY2: true, statusY3: true } },
+          dnd:     { select: { drinkType: true, year1Result: true, year2Result: true, year3Result: true } },
+        },
       },
-      orderBy: { createdAt: 'desc' },
-      skip: (page - 1) * limit,
-      take: limit,
-    }),
-    prisma.village.count({ where }),
-  ])
-
-  return { villages, total, page, pageSize: limit, totalPages: Math.ceil(total / limit) }
-}
-
-export async function getFilterOptions(zone?: string, province?: string, amphoe?: string) {
-  const [zones, provinces, amphoes, tambons] = await Promise.all([
-    prisma.village.findMany({
-      select: { zone: true },
-      distinct: ['zone'],
-      orderBy: { zone: 'asc' },
-    }),
-    zone
-      ? prisma.village.findMany({
-          where: { zone },
-          select: { province: true },
-          distinct: ['province'],
-          orderBy: { province: 'asc' },
-        })
-      : Promise.resolve([]),
-    province
-      ? prisma.village.findMany({
-          where: { ...(zone ? { zone } : {}), province },
-          select: { amphoe: true },
-          distinct: ['amphoe'],
-          orderBy: { amphoe: 'asc' },
-        })
-      : Promise.resolve([]),
-    amphoe
-      ? prisma.village.findMany({
-          where: { ...(zone ? { zone } : {}), ...(province ? { province } : {}), amphoe },
-          select: { tambon: true },
-          distinct: ['tambon'],
-          orderBy: { tambon: 'asc' },
-        })
-      : Promise.resolve([]),
-  ])
-
-  return {
-    zones: zones.map(z => z.zone),
-    provinces: (provinces as { province: string }[]).map(p => p.province),
-    amphoes: (amphoes as { amphoe: string }[]).map(a => a.amphoe),
-    tambons: (tambons as { tambon: string }[]).map(t => t.tambon),
-  }
+    },
+  })
 }

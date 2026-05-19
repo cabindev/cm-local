@@ -1,0 +1,1 @@
+ALTER TABLE `EnvItem` ADD COLUMN `hasShopLegal` BOOLEAN NULL;

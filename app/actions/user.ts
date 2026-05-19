@@ -1,17 +1,13 @@
 'use server'
 
 import { prisma } from '@/app/lib/prisma'
-import { getServerSession } from 'next-auth'
-import authOptions from '@/app/lib/configs/auth/authOptions'
+import { requireAdmin } from '@/app/lib/auth'
 import { revalidatePath } from 'next/cache'
 
 export async function toggleUserRole(userId: number) {
-  const session = await getServerSession(authOptions)
-  if (!session || session.user.role !== 'ADMIN') {
-    throw new Error('Unauthorized')
-  }
-  // ป้องกันไม่ให้ลด role ตัวเอง
-  if (session.user.id === userId) {
+  const session = await requireAdmin()
+
+  if (Number(session.user.id) === userId) {
     throw new Error('ไม่สามารถเปลี่ยนสิทธิ์ของตัวเองได้')
   }
 

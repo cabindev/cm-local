@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>Conmunity — Schema Diagram</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #111827; font-family: sans-serif; padding: 32px; }
+    h1 { color: #facc15; font-size: 20px; font-weight: 900; margin-bottom: 4px; }
+    p  { color: #6b7280; font-size: 13px; margin-bottom: 24px; }
+    .mermaid { background: #fff; border-radius: 16px; padding: 32px; overflow: auto; }
+  </style>
+</head>
+<body>
+  <h1>Conmunity · Database Schema</h1>
+  <p>โครงการลด เลิก เหล้า บุหรี่ระดับชุมชน — Entity Relationship Diagram</p>
+
+  <div class="mermaid">
+erDiagram
+
+  User {
+    Int      id          PK
+    String   firstName
+    String   lastName
+    String   email       UK
+    String   password
+    String   image
+    String   role
+    String   province
+    String   amphoe
+    String   district
+    String   zone
+    DateTime createdAt
+  }
+
+  Village {
+    Int      id                   PK
+    Int      creatorId            FK
+    String   villageName
+    String   villageNo
+    String   tambon
+    String   amphoe
+    String   province
+    String   zone
+    String   coordinator
+    String   phone
+    Int      registeredPopulation
+    Int      actualPopulation
+    Int      householdCount
+    DateTime createdAt
+  }
+
+  ScreeningResult {
+    Int id           PK
+    Int villageId    FK
+    Int year
+    Int screenedCount
+    Int alcoholRiskLow
+    Int alcoholRisk
+    Int alcoholDanger
+    Int alcoholAddicted
+    Int alcoholNone
+    Int tobaccoCount
+    Int tobaccoNone
+    Int drinkAndDrive
+    Int drinkNotDriveN
+  }
+
+  AlcoholMember {
+    Int      id        PK
+    Int      villageId FK
+    String   name
+    String   drinkType
+    Boolean  y1Money
+    String   y1MoneyText
+    Boolean  y1Health
+    String   y1HealthText
+    Boolean  y2Money
+    String   y2MoneyText
+    Boolean  y2Health
+    String   y2HealthText
+    Boolean  y3Money
+    String   y3MoneyText
+    Boolean  y3Health
+    String   y3HealthText
+    DateTime createdAt
+  }
+
+  TobaccoMember {
+    Int      id        PK
+    Int      villageId FK
+    String   name
+    String   smokeType
+    Boolean  y1Health
+    String   y1HealthText
+    Boolean  y2Health
+    String   y2HealthText
+    Boolean  y3Health
+    String   y3HealthText
+    DateTime createdAt
+  }
+
+  DrinkNotDriveMember {
+    Int      id          PK
+    Int      villageId   FK
+    String   name
+    String   drinkType
+    String   year1Result
+    String   year2Result
+    String   year3Result
+    DateTime createdAt
+  }
+
+  EnvItem {
+    Int     id        PK
+    Int     villageId FK
+    String  itemType
+    Boolean hasItem
+    Int     itemCount
+    String  result1
+    String  result2
+    String  result3
+  }
+
+  CommunityOrg {
+    Int     id               PK
+    Int     villageId        FK
+    String  orgType
+    Boolean hasParticipation
+    String  result1
+    String  result2
+    String  result3
+  }
+
+  CommunityBackground {
+    Int     id        PK
+    Int     villageId FK
+    String  itemType
+    Boolean hasItem
+    String  fileUrl
+    String  fileName
+  }
+
+  User                ||--o{ Village             : creates
+  Village             ||--o{ ScreeningResult     : has
+  Village             ||--o{ AlcoholMember       : has
+  Village             ||--o{ TobaccoMember       : has
+  Village             ||--o{ DrinkNotDriveMember : has
+  Village             ||--o{ EnvItem             : has
+  Village             ||--o{ CommunityOrg        : has
+  Village             ||--o{ CommunityBackground : has
+  </div>
+
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: 'default' })
+  </script>
+</body>
+</html>

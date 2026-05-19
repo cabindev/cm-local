@@ -1,19 +1,29 @@
-import { getServerSession } from 'next-auth'
-import { redirect } from 'next/navigation'
-import authOptions from '@/app/lib/configs/auth/authOptions'
+'use client'
+
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 import { DashboardProvider } from './context/DashboardContext'
 import DashboardClient from './components/DashboardClient'
 
-export const metadata = {
-  title: 'Dashboard | Conmunity',
-}
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const { data: session, status } = useSession()
+  const router = useRouter()
 
-export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const session = await getServerSession(authOptions)
+  useEffect(() => {
+    if (status === 'unauthenticated') router.push('/auth/signin')
+    if (status === 'authenticated' && session?.user?.role !== 'ADMIN') router.push('/auth/signin')
+  }, [status, session, router])
 
-  if (!session || session.user.role !== 'ADMIN') {
-    redirect('/auth/signin')
+  if (status === 'loading') {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="w-8 h-8 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
   }
+
+  if (!session || session.user.role !== 'ADMIN') return null
 
   return (
     <DashboardProvider>
