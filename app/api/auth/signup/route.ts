@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import { NextRequest, NextResponse } from 'next/server';
 import path from 'path';
 import fs from 'fs/promises';
+import { sendTelegram } from '@/app/lib/telegram';
 
 const prisma = new PrismaClient();
 
@@ -56,6 +57,14 @@ export async function POST(request: NextRequest) {
         zone: zone || null,
       },
     });
+
+    const now = new Date().toLocaleString('th-TH', { timeZone: 'Asia/Bangkok' })
+    await sendTelegram(
+      `🆕 <b>สมัครสมาชิกใหม่</b>\n` +
+      `👤 ${firstName} ${lastName}\n` +
+      `📧 ${email}\n` +
+      `🕐 ${now}`
+    )
 
     return NextResponse.json({ message: 'ลงทะเบียนสำเร็จ', userId: newUser.id }, { status: 200 });
   } catch (error) {

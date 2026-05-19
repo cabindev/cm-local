@@ -2,6 +2,7 @@ import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { PrismaClient, User as PrismaUser } from '@prisma/client';
 import bcrypt from 'bcrypt';
+import { sendTelegram } from '@/app/lib/telegram';
 
 const prisma = new PrismaClient();
 
@@ -70,6 +71,15 @@ const authOptions: NextAuthOptions = {
         if (!isValidPassword) {
           throw new Error('รหัสผ่านไม่ถูกต้อง');
         }
+
+        const now = new Date().toLocaleString('th-TH', { timeZone: 'Asia/Bangkok' })
+        await sendTelegram(
+          `✅ <b>เข้าสู่ระบบ</b>\n` +
+          `👤 ${user.firstName} ${user.lastName}\n` +
+          `📧 ${user.email}\n` +
+          `🔑 ${user.role}\n` +
+          `🕐 ${now}`
+        )
 
         return {
           id: user.id,
