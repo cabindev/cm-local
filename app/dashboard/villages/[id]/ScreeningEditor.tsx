@@ -122,7 +122,7 @@ export default function ScreeningEditor({
             placeholder="0"
             onChange={(e) => set('screenedCount', parseInt(e.target.value) || 0)}
             onBlur={handleBlur}
-            className="w-28 text-center px-3 py-2 border border-gray-200 rounded-xl text-base font-semibold focus:outline-none focus:ring-2 focus:ring-yellow-400"
+            className="w-28 text-center px-3 py-2 border border-gray-200 rounded-xl text-base font-semibold text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400"
           />
           <span className="text-3xl font-black text-gray-900">{data.screenedCount.toLocaleString()}</span>
           <span className="text-gray-500 text-sm">คน</span>

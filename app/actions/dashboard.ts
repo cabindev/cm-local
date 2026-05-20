@@ -113,28 +113,37 @@ export async function getDashboardStats() {
     return !!s && SUCCESS_TERMS.some(t => s.includes(t))
   }
 
-  let alcTotal = 0, alcY1 = 0, alcY2 = 0, alcY3 = 0, alcSuccess = 0
-  let tobTotal = 0, tobY1 = 0, tobY2 = 0, tobY3 = 0, tobSuccess = 0
-  let dndTotal = 0, dndY1 = 0, dndY2 = 0, dndY3 = 0, dndSuccess = 0
+  let alcTotal = 0, alcY1 = 0, alcY2 = 0, alcY3 = 0, alcSuccess = 0, alcDeceased = 0
+  let tobTotal = 0, tobY1 = 0, tobY2 = 0, tobY3 = 0, tobSuccess = 0, tobDeceased = 0
+  let dndTotal = 0, dndY1 = 0, dndY2 = 0, dndY3 = 0, dndSuccess = 0, dndDeceased = 0
 
   for (const p of persons) {
     if (p.alcohol) {
       alcTotal++
       if (p.alcohol.statusY1) { alcY1++; if (isSuccess(p.alcohol.statusY1)) alcSuccess++ }
-      if (p.alcohol.statusY2) alcY2++
-      if (p.alcohol.statusY3) alcY3++
+      if (p.alcohol.statusY2 === 'เสียชีวิต' || p.alcohol.statusY3 === 'เสียชีวิต') { alcDeceased++ }
+      else {
+        if (p.alcohol.statusY2) alcY2++
+        if (p.alcohol.statusY3) alcY3++
+      }
     }
     if (p.tobacco) {
       tobTotal++
       if (p.tobacco.statusY1) { tobY1++; if (isSuccess(p.tobacco.statusY1)) tobSuccess++ }
-      if (p.tobacco.statusY2) tobY2++
-      if (p.tobacco.statusY3) tobY3++
+      if (p.tobacco.statusY2 === 'เสียชีวิต' || p.tobacco.statusY3 === 'เสียชีวิต') { tobDeceased++ }
+      else {
+        if (p.tobacco.statusY2) tobY2++
+        if (p.tobacco.statusY3) tobY3++
+      }
     }
     if (p.dnd) {
       dndTotal++
       if (p.dnd.year1Result) dndY1++
-      if (p.dnd.year2Result) dndY2++
-      if (p.dnd.year3Result) { dndY3++; if (p.dnd.year3Result === 'บรรลุเป้าหมายอย่างต่อเนื่อง') dndSuccess++ }
+      if (p.dnd.year2Result === 'เสียชีวิต' || p.dnd.year3Result === 'เสียชีวิต') { dndDeceased++ }
+      else {
+        if (p.dnd.year2Result) dndY2++
+        if (p.dnd.year3Result) { dndY3++; if (p.dnd.year3Result === 'บรรลุเป้าหมายอย่างต่อเนื่อง') dndSuccess++ }
+      }
     }
   }
 
@@ -144,7 +153,7 @@ export async function getDashboardStats() {
     byZone,
     env,
     orgParticipation,
-    outcomes: { alcTotal, alcY1, alcY2, alcY3, alcSuccess, tobTotal, tobY1, tobY2, tobY3, tobSuccess, dndTotal, dndY1, dndY2, dndY3, dndSuccess },
+    outcomes: { alcTotal, alcY1, alcY2, alcY3, alcSuccess, alcDeceased, tobTotal, tobY1, tobY2, tobY3, tobSuccess, tobDeceased, dndTotal, dndY1, dndY2, dndY3, dndSuccess, dndDeceased },
   }
 }
 

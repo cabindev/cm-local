@@ -3,18 +3,18 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { updatePerson, deletePerson } from '@/app/actions/person'
-import { Wine, Cigarette, Car, Trash2 } from 'lucide-react'
+import { Wine, Cigarette, Car, Trash2, Plus, X } from 'lucide-react'
 
 const DRINK_TYPES    = ['เสี่ยงต่ำ', 'เสี่ยงสูง', 'อันตราย', 'ติดสุรา']
 const SMOKE_TYPES    = ['สูบประจำ', 'นานๆ ครั้ง']
 const SMOKE_QTY      = ['5-10 มวน', '11-20 มวน', 'มากกว่า 20 มวน']
 const DND_TYPES      = ['เคยดื่มแล้วขับ 1 ครั้งต่อเดือน', 'เคยดื่มแล้วขับ 2 ครั้งต่อเดือน', 'เคยดื่มแล้วขับ 3 ครั้งต่อเดือน', 'ไม่เคยดื่มแล้วขับ']
 const STATUS_Y1 = ['ตั้งใจเลิก', 'มีแนวโน้มที่จะเลิก', 'อยากลดแต่ยังมีอุปสรรค']
-const STATUS_Y2 = ['เลิกได้แล้ว', 'ลดพฤติกรรมได้', 'ยังคงพฤติกรรมเดิม', 'ออกจากโครงการ']
-const STATUS_Y3 = ['เลิกได้แล้ว', 'ลดพฤติกรรมได้อย่างต่อเนื่อง', 'ลดได้บางส่วน', 'ไม่บรรลุเป้าหมาย']
+const STATUS_Y2 = ['เลิกได้แล้ว', 'ลดพฤติกรรมได้', 'ยังคงพฤติกรรมเดิม', 'ออกจากโครงการ', 'เสียชีวิต']
+const STATUS_Y3 = ['เลิกได้แล้ว', 'ลดพฤติกรรมได้อย่างต่อเนื่อง', 'ลดได้บางส่วน', 'ไม่บรรลุเป้าหมาย', 'เสียชีวิต']
 const DND_Y1 = ['ตั้งใจดื่มไม่ขับ', 'มีแนวโน้มจะเปลี่ยนพฤติกรรม', 'อยากเปลี่ยนแต่ยังมีอุปสรรค']
-const DND_Y2 = ['บรรลุเป้าหมาย', 'ลดพฤติกรรมได้', 'ยังคงพฤติกรรมเดิม', 'ออกจากโครงการ']
-const DND_Y3 = ['บรรลุเป้าหมายอย่างต่อเนื่อง', 'ลดพฤติกรรมได้บางส่วน', 'ยังคงพฤติกรรมเดิม', 'ไม่บรรลุเป้าหมาย']
+const DND_Y2 = ['บรรลุเป้าหมาย', 'ลดพฤติกรรมได้', 'ยังคงพฤติกรรมเดิม', 'ออกจากโครงการ', 'เสียชีวิต']
+const DND_Y3 = ['บรรลุเป้าหมายอย่างต่อเนื่อง', 'ลดพฤติกรรมได้บางส่วน', 'ยังคงพฤติกรรมเดิม', 'ไม่บรรลุเป้าหมาย', 'เสียชีวิต']
 
 const YEAR_LABELS = [
   { label: 'ปีที่ 1', hint: 'วัดเจตนา/การเข้าร่วม' },
@@ -50,8 +50,13 @@ function StatusYearCard({ y1, setY1, y2, setY2, y3, setY3,
             <span className="text-[10px] text-gray-400 flex-1">{YEAR_LABELS[i].hint}</span>
           </div>
           <div className="px-3 pb-2">
-            <select value={val} onChange={(e) => set(e.target.value)}
-              className="w-full px-2 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-yellow-400 bg-white">
+            <select
+              value={val}
+              onChange={(e) => {
+                set(e.target.value)
+                if (i === 1 && e.target.value === 'เสียชีวิต') setY3('เสียชีวิต')
+              }}
+              className="w-full px-2 py-1.5 border border-gray-200 rounded-lg text-xs text-gray-800 focus:outline-none focus:ring-1 focus:ring-yellow-400 bg-white">
               {!required && <option value="">-- ยังไม่ระบุ --</option>}
               {opts.map((s) => <option key={s} value={s}>{s}</option>)}
             </select>
@@ -63,7 +68,7 @@ function StatusYearCard({ y1, setY1, y2, setY2, y3, setY3,
 }
 
 const OUTCOMES = [
-  { key: 'Money',    label: 'จำนวนเงินประหยัด' },
+  { key: 'Money',    label: 'จำนวนเงินประหยัด/เดือน' },
   { key: 'Property', label: 'ทรัพย์สิน' },
   { key: 'Family',   label: 'ความสุขในครอบครัว' },
   { key: 'Health',   label: 'สุขภาพ' },
@@ -99,6 +104,41 @@ function extractOutcomes(rec: Record<string, unknown> | null): Outcomes {
   return out
 }
 
+function parseItems(v: string | boolean | undefined): string[] {
+  if (!v || typeof v === 'boolean') return []
+  try {
+    const p = JSON.parse(v as string)
+    return Array.isArray(p) ? p : [v as string]
+  } catch {
+    return [v as string]
+  }
+}
+
+function OutcomeItemList({ raw, onChange }: { raw: string | boolean | undefined; onChange: (val: string) => void }) {
+  const items = parseItems(raw)
+  const update = (next: string[]) => onChange(next.length ? JSON.stringify(next) : '')
+  return (
+    <div className="space-y-1 w-full">
+      {items.map((item, i) => (
+        <div key={i} className="flex items-center gap-1">
+          <input type="text" value={item}
+            onChange={(e) => { const n = [...items]; n[i] = e.target.value; update(n) }}
+            placeholder="ระบุ..."
+            className="flex-1 px-2 py-1 border border-yellow-300 bg-yellow-50 rounded-md text-xs text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-yellow-400" />
+          <button type="button" onClick={() => update(items.filter((_, idx) => idx !== i))}
+            className="text-gray-300 hover:text-red-400 transition-colors flex-shrink-0">
+            <X className="w-3 h-3" />
+          </button>
+        </div>
+      ))}
+      <button type="button" onClick={() => update([...items, ''])}
+        className="flex items-center gap-0.5 text-xs text-yellow-600 hover:text-yellow-700 font-medium">
+        <Plus className="w-3 h-3" />เพิ่ม
+      </button>
+    </div>
+  )
+}
+
 function OutcomeYearGrid({ values, onChange }: { values: Outcomes; onChange: (k: string, v: boolean | string) => void }) {
   return (
     <div className="overflow-x-auto">
@@ -125,29 +165,20 @@ function OutcomeYearGrid({ values, onChange }: { values: Outcomes; onChange: (k:
                           <div className="flex flex-col gap-1 w-full bg-yellow-50/50 p-1.5 border border-yellow-200 rounded-md">
                             {MONEY_RANGES.map((r) => (
                               <label key={r} className="flex items-start gap-1.5 cursor-pointer text-left w-full hover:bg-yellow-100/50 p-1 rounded transition-colors">
-                                <input
-                                  type="radio"
-                                  name={`money_y${y}_${key}`}
-                                  value={r}
-                                  checked={values[tk] === r}
-                                  onChange={(e) => onChange(tk, e.target.value)}
-                                  className="accent-yellow-500 w-3.5 h-3.5 mt-0.5 flex-shrink-0"
-                                />
+                                <input type="radio" name={`money_y${y}_${key}`} value={r}
+                                  checked={values[tk] === r} onChange={(e) => onChange(tk, e.target.value)}
+                                  className="accent-yellow-500 w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
                                 <span className="text-[10px] text-gray-700 leading-tight">{r}</span>
                               </label>
                             ))}
                           </div>
-                          <input
-                            type="text"
-                            value={(values[`y${y}${key}Note`] as string) ?? ''}
+                          <input type="text" value={(values[`y${y}${key}Note`] as string) ?? ''}
                             onChange={(e) => onChange(`y${y}${key}Note`, e.target.value)}
                             placeholder="เพิ่มข้อความ..."
-                            className="w-full px-2 py-1 border border-yellow-200 bg-yellow-50 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-yellow-400 mt-1"
-                          />
+                            className="w-full px-2 py-1 border border-yellow-200 bg-yellow-50 rounded-md text-xs text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-yellow-400 mt-1" />
                         </>
                       ) : checked ? (
-                        <input type="text" value={(values[tk] as string) ?? ''} onChange={(e) => onChange(tk, e.target.value)}
-                          placeholder="ระบุ..." className="w-full px-2 py-1 border border-yellow-300 bg-yellow-50 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-yellow-400" />
+                        <OutcomeItemList raw={values[tk]} onChange={(val) => onChange(tk, val)} />
                       ) : null}
                     </div>
                   </td>
@@ -297,7 +328,7 @@ export default function PersonEditForm({ person, villageId }: { person: PersonDa
     })
   }
 
-  const selectCls = 'w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400'
+  const selectCls = 'w-full px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-yellow-400'
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -308,7 +339,7 @@ export default function PersonEditForm({ person, villageId }: { person: PersonDa
           <div>
             <label className="text-sm font-semibold text-gray-700 block mb-1.5">ชื่อ-นามสกุล <span className="text-red-500">*</span></label>
             <input value={name} onChange={(e) => setName(e.target.value)} placeholder="ชื่อ นามสกุล"
-              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400" />
+              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400" />
           </div>
           <div>
             <label className="text-sm font-semibold text-gray-700 block mb-2">เพศ <span className="text-red-500">*</span></label>
@@ -352,7 +383,19 @@ export default function PersonEditForm({ person, villageId }: { person: PersonDa
                   {DRINK_TYPES.map((d) => <option key={d} value={d}>{d}</option>)}
                 </select>
               </div>
-              <StatusYearCard y1={alcStatus} setY1={setAlcStatus} y2={alcStatus2} setY2={setAlcStatus2} y3={alcStatus3} setY3={setAlcStatus3} />
+              <StatusYearCard y1={alcStatus} setY1={setAlcStatus} y2={alcStatus2} setY2={(v) => {
+                setAlcStatus2(v)
+                if (v === 'เสียชีวิต') {
+                  if (hasTobacco) { setTobStatus2('เสียชีวิต'); setTobStatus3('เสียชีวิต') }
+                  if (hasDnd)     { setDndY2('เสียชีวิต'); setDndY3('เสียชีวิต') }
+                }
+              }} y3={alcStatus3} setY3={(v) => {
+                setAlcStatus3(v)
+                if (v === 'เสียชีวิต') {
+                  if (hasTobacco) setTobStatus3('เสียชีวิต')
+                  if (hasDnd)     setDndY3('เสียชีวิต')
+                }
+              }} />
             </div>
             <div>
               <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">ผลลัพธ์รายปี</p>
@@ -379,7 +422,7 @@ export default function PersonEditForm({ person, villageId }: { person: PersonDa
                 <div className="px-3 pt-3 pb-2 bg-gray-50 border-b border-gray-100">
                   <label className="text-xs text-gray-500">ประเภทการสูบ</label>
                   <select value={smokeType} onChange={(e) => { setSmokeType(e.target.value); setSmokeQty(''); setSmokeSocial(false); setSmokeStress(false) }}
-                    className="w-full mt-1 px-2 py-1.5 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                    className="w-full mt-1 px-2 py-1.5 border border-gray-200 rounded-lg text-sm text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-yellow-400">
                     {SMOKE_TYPES.map((s) => <option key={s} value={s}>{s}</option>)}
                   </select>
                 </div>
@@ -409,7 +452,19 @@ export default function PersonEditForm({ person, villageId }: { person: PersonDa
                   </div>
                 )}
               </div>
-              <StatusYearCard y1={tobStatus} setY1={setTobStatus} y2={tobStatus2} setY2={setTobStatus2} y3={tobStatus3} setY3={setTobStatus3} />
+              <StatusYearCard y1={tobStatus} setY1={setTobStatus} y2={tobStatus2} setY2={(v) => {
+                setTobStatus2(v)
+                if (v === 'เสียชีวิต') {
+                  if (hasAlcohol) { setAlcStatus2('เสียชีวิต'); setAlcStatus3('เสียชีวิต') }
+                  if (hasDnd)     { setDndY2('เสียชีวิต'); setDndY3('เสียชีวิต') }
+                }
+              }} y3={tobStatus3} setY3={(v) => {
+                setTobStatus3(v)
+                if (v === 'เสียชีวิต') {
+                  if (hasAlcohol) setAlcStatus3('เสียชีวิต')
+                  if (hasDnd)     setDndY3('เสียชีวิต')
+                }
+              }} />
             </div>
             <div>
               <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">ผลลัพธ์รายปี</p>
@@ -444,8 +499,20 @@ export default function PersonEditForm({ person, villageId }: { person: PersonDa
             </div>
             <StatusYearCard
               y1={dndY1} setY1={setDndY1}
-              y2={dndY2} setY2={setDndY2}
-              y3={dndY3} setY3={setDndY3}
+              y2={dndY2} setY2={(v) => {
+                setDndY2(v)
+                if (v === 'เสียชีวิต') {
+                  if (hasAlcohol) { setAlcStatus2('เสียชีวิต'); setAlcStatus3('เสียชีวิต') }
+                  if (hasTobacco) { setTobStatus2('เสียชีวิต'); setTobStatus3('เสียชีวิต') }
+                }
+              }}
+              y3={dndY3} setY3={(v) => {
+                setDndY3(v)
+                if (v === 'เสียชีวิต') {
+                  if (hasAlcohol) setAlcStatus3('เสียชีวิต')
+                  if (hasTobacco) setTobStatus3('เสียชีวิต')
+                }
+              }}
               optsY1={DND_Y1} optsY2={DND_Y2} optsY3={DND_Y3}
               title="บันทึกการติดตามรายปี"
             />

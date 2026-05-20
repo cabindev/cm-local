@@ -5,11 +5,11 @@ import { updatePerson } from '@/app/actions/person'
 import { Wine, Cigarette, Car, CheckCircle } from 'lucide-react'
 
 const STATUS_Y1 = ['ตั้งใจเลิก', 'มีแนวโน้มที่จะเลิก', 'อยากลดแต่ยังมีอุปสรรค']
-const STATUS_Y2 = ['เลิกได้แล้ว', 'ลดพฤติกรรมได้', 'ยังคงพฤติกรรมเดิม', 'ออกจากโครงการ']
-const STATUS_Y3 = ['เลิกได้แล้ว', 'ลดพฤติกรรมได้อย่างต่อเนื่อง', 'ลดได้บางส่วน', 'ไม่บรรลุเป้าหมาย']
+const STATUS_Y2 = ['เลิกได้แล้ว', 'ลดพฤติกรรมได้', 'ยังคงพฤติกรรมเดิม', 'ออกจากโครงการ', 'เสียชีวิต']
+const STATUS_Y3 = ['เลิกได้แล้ว', 'ลดพฤติกรรมได้อย่างต่อเนื่อง', 'ลดได้บางส่วน', 'ไม่บรรลุเป้าหมาย', 'เสียชีวิต']
 const DND_Y1 = ['ตั้งใจดื่มไม่ขับ', 'มีแนวโน้มจะเปลี่ยนพฤติกรรม', 'อยากเปลี่ยนแต่ยังมีอุปสรรค']
-const DND_Y2 = ['บรรลุเป้าหมาย', 'ลดพฤติกรรมได้', 'ยังคงพฤติกรรมเดิม', 'ออกจากโครงการ']
-const DND_Y3 = ['บรรลุเป้าหมายอย่างต่อเนื่อง', 'ลดพฤติกรรมได้บางส่วน', 'ยังคงพฤติกรรมเดิม', 'ไม่บรรลุเป้าหมาย']
+const DND_Y2 = ['บรรลุเป้าหมาย', 'ลดพฤติกรรมได้', 'ยังคงพฤติกรรมเดิม', 'ออกจากโครงการ', 'เสียชีวิต']
+const DND_Y3 = ['บรรลุเป้าหมายอย่างต่อเนื่อง', 'ลดพฤติกรรมได้บางส่วน', 'ยังคงพฤติกรรมเดิม', 'ไม่บรรลุเป้าหมาย', 'เสียชีวิต']
 
 type AlcoholData = {
   drinkType: string
@@ -62,7 +62,7 @@ function YearSelect({
       value={value}
       onChange={(e) => onChange(e.target.value)}
       onBlur={onBlur}
-      className="w-full px-2 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-yellow-400 bg-white"
+      className="w-full px-2 py-1.5 border border-gray-200 rounded-lg text-xs text-gray-800 focus:outline-none focus:ring-1 focus:ring-yellow-400 bg-white"
     >
       {!required && <option value="">-- ยังไม่ระบุ --</option>}
       {opts.map((s) => <option key={s} value={s}>{s}</option>)}
@@ -167,13 +167,26 @@ function PersonRow({
           </div>
           <div className="p-3 grid grid-cols-3 gap-2">
             {[
-              { label: 'ปีที่ 1', val: alcY1, set: setAlcY1, opts: STATUS_Y1, required: true },
-              { label: 'ปีที่ 2', val: alcY2, set: setAlcY2, opts: STATUS_Y2 },
-              { label: 'ปีที่ 3', val: alcY3, set: setAlcY3, opts: STATUS_Y3 },
-            ].map(({ label, val, set, opts, required }) => (
+              { label: 'ปีที่ 1', val: alcY1, opts: STATUS_Y1, required: true, onChange: setAlcY1 },
+              { label: 'ปีที่ 2', val: alcY2, opts: STATUS_Y2, onChange: (v: string) => {
+                setAlcY2(v)
+                if (v === 'เสียชีวิต') {
+                  setAlcY3('เสียชีวิต')
+                  if (person.tobacco) { setTobY2('เสียชีวิต'); setTobY3('เสียชีวิต') }
+                  if (person.dnd)     { setDndY2('เสียชีวิต'); setDndY3('เสียชีวิต') }
+                }
+              }},
+              { label: 'ปีที่ 3', val: alcY3, opts: STATUS_Y3, onChange: (v: string) => {
+                setAlcY3(v)
+                if (v === 'เสียชีวิต') {
+                  if (person.tobacco) setTobY3('เสียชีวิต')
+                  if (person.dnd)     setDndY3('เสียชีวิต')
+                }
+              }},
+            ].map(({ label, val, opts, required, onChange }) => (
               <div key={label} className="space-y-1">
                 <p className="text-[10px] font-semibold text-gray-500">{label}</p>
-                <YearSelect value={val} opts={opts} required={required} onChange={set} onBlur={save} />
+                <YearSelect value={val} opts={opts} required={required} onChange={onChange} onBlur={save} />
               </div>
             ))}
           </div>
@@ -190,13 +203,26 @@ function PersonRow({
           </div>
           <div className="p-3 grid grid-cols-3 gap-2">
             {[
-              { label: 'ปีที่ 1', val: tobY1, set: setTobY1, opts: STATUS_Y1, required: true },
-              { label: 'ปีที่ 2', val: tobY2, set: setTobY2, opts: STATUS_Y2 },
-              { label: 'ปีที่ 3', val: tobY3, set: setTobY3, opts: STATUS_Y3 },
-            ].map(({ label, val, set, opts, required }) => (
+              { label: 'ปีที่ 1', val: tobY1, opts: STATUS_Y1, required: true, onChange: setTobY1 },
+              { label: 'ปีที่ 2', val: tobY2, opts: STATUS_Y2, onChange: (v: string) => {
+                setTobY2(v)
+                if (v === 'เสียชีวิต') {
+                  setTobY3('เสียชีวิต')
+                  if (person.alcohol) { setAlcY2('เสียชีวิต'); setAlcY3('เสียชีวิต') }
+                  if (person.dnd)     { setDndY2('เสียชีวิต'); setDndY3('เสียชีวิต') }
+                }
+              }},
+              { label: 'ปีที่ 3', val: tobY3, opts: STATUS_Y3, onChange: (v: string) => {
+                setTobY3(v)
+                if (v === 'เสียชีวิต') {
+                  if (person.alcohol) setAlcY3('เสียชีวิต')
+                  if (person.dnd)     setDndY3('เสียชีวิต')
+                }
+              }},
+            ].map(({ label, val, opts, required, onChange }) => (
               <div key={label} className="space-y-1">
                 <p className="text-[10px] font-semibold text-gray-500">{label}</p>
-                <YearSelect value={val} opts={opts} required={required} onChange={set} onBlur={save} />
+                <YearSelect value={val} opts={opts} required={required} onChange={onChange} onBlur={save} />
               </div>
             ))}
           </div>
@@ -213,13 +239,26 @@ function PersonRow({
           </div>
           <div className="p-3 grid grid-cols-3 gap-2">
             {[
-              { label: 'ปีที่ 1', val: dndY1, set: setDndY1, opts: DND_Y1, required: true },
-              { label: 'ปีที่ 2', val: dndY2, set: setDndY2, opts: DND_Y2 },
-              { label: 'ปีที่ 3', val: dndY3, set: setDndY3, opts: DND_Y3 },
-            ].map(({ label, val, set, opts, required }) => (
+              { label: 'ปีที่ 1', val: dndY1, opts: DND_Y1, required: true, onChange: setDndY1 },
+              { label: 'ปีที่ 2', val: dndY2, opts: DND_Y2, onChange: (v: string) => {
+                setDndY2(v)
+                if (v === 'เสียชีวิต') {
+                  setDndY3('เสียชีวิต')
+                  if (person.alcohol) { setAlcY2('เสียชีวิต'); setAlcY3('เสียชีวิต') }
+                  if (person.tobacco) { setTobY2('เสียชีวิต'); setTobY3('เสียชีวิต') }
+                }
+              }},
+              { label: 'ปีที่ 3', val: dndY3, opts: DND_Y3, onChange: (v: string) => {
+                setDndY3(v)
+                if (v === 'เสียชีวิต') {
+                  if (person.alcohol) setAlcY3('เสียชีวิต')
+                  if (person.tobacco) setTobY3('เสียชีวิต')
+                }
+              }},
+            ].map(({ label, val, opts, required, onChange }) => (
               <div key={label} className="space-y-1">
                 <p className="text-[10px] font-semibold text-gray-500">{label}</p>
-                <YearSelect value={val} opts={opts} required={required} onChange={set} onBlur={save} />
+                <YearSelect value={val} opts={opts} required={required} onChange={onChange} onBlur={save} />
               </div>
             ))}
           </div>

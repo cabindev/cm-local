@@ -205,15 +205,16 @@ model EnvItem {
   villageId        Int
   itemType         String
   hasItem          Boolean  @default(false)
-  result1          String?  @db.Text
-  result2          String?  @db.Text
-  result3          String?  @db.Text
   hasPolicy            Boolean? // งานศพ: มีนโยบาย
   policyFileUrl        String?
   policyFileName       String?
   hasCommunityRule     Boolean? // งานศพ: มีกติกาชุมชน
   communityRuleFileUrl  String?
   communityRuleFileName String?
+  hasTraditionEvent   Boolean? // งานประเพณี: มีงานประเพณี
+  traditionEventNames String?  @db.Text // งานประเพณี: ชื่องาน (JSON string[])
+  hasNoDrinkSite      Boolean? // งานประเพณี: มีสถานที่ห้ามดื่มห้ามขาย
+  noDrinkSiteNames    String?  @db.Text // งานประเพณี: ชื่อสถานที่ห้ามขาย-ห้ามดื่ม (JSON string[])
   noAlcohol        Boolean? // ร้านค้า: ไม่ขายเหล้าเลย
   shopNames        String?  @db.Text // ร้านค้า: ชื่อร้าน (JSON string[])
   hasShopLegal     Boolean? // ร้านค้า: ร้านขายเข้าร่วมตามกฎหมาย
@@ -230,9 +231,6 @@ model CommunityOrg {
   orgType          String
   hasParticipation Boolean @default(false)
   orgNames         String?  @db.Text // JSON string[]
-  result1          String? @db.Text
-  result2          String? @db.Text
-  result3          String? @db.Text
   village          Village @relation(fields: [villageId], references: [id], onDelete: Cascade)
 
   @@unique([villageId, orgType])

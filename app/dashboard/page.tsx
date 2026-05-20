@@ -59,9 +59,9 @@ export default async function DashboardPage() {
 
       {/* Outcomes */}
       <ProgressFunnel
-        alcTotal={s.outcomes.alcTotal} alcY1={s.outcomes.alcY1} alcY2={s.outcomes.alcY2} alcY3={s.outcomes.alcY3}
-        tobTotal={s.outcomes.tobTotal} tobY1={s.outcomes.tobY1} tobY2={s.outcomes.tobY2} tobY3={s.outcomes.tobY3}
-        dndTotal={s.outcomes.dndTotal} dndY1={s.outcomes.dndY1} dndY2={s.outcomes.dndY2} dndY3={s.outcomes.dndY3}
+        alcTotal={s.outcomes.alcTotal} alcY1={s.outcomes.alcY1} alcY2={s.outcomes.alcY2} alcY3={s.outcomes.alcY3} alcDeceased={s.outcomes.alcDeceased}
+        tobTotal={s.outcomes.tobTotal} tobY1={s.outcomes.tobY1} tobY2={s.outcomes.tobY2} tobY3={s.outcomes.tobY3} tobDeceased={s.outcomes.tobDeceased}
+        dndTotal={s.outcomes.dndTotal} dndY1={s.outcomes.dndY1} dndY2={s.outcomes.dndY2} dndY3={s.outcomes.dndY3} dndDeceased={s.outcomes.dndDeceased}
       />
 
       {/* Org + Zone */}

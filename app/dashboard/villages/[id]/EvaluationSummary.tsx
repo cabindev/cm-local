@@ -43,15 +43,18 @@ function CriteriaModal({ onClose }: { onClose: () => void }) {
                 </tr></thead>
                 <tbody className="divide-y divide-gray-50">
                   {[
-                    ['เลิกได้แล้ว', true],
-                    ['ลดพฤติกรรมได้อย่างต่อเนื่อง', true],
-                    ['ลดได้บางส่วน', false],
-                    ['ไม่บรรลุเป้าหมาย', false],
-                  ].map(([label, ok]) => (
-                    <tr key={label as string}>
-                      <td className="px-3 py-1.5 text-gray-700">{label as string}</td>
+                    ['เลิกได้แล้ว', 'success'],
+                    ['ลดพฤติกรรมได้อย่างต่อเนื่อง', 'success'],
+                    ['ลดได้บางส่วน', 'fail'],
+                    ['ไม่บรรลุเป้าหมาย', 'fail'],
+                    ['เสียชีวิต', 'deceased'],
+                  ].map(([label, type]) => (
+                    <tr key={label as string} className={type === 'deceased' ? 'bg-gray-50' : ''}>
+                      <td className={`px-3 py-1.5 ${type === 'deceased' ? 'text-gray-500' : 'text-gray-700'}`}>{label as string}</td>
                       <td className="px-3 py-1.5 text-center">
-                        {ok ? <span className="text-green-600 font-bold">✓ สำเร็จ</span> : <span className="text-gray-400">—</span>}
+                        {type === 'success' ? <span className="text-green-600 font-bold">✓ สำเร็จ</span>
+                        : type === 'deceased' ? <span className="text-gray-400 text-[10px]">ไม่นับใน KPI</span>
+                        : <span className="text-gray-400">—</span>}
                       </td>
                     </tr>
                   ))}
@@ -74,15 +77,18 @@ function CriteriaModal({ onClose }: { onClose: () => void }) {
                 </tr></thead>
                 <tbody className="divide-y divide-gray-50">
                   {[
-                    ['เลิกได้แล้ว', true],
-                    ['ลดพฤติกรรมได้อย่างต่อเนื่อง', true],
-                    ['ลดได้บางส่วน', false],
-                    ['ไม่บรรลุเป้าหมาย', false],
-                  ].map(([label, ok]) => (
-                    <tr key={label as string}>
-                      <td className="px-3 py-1.5 text-gray-700">{label as string}</td>
+                    ['เลิกได้แล้ว', 'success'],
+                    ['ลดพฤติกรรมได้อย่างต่อเนื่อง', 'success'],
+                    ['ลดได้บางส่วน', 'fail'],
+                    ['ไม่บรรลุเป้าหมาย', 'fail'],
+                    ['เสียชีวิต', 'deceased'],
+                  ].map(([label, type]) => (
+                    <tr key={label as string} className={type === 'deceased' ? 'bg-gray-50' : ''}>
+                      <td className={`px-3 py-1.5 ${type === 'deceased' ? 'text-gray-500' : 'text-gray-700'}`}>{label as string}</td>
                       <td className="px-3 py-1.5 text-center">
-                        {ok ? <span className="text-green-600 font-bold">✓ สำเร็จ</span> : <span className="text-gray-400">—</span>}
+                        {type === 'success' ? <span className="text-green-600 font-bold">✓ สำเร็จ</span>
+                        : type === 'deceased' ? <span className="text-gray-400 text-[10px]">ไม่นับใน KPI</span>
+                        : <span className="text-gray-400">—</span>}
                       </td>
                     </tr>
                   ))}
@@ -105,15 +111,18 @@ function CriteriaModal({ onClose }: { onClose: () => void }) {
                 </tr></thead>
                 <tbody className="divide-y divide-gray-50">
                   {[
-                    ['บรรลุเป้าหมายอย่างต่อเนื่อง', true],
-                    ['ลดพฤติกรรมได้บางส่วน', false],
-                    ['ยังคงพฤติกรรมเดิม', false],
-                    ['ไม่บรรลุเป้าหมาย', false],
-                  ].map(([label, ok]) => (
-                    <tr key={label as string}>
-                      <td className="px-3 py-1.5 text-gray-700">{label as string}</td>
+                    ['บรรลุเป้าหมายอย่างต่อเนื่อง', 'success'],
+                    ['ลดพฤติกรรมได้บางส่วน', 'fail'],
+                    ['ยังคงพฤติกรรมเดิม', 'fail'],
+                    ['ไม่บรรลุเป้าหมาย', 'fail'],
+                    ['เสียชีวิต', 'deceased'],
+                  ].map(([label, type]) => (
+                    <tr key={label as string} className={type === 'deceased' ? 'bg-gray-50' : ''}>
+                      <td className={`px-3 py-1.5 ${type === 'deceased' ? 'text-gray-500' : 'text-gray-700'}`}>{label as string}</td>
                       <td className="px-3 py-1.5 text-center">
-                        {ok ? <span className="text-green-600 font-bold">✓ สำเร็จ</span> : <span className="text-gray-400">—</span>}
+                        {type === 'success' ? <span className="text-green-600 font-bold">✓ สำเร็จ</span>
+                        : type === 'deceased' ? <span className="text-gray-400 text-[10px]">ไม่นับใน KPI</span>
+                        : <span className="text-gray-400">—</span>}
                       </td>
                     </tr>
                   ))}
@@ -146,6 +155,7 @@ type Screening = { screenedCount: number } | null
 
 function categorize(s: string | null | undefined) {
   if (!s) return 'pending'
+  if (s === 'เสียชีวิต') return 'deceased'
   if (s === 'เลิกได้แล้ว') return 'quit'
   if (s === 'ลดพฤติกรรมได้อย่างต่อเนื่อง' || s === 'ลดพฤติกรรมได้') return 'reduced'
   if (s === 'ลดได้บางส่วน') return 'partial'
@@ -160,6 +170,7 @@ const CAT = {
   partial:   { label: 'ลดได้บางส่วน',      dot: 'bg-sky-400',    text: 'text-sky-700'    },
   unchanged: { label: 'พฤติกรรมเดิม',      dot: 'bg-orange-400', text: 'text-orange-700' },
   dropout:   { label: 'ไม่บรรลุเป้าหมาย',  dot: 'bg-red-500',    text: 'text-red-700'    },
+  deceased:  { label: 'เสียชีวิต',         dot: 'bg-gray-600',   text: 'text-gray-600'   },
   pending:   { label: 'ยังไม่ประเมิน',     dot: 'bg-gray-300',   text: 'text-gray-500'   },
 }
 
@@ -177,13 +188,15 @@ function GroupSection({
   pendingY2Names: { id: number; name: string }[]
 }) {
   const total         = members.length
-  const assessed      = members.filter((m) => m.statusY3).length
-  const pending       = total - assessed
-  const allAssessed   = pending === 0
   const cats          = members.map((m) => categorize(m.statusY3) as Cat)
   const counts        = Object.fromEntries(
-    (['quit','reduced','partial','unchanged','dropout','pending'] as Cat[]).map((c) => [c, cats.filter((x) => x === c).length])
+    (['quit','reduced','partial','unchanged','dropout','deceased','pending'] as Cat[]).map((c) => [c, cats.filter((x) => x === c).length])
   ) as Record<Cat, number>
+  const deceasedCount = counts.deceased
+  const totalActive   = total - deceasedCount
+  const assessed      = counts.quit + counts.reduced + counts.partial + counts.unchanged + counts.dropout
+  const pending       = totalActive - assessed
+  const allAssessed   = pending === 0
   const achieveCount  = counts.quit + counts.reduced
   const achievePct    = assessed > 0 ? Math.round((achieveCount / assessed) * 100) : 0
   const kpiMet        = allAssessed && achievePct >= kpiTarget
@@ -202,9 +215,14 @@ function GroupSection({
           <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full
             ${allAssessed ? 'bg-green-50 text-green-600' : 'bg-orange-50 text-orange-600'}`}>
             <UserCheck className="w-3 h-3" />
-            ประเมินแล้ว {assessed}/{total}
+            ประเมินแล้ว {assessed}/{totalActive}
             {!allAssessed && ` · ขาดอีก ${pending} คน`}
           </span>
+          {deceasedCount > 0 && (
+            <span className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
+              เสียชีวิต {deceasedCount} คน
+            </span>
+          )}
           {/* KPI */}
           {allAssessed ? (
             <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full
@@ -223,7 +241,7 @@ function GroupSection({
 
       {/* Progress bar */}
       <div className="flex rounded-full overflow-hidden h-2.5 bg-gray-100">
-        {(['quit','reduced','partial','unchanged','dropout','pending'] as Cat[]).map((cat) => {
+        {(['quit','reduced','partial','unchanged','dropout','deceased','pending'] as Cat[]).map((cat) => {
           const w = total > 0 ? (counts[cat] / total) * 100 : 0
           if (w === 0) return null
           return <div key={cat} style={{ width: `${w}%` }} className={`${CAT[cat].dot}`}
@@ -233,7 +251,7 @@ function GroupSection({
 
       {/* Legend */}
       <div className="flex flex-wrap gap-x-3 gap-y-1">
-        {(['quit','reduced','partial','unchanged','dropout','pending'] as Cat[]).map((cat) => {
+        {(['quit','reduced','partial','unchanged','dropout','deceased','pending'] as Cat[]).map((cat) => {
           if (counts[cat] === 0) return null
           return (
             <span key={cat} className="inline-flex items-center gap-1 text-xs text-gray-600">
@@ -314,7 +332,9 @@ export default function EvaluationSummary({
 
   // DND members
   const dndTotal      = dndPersons.length
-  const dndAssessed   = dndPersons.filter((p) => p.dnd?.year3Result?.trim()).length
+  const dndDeceased   = dndPersons.filter((p) => p.dnd?.year2Result === 'เสียชีวิต' || p.dnd?.year3Result === 'เสียชีวิต').length
+  const dndActive     = dndTotal - dndDeceased
+  const dndAssessed   = dndPersons.filter((p) => p.dnd?.year3Result?.trim() && p.dnd?.year3Result !== 'เสียชีวิต').length
   const dndSuccess    = dndPersons.filter((p) => p.dnd?.year3Result === 'บรรลุเป้าหมายอย่างต่อเนื่อง').length
   const dndAllDone    = dndPending.length === 0
   const dndAchievePct = dndAssessed > 0 ? Math.round((dndSuccess / dndAssessed) * 100) : 0
@@ -375,9 +395,14 @@ export default function EvaluationSummary({
                 <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full
                   ${dndAllDone ? 'bg-green-50 text-green-600' : 'bg-orange-50 text-orange-600'}`}>
                   <UserCheck className="w-3 h-3" />
-                  ประเมินแล้ว {dndAssessed}/{dndTotal}
+                  ประเมินแล้ว {dndAssessed}/{dndActive}
                   {!dndAllDone && ` · ขาดอีก ${dndPending.length} คน`}
                 </span>
+                {dndDeceased > 0 && (
+                  <span className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
+                    เสียชีวิต {dndDeceased} คน
+                  </span>
+                )}
                 {dndAllDone ? (
                   <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full
                     ${dndKpiMet ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}>
@@ -397,12 +422,14 @@ export default function EvaluationSummary({
             <div className="flex rounded-full overflow-hidden h-2.5 bg-gray-100">
               {dndSuccess > 0 && <div style={{ width: `${(dndSuccess / dndTotal) * 100}%` }} className="bg-green-500" />}
               {(dndAssessed - dndSuccess) > 0 && <div style={{ width: `${((dndAssessed - dndSuccess) / dndTotal) * 100}%` }} className="bg-red-400" />}
+              {dndDeceased > 0 && <div style={{ width: `${(dndDeceased / dndTotal) * 100}%` }} className="bg-gray-600" />}
               {dndPending.length > 0 && <div style={{ width: `${(dndPending.length / dndTotal) * 100}%` }} className="bg-gray-300" />}
             </div>
 
             <div className="flex flex-wrap gap-x-3 gap-y-1">
               {dndSuccess > 0 && <span className="inline-flex items-center gap-1 text-xs text-gray-600"><span className="w-2 h-2 rounded-full bg-green-500" />บรรลุเป้าหมาย <span className="font-bold text-green-700">{dndSuccess}</span></span>}
               {(dndAssessed - dndSuccess) > 0 && <span className="inline-flex items-center gap-1 text-xs text-gray-600"><span className="w-2 h-2 rounded-full bg-red-400" />ยังไม่บรรลุ <span className="font-bold text-red-700">{dndAssessed - dndSuccess}</span></span>}
+              {dndDeceased > 0 && <span className="inline-flex items-center gap-1 text-xs text-gray-600"><span className="w-2 h-2 rounded-full bg-gray-600" />เสียชีวิต <span className="font-bold text-gray-700">{dndDeceased}</span></span>}
               {dndPending.length > 0 && <span className="inline-flex items-center gap-1 text-xs text-gray-600"><span className="w-2 h-2 rounded-full bg-gray-300" />ยังไม่ประเมิน <span className="font-bold text-gray-600">{dndPending.length}</span></span>}
             </div>
 

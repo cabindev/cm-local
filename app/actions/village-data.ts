@@ -26,15 +26,16 @@ export async function upsertEnvItem(
   itemType: string,
   data: {
     hasItem: boolean
-    result1?: string
-    result2?: string
-    result3?: string
     hasPolicy?: boolean | null
     policyFileUrl?: string | null
     policyFileName?: string | null
     hasCommunityRule?: boolean | null
     communityRuleFileUrl?: string | null
     communityRuleFileName?: string | null
+    hasTraditionEvent?: boolean | null
+    traditionEventNames?: string[]
+    hasNoDrinkSite?: boolean | null
+    noDrinkSiteNames?: string[]
     noAlcohol?: boolean | null
     shopNames?: string[]
     hasShopLegal?: boolean | null
@@ -45,11 +46,12 @@ export async function upsertEnvItem(
 
   const mainFields = {
     hasItem: data.hasItem,
-    result1: data.result1 ?? null,
-    result2: data.result2 ?? null,
-    result3: data.result3 ?? null,
     hasPolicy: data.hasPolicy ?? null,
     hasCommunityRule: data.hasCommunityRule ?? null,
+    hasTraditionEvent: data.hasTraditionEvent ?? null,
+    traditionEventNames: data.traditionEventNames ? JSON.stringify(data.traditionEventNames.filter(Boolean)) : null,
+    hasNoDrinkSite: data.hasNoDrinkSite ?? null,
+    noDrinkSiteNames: data.noDrinkSiteNames ? JSON.stringify(data.noDrinkSiteNames.filter(Boolean)) : null,
     noAlcohol: data.noAlcohol ?? null,
     shopNames: data.shopNames ? JSON.stringify(data.shopNames.filter(Boolean)) : null,
     hasShopLegal: data.hasShopLegal ?? null,
@@ -90,9 +92,6 @@ export async function upsertCommunityOrg(
   data: {
     hasParticipation: boolean
     orgNames?: string[]
-    result1?: string
-    result2?: string
-    result3?: string
   },
 ) {
   await requireAdmin()
@@ -100,9 +99,6 @@ export async function upsertCommunityOrg(
   const payload = {
     hasParticipation: data.hasParticipation,
     orgNames: data.orgNames ? JSON.stringify(data.orgNames.filter(Boolean)) : null,
-    result1: data.result1 ?? null,
-    result2: data.result2 ?? null,
-    result3: data.result3 ?? null,
   }
 
   await prisma.communityOrg.upsert({

@@ -24,42 +24,50 @@ function YearBar({ year, count, total, color }: YearBarProps) {
 }
 
 type GroupData = {
-  label: string; total: number
+  label: string; total: number; deceased: number
   y1: number; y2: number; y3: number
   color: string; bg: string; border: string
 }
 
 function GroupCard({ g }: { g: GroupData }) {
+  const active = g.total - g.deceased
   return (
     <div className={`rounded-xl border ${g.border} ${g.bg} p-4 space-y-3`}>
       <div>
         <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{g.label}</p>
-        <p className="text-2xl font-bold text-gray-900 leading-none mt-1">
-          {g.total.toLocaleString()}
-          <span className="text-xs font-normal text-gray-400 ml-1">คนสมัครทั้งหมด</span>
-        </p>
+        <div className="flex items-baseline gap-2 mt-1">
+          <p className="text-2xl font-bold text-gray-900 leading-none">
+            {g.total.toLocaleString()}
+            <span className="text-xs font-normal text-gray-400 ml-1">คนสมัครทั้งหมด</span>
+          </p>
+          {g.deceased > 0 && (
+            <span className="text-xs font-semibold text-gray-500 bg-gray-200 px-1.5 py-0.5 rounded-full">
+              เสียชีวิต {g.deceased}
+            </span>
+          )}
+        </div>
       </div>
       <div className="space-y-2.5 pt-2 border-t border-gray-200">
-        <p className="text-[10px] text-gray-400">มีผลบันทึกติดตาม</p>
-        <YearBar year={1} count={g.y1} total={g.total} color={g.color} />
-        <YearBar year={2} count={g.y2} total={g.total} color={g.color} />
-        <YearBar year={3} count={g.y3} total={g.total} color={g.color} />
+        <p className="text-[10px] text-gray-400">มีผลบันทึกติดตาม ({active} คนที่ยังดำเนินการ)</p>
+        <YearBar year={1} count={g.y1} total={active} color={g.color} />
+        <YearBar year={2} count={g.y2} total={active} color={g.color} />
+        <YearBar year={3} count={g.y3} total={active} color={g.color} />
       </div>
     </div>
   )
 }
 
 type Props = {
-  alcTotal: number; alcY1: number; alcY2: number; alcY3: number
-  tobTotal: number; tobY1: number; tobY2: number; tobY3: number
-  dndTotal: number; dndY1: number; dndY2: number; dndY3: number
+  alcTotal: number; alcY1: number; alcY2: number; alcY3: number; alcDeceased: number
+  tobTotal: number; tobY1: number; tobY2: number; tobY3: number; tobDeceased: number
+  dndTotal: number; dndY1: number; dndY2: number; dndY3: number; dndDeceased: number
 }
 
 export default function ProgressFunnel(p: Props) {
   const groups: GroupData[] = [
-    { label: 'งดเหล้า',   total: p.alcTotal, y1: p.alcY1, y2: p.alcY2, y3: p.alcY3, color: '#eab308', bg: 'bg-yellow-50',  border: 'border-yellow-200' },
-    { label: 'งดบุหรี่',  total: p.tobTotal, y1: p.tobY1, y2: p.tobY2, y3: p.tobY3, color: '#ca8a04', bg: 'bg-yellow-50',  border: 'border-yellow-300' },
-    { label: 'ดื่มไม่ขับ', total: p.dndTotal, y1: p.dndY1, y2: p.dndY2, y3: p.dndY3, color: '#111827', bg: 'bg-gray-50',   border: 'border-gray-200'   },
+    { label: 'งดเหล้า',    total: p.alcTotal, deceased: p.alcDeceased, y1: p.alcY1, y2: p.alcY2, y3: p.alcY3, color: '#eab308', bg: 'bg-yellow-50', border: 'border-yellow-200' },
+    { label: 'งดบุหรี่',   total: p.tobTotal, deceased: p.tobDeceased, y1: p.tobY1, y2: p.tobY2, y3: p.tobY3, color: '#ca8a04', bg: 'bg-yellow-50', border: 'border-yellow-300' },
+    { label: 'ดื่มไม่ขับ', total: p.dndTotal, deceased: p.dndDeceased, y1: p.dndY1, y2: p.dndY2, y3: p.dndY3, color: '#111827', bg: 'bg-gray-50',   border: 'border-gray-200'  },
   ]
 
   return (

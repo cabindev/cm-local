@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { upsertCommunityBackground } from '@/app/actions/village-data'
-import { FileText, Upload, X, CheckCircle2, Circle, Loader2, FileCheck, CheckCheck } from 'lucide-react'
+import { FileText, Upload, X, CheckCircle2, Circle, Loader2, FileCheck, CheckCheck, AlertCircle } from 'lucide-react'
 
 const BG_ITEMS = [
   { key: 'communityCalendar',    label: 'ข้อมูลปฏิทินชุมชน' },
@@ -121,14 +121,24 @@ export default function CommunityBackgroundEditor({
           </div>
           <p className="text-xs text-gray-400 mt-0.5">ข้อมูลประวัติชุมชน — เลือกหัวข้อที่มีและแนบไฟล์</p>
         </div>
-        <div className="flex items-center gap-1.5 mt-0.5">
-          {globalSaving && <Loader2 className="w-3.5 h-3.5 animate-spin text-yellow-400" />}
-          {globalSaved && !globalSaving && (
-            <span className="flex items-center gap-1 text-xs text-green-400 font-medium">
-              <CheckCheck className="w-3.5 h-3.5" />บันทึกแล้ว
-            </span>
-          )}
-        </div>
+        {(() => {
+          const incomplete = Object.values(rows).filter(r => r.hasItem && !r.fileUrl).length
+          return (
+            <div className="flex items-center gap-1.5 mt-0.5">
+              {globalSaving && <Loader2 className="w-3.5 h-3.5 animate-spin text-yellow-400" />}
+              {!globalSaving && incomplete > 0 && (
+                <span className="flex items-center gap-1 text-xs text-orange-400 font-medium">
+                  <AlertCircle className="w-3.5 h-3.5" />ยังไม่มีไฟล์ {incomplete} รายการ
+                </span>
+              )}
+              {!globalSaving && incomplete === 0 && globalSaved && (
+                <span className="flex items-center gap-1 text-xs text-green-400 font-medium">
+                  <CheckCheck className="w-3.5 h-3.5" />บันทึกแล้ว
+                </span>
+              )}
+            </div>
+          )
+        })()}
       </div>
 
       {/* Rows */}
@@ -165,8 +175,8 @@ export default function CommunityBackgroundEditor({
                     {label}
                   </p>
 
-                  {/* File area */}
-                  <div className="mt-2">
+                  {/* File area — แสดงเฉพาะเมื่อติ๊กเลือก */}
+                  {row.hasItem && <div className="mt-2">
                     {row.fileUrl ? (
                       /* File attached */
                       <div className="inline-flex items-center gap-2 bg-white border border-yellow-200 rounded-lg px-3 py-1.5 text-xs">
@@ -216,10 +226,16 @@ export default function CommunityBackgroundEditor({
                       </label>
                     )}
 
+                    {!row.fileUrl && !row.uploading && (
+                      <p className="flex items-center gap-1 text-xs text-orange-500 mt-1.5 font-medium">
+                        <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                        กรุณาแนบไฟล์เพื่อให้ข้อมูลสมบูรณ์
+                      </p>
+                    )}
                     {row.error && (
                       <p className="text-xs text-red-500 mt-1">{row.error}</p>
                     )}
-                  </div>
+                  </div>}
                 </div>
               </div>
             </div>

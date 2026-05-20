@@ -152,17 +152,11 @@ async function main() {
         villageId: village.id, itemType: 'funeral', hasItem: hasFuneral,
         hasPolicy:        hasFuneral && (isHigh || bool(0.6)),
         hasCommunityRule: hasFuneral && (isHigh || bool(0.5)),
-        result1: hasFuneral ? `จัดงานศพปลอดเหล้า ${rand(2, 8)} งาน` : null,
-        result2: hasFuneral ? `ขยายผล ครอบคลุม ${rand(60, 90)}% ของงานศพ` : null,
-        result3: hasFuneral ? `เป็นมาตรฐานชุมชน ทุกงานศพปลอดเหล้า` : null,
       },
     })
     await prisma.envItem.create({
       data: {
         villageId: village.id, itemType: 'tradition', hasItem: hasTradition,
-        result1: hasTradition ? `งานบุญประเพณีปลอดเหล้า ${rand(3, 6)} งาน` : null,
-        result2: hasTradition ? `ชุมชนให้ความร่วมมือดี` : null,
-        result3: hasTradition ? `ต่อเนื่องทุกปี` : null,
       },
     })
     await prisma.envItem.create({
@@ -173,17 +167,11 @@ async function main() {
         hasShopLegal: hasShop && (isHigh || bool(0.6)),
         shopLegalNames: hasShop && (isHigh || bool(0.6))
           ? JSON.stringify(names(SHOP_NAMES_LIST[idx], 1, 2)) : null,
-        result1: hasShop ? `ร้านค้าเข้าร่วม ${rand(2, 5)} ร้าน` : null,
-        result2: hasShop ? `ปฏิบัติตามกฎหมายอย่างต่อเนื่อง` : null,
-        result3: hasShop ? `ไม่พบการขายเหล้าเกินเวลา` : null,
       },
     })
     await prisma.envItem.create({
       data: {
         villageId: village.id, itemType: 'nodrinkzone', hasItem: hasNoDrink,
-        result1: hasNoDrink ? `กำหนด ${rand(3, 8)} จุด ในชุมชน` : null,
-        result2: hasNoDrink ? `มีป้ายประกาศครบทุกจุด` : null,
-        result3: hasNoDrink ? `ลดการดื่มในที่สาธารณะได้ ${rand(40, 80)}%` : null,
       },
     })
 
@@ -205,9 +193,6 @@ async function main() {
           villageId: village.id, orgType: org.key,
           hasParticipation: has,
           orgNames: has ? JSON.stringify(org.names) : null,
-          result1: has ? org.r1 : null,
-          result2: has ? `ต่อเนื่องปีที่ 2 ขยายผลเพิ่ม` : null,
-          result3: has ? `เป็นแกนนำชุมชน` : null,
         },
       })
     }
