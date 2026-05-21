@@ -27,7 +27,7 @@ export default function EnvSummaryCard({ env, total }: Props) {
   return (
     <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
       <div className="bg-gray-900 px-5 py-4">
-        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">สิ่งแวดล้อม</p>
+        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">สภาพแวดล้อม</p>
         <p className="text-sm font-medium text-white mt-0.5">จำนวนหมู่บ้านที่มีองค์ประกอบ</p>
       </div>
       <div className="divide-y divide-gray-50">

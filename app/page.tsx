@@ -103,7 +103,7 @@ export default async function Home() {
             {
               icon: <Users className="w-5 h-5 text-yellow-500" />,
               title: 'ครอบคลุมทุกมิติ',
-              desc: 'เหล้า บุหรี่ ไม่ดื่มไม่ขับ สิ่งแวดล้อม และการมีส่วนร่วม',
+              desc: 'เหล้า บุหรี่ ไม่ดื่มไม่ขับ สภาพแวดล้อม และการมีส่วนร่วม',
             },
           ].map((f) => (
             <div key={f.title} className="bg-gray-800 rounded-xl p-5 border border-gray-700">

@@ -38,10 +38,13 @@ export default async function UsersPage() {
               <tr key={u.id} className="hover:bg-gray-50 transition-colors">
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm overflow-hidden flex-shrink-0
                       ${u.role === 'ADMIN' ? 'bg-gray-900 text-yellow-400' : 'bg-yellow-100 text-yellow-700'}
                     `}>
-                      {u.role === 'ADMIN' ? <Shield className="w-5 h-5" /> : <UserIcon className="w-5 h-5" />}
+                      {u.image
+                        ? <img src={u.image} alt={u.firstName} className="w-full h-full object-cover" />
+                        : u.role === 'ADMIN' ? <Shield className="w-5 h-5" /> : <UserIcon className="w-5 h-5" />
+                      }
                     </div>
                     <div>
                       <p className="text-sm font-bold text-gray-900">{u.firstName} {u.lastName}</p>

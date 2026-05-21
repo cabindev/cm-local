@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, FormEvent } from 'react'
-import { signIn } from 'next-auth/react'
+import { signIn, getSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
@@ -11,6 +11,7 @@ export default function SignInForm() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [welcome, setWelcome] = useState<string | null>(null)
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -27,13 +28,28 @@ export default function SignInForm() {
       if (result?.error) {
         setError('อีเมลหรือรหัสผ่านไม่ถูกต้อง')
       } else {
-        router.replace('/')
+        const session = await getSession()
+        const firstName = (session?.user as any)?.firstName ?? ''
+        setWelcome(firstName)
+        setTimeout(() => router.replace('/dashboard/profile'), 1500)
       }
     } catch {
       setError('เกิดข้อผิดพลาด โปรดลองอีกครั้ง')
     } finally {
       setIsLoading(false)
     }
+  }
+
+  if (welcome !== null) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-900">
+        <div className="text-center space-y-3">
+          <p className="text-gray-400 text-sm tracking-widest uppercase">Welcome back</p>
+          <p className="text-white text-3xl font-bold">{welcome}</p>
+          <div className="w-8 h-0.5 bg-yellow-400 mx-auto mt-4 rounded-full" />
+        </div>
+      </div>
+    )
   }
 
   return (

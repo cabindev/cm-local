@@ -143,7 +143,7 @@ export default async function VillageDetailPage({ params }: Props) {
             } : null}
           />
 
-          {/* สิ่งแวดล้อม */}
+          {/* สภาพแวดล้อม */}
           <EnvEditor
             villageId={village.id}
             initial={village.envItems}

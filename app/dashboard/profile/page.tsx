@@ -2,12 +2,14 @@ import { getServerSession } from 'next-auth'
 import authOptions from '@/app/lib/configs/auth/authOptions'
 import { prisma } from '@/app/lib/prisma'
 import Link from 'next/link'
+import ProfileEditForm from './ProfileEditForm'
 
 export const metadata = { title: 'โปรไฟล์ | Community Driven' }
 
 export default async function ProfilePage() {
   const session = await getServerSession(authOptions)
-  const user = session!.user
+  const rawUser = await prisma.user.findUnique({ where: { id: Number(session!.user.id) }, select: { id: true, firstName: true, lastName: true, email: true, role: true, image: true, province: true, amphoe: true, district: true, zone: true } })
+  const user = rawUser ?? session!.user as any
   const userId = Number(user.id)
 
   const villages = await prisma.village.findMany({
@@ -40,29 +42,26 @@ export default async function ProfilePage() {
   return (
     <div className="max-w-lg mx-auto py-10 px-4 space-y-8">
 
-      {/* ชื่อ */}
-      <div className="border-b-2 border-gray-900 pb-6">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-yellow-400 flex items-center justify-center flex-shrink-0">
-            {user.image
-              ? <img src={user.image} alt="avatar" className="w-10 h-10 rounded-full object-cover" />
-              : <span className="text-sm font-black text-gray-900">{user.firstName?.charAt(0)}{user.lastName?.charAt(0)}</span>
-            }
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-gray-900 leading-snug">{user.firstName} {user.lastName}</p>
-            <p className="text-[11px] text-gray-500 font-light">{user.email}</p>
-          </div>
-          <span className="text-[10px] font-semibold text-gray-900 bg-yellow-400 px-2.5 py-1 rounded-full flex-shrink-0">
-            {user.role === 'ADMIN' ? 'ผู้ดูแลระบบ' : 'สมาชิก'}
-          </span>
-        </div>
-        {(user.province || user.zone) && (
-          <p className="text-[11px] text-gray-500 font-light mt-3 pl-13">
-            {[user.district, user.amphoe, user.province, user.zone].filter(Boolean).join(' · ')}
-          </p>
-        )}
+      {/* แก้ไขโปรไฟล์ */}
+      <ProfileEditForm
+        userId={user.id}
+        firstName={user.firstName}
+        lastName={user.lastName}
+        image={user.image ?? null}
+      />
+
+      {/* อีเมล + role */}
+      <div className="flex items-center justify-between -mt-2">
+        <p className="text-[11px] text-gray-500 font-light">{user.email}</p>
+        <span className="text-[10px] font-semibold text-gray-900 bg-yellow-400 px-2.5 py-1 rounded-full">
+          {user.role === 'ADMIN' ? 'ผู้ดูแลระบบ' : 'สมาชิก'}
+        </span>
       </div>
+      {(user.province || user.zone) && (
+        <p className="text-[11px] text-gray-500 font-light -mt-4">
+          {[user.district, user.amphoe, user.province, user.zone].filter(Boolean).join(' · ')}
+        </p>
+      )}
 
       {villages.length === 0 ? (
         <p className="text-xs text-gray-500 font-light">ยังไม่มีหมู่บ้านที่ดูแล —{' '}

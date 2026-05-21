@@ -2,6 +2,7 @@
 
 import { useState, FormEvent } from 'react'
 import Link from 'next/link'
+import { compressImage } from '@/app/lib/compressImage'
 
 interface FormData {
   firstName: string
@@ -23,41 +24,6 @@ export default function SignUpForm() {
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-
-  // Image
-  const compressImage = async (file: File): Promise<File> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        const img = new Image()
-        img.src = e.target?.result as string
-        img.onload = () => {
-          const canvas = document.createElement('canvas')
-          let { width, height } = img
-          const MAX = 1200
-          if (width > height && width > MAX) { height = Math.round(height * MAX / width); width = MAX }
-          else if (height > MAX) { width = Math.round(width * MAX / height); height = MAX }
-          canvas.width = width; canvas.height = height
-          canvas.getContext('2d')?.drawImage(img, 0, 0, width, height)
-          let quality = 0.9
-          const fileType = file.type || 'image/jpeg'
-          const tryQ = () => {
-            const dataUrl = canvas.toDataURL(fileType, quality)
-            const bytes = atob(dataUrl.split(',')[1])
-            const ab = new Uint8Array(bytes.length)
-            for (let i = 0; i < bytes.length; i++) ab[i] = bytes.charCodeAt(i)
-            const compressed = new File([ab], file.name, { type: fileType, lastModified: Date.now() })
-            if (compressed.size > 500000 && quality > 0.1) { quality -= 0.1; setTimeout(tryQ, 0) }
-            else resolve(compressed)
-          }
-          tryQ()
-        }
-        img.onerror = reject
-      }
-      reader.onerror = reject
-      reader.readAsDataURL(file)
-    })
-  }
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]

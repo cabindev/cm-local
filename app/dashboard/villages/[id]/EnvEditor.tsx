@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { upsertEnvItem } from '@/app/actions/village-data'
 import {
-  Leaf, CheckSquare, Square, Plus, X,
+  Scale, CheckSquare, Square, Plus, X,
   Loader2, CheckCheck, Upload, FileCheck, AlertCircle,
 } from 'lucide-react'
 
@@ -223,8 +223,8 @@ export default function EnvEditor({
       <div className="bg-gray-900 px-5 py-4 flex items-start justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <Leaf className="w-4 h-4 text-yellow-400" />
-            <p className="font-bold text-white text-sm">สิ่งแวดล้อม</p>
+            <Scale className="w-4 h-4 text-yellow-400" />
+            <p className="font-bold text-white text-sm">สภาพแวดล้อม</p>
           </div>
           <p className="text-xs text-gray-400 mt-0.5">องค์ประกอบแวดล้อม — บันทึกอัตโนมัติ</p>
         </div>

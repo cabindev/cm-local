@@ -269,7 +269,7 @@ export default async function ReportPage({ searchParams }: { searchParams: Promi
     <div className="max-w-full space-y-4">
       <div>
         <h1 className="text-2xl font-black text-gray-900">รายงานข้อมูล</h1>
-        <p className="text-sm text-gray-500 mt-0.5">ข้อมูลระดับหมู่บ้าน — ผลคัดกรอง · สิ่งแวดล้อม · การมีส่วนร่วม</p>
+        <p className="text-sm text-gray-500 mt-0.5">ข้อมูลระดับหมู่บ้าน — ผลคัดกรอง · สภาพแวดล้อม · การมีส่วนร่วม</p>
       </div>
 
       <ReportFilter
