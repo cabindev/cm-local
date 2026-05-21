@@ -79,45 +79,31 @@ async function main() {
 
   // กลุ่มเหล้า 5 คน
   for (const name of ALCOHOL_NAMES) {
-    await prisma.person.create({
-      data: {
-        villageId: village.id,
-        name,
-        alcohol: {
-          create: {
-            drinkType: pick(DRINK_TYPES),
-            statusY1: pick(STATUSES),
-            y1Health: true,   y1HealthText: 'ร่างกายแข็งแรงขึ้น',
-            y1Money: true,    y1MoneyText: 'ประหยัดเงินได้มากขึ้น',
-            y1Family: Math.random() > 0.5,
-            y2Health: Math.random() > 0.5,
-            y2Work:   Math.random() > 0.5,
-          },
-        },
-      },
+    const p = await prisma.person.create({
+      data: { villageId: village.id, name, alcohol: { create: { drinkType: pick(DRINK_TYPES), statusY1: pick(STATUSES) } } },
     })
+    await prisma.personOutcome.createMany({ data: [
+      { personId: p.id, group: 'alcohol', year: 1, outcomeType: 'Health',  hasIt: true, detail: 'ร่างกายแข็งแรงขึ้น', moneyNote: null },
+      { personId: p.id, group: 'alcohol', year: 1, outcomeType: 'Money',   hasIt: true, detail: '1,000-2,000 บาท', moneyNote: 'ประหยัดเงินได้มากขึ้น' },
+      { personId: p.id, group: 'alcohol', year: 1, outcomeType: 'Family',  hasIt: Math.random() > 0.5, detail: null, moneyNote: null },
+      { personId: p.id, group: 'alcohol', year: 2, outcomeType: 'Health',  hasIt: Math.random() > 0.5, detail: null, moneyNote: null },
+      { personId: p.id, group: 'alcohol', year: 2, outcomeType: 'Work',    hasIt: Math.random() > 0.5, detail: null, moneyNote: null },
+    ].filter(r => r.hasIt || r.detail) })
     count++
     console.log(`  + เพิ่มสมาชิกเหล้า: ${name}`)
   }
 
   // กลุ่มบุหรี่ 5 คน
   for (const name of TOBACCO_NAMES) {
-    await prisma.person.create({
-      data: {
-        villageId: village.id,
-        name,
-        tobacco: {
-          create: {
-            smokeType: pick(SMOKE_DETAIL),
-            statusY1: pick(STATUSES),
-            y1Health: true,   y1HealthText: 'ปอดดีขึ้น',
-            y1Money: true,    y1MoneyText: 'ไม่ต้องซื้อบุหรี่',
-            y1Accepted: Math.random() > 0.5,
-            y2Health: Math.random() > 0.5,
-          },
-        },
-      },
+    const p = await prisma.person.create({
+      data: { villageId: village.id, name, tobacco: { create: { smokeType: pick(SMOKE_DETAIL), statusY1: pick(STATUSES) } } },
     })
+    await prisma.personOutcome.createMany({ data: [
+      { personId: p.id, group: 'tobacco', year: 1, outcomeType: 'Health',   hasIt: true, detail: 'ปอดดีขึ้น', moneyNote: null },
+      { personId: p.id, group: 'tobacco', year: 1, outcomeType: 'Money',    hasIt: true, detail: '1,000-2,000 บาท', moneyNote: 'ไม่ต้องซื้อบุหรี่' },
+      { personId: p.id, group: 'tobacco', year: 1, outcomeType: 'Accepted', hasIt: Math.random() > 0.5, detail: null, moneyNote: null },
+      { personId: p.id, group: 'tobacco', year: 2, outcomeType: 'Health',   hasIt: Math.random() > 0.5, detail: null, moneyNote: null },
+    ].filter(r => r.hasIt || r.detail) })
     count++
     console.log(`  + เพิ่มสมาชิกบุหรี่: ${name}`)
   }

@@ -4,28 +4,20 @@ import { prisma } from '@/app/lib/prisma'
 import { requireAdmin } from '@/app/lib/auth'
 import { revalidatePath } from 'next/cache'
 
-type OutcomeFields = {
-  y1Money?: boolean; y1MoneyText?: string
-  y1Property?: boolean; y1PropertyText?: string
-  y1Family?: boolean; y1FamilyText?: string
-  y1Health?: boolean; y1HealthText?: string
-  y1Work?: boolean; y1WorkText?: string
-  y1Accepted?: boolean; y1AcceptedText?: string
-  y1Other?: boolean; y1OtherText?: string
-  y2Money?: boolean; y2MoneyText?: string
-  y2Property?: boolean; y2PropertyText?: string
-  y2Family?: boolean; y2FamilyText?: string
-  y2Health?: boolean; y2HealthText?: string
-  y2Work?: boolean; y2WorkText?: string
-  y2Accepted?: boolean; y2AcceptedText?: string
-  y2Other?: boolean; y2OtherText?: string
-  y3Money?: boolean; y3MoneyText?: string
-  y3Property?: boolean; y3PropertyText?: string
-  y3Family?: boolean; y3FamilyText?: string
-  y3Health?: boolean; y3HealthText?: string
-  y3Work?: boolean; y3WorkText?: string
-  y3Accepted?: boolean; y3AcceptedText?: string
-  y3Other?: boolean; y3OtherText?: string
+const OUTCOME_TYPES = ['Money', 'Property', 'Family', 'Health', 'Work', 'Accepted', 'Other'] as const
+type OutcomeRecord = Record<string, boolean | string>
+
+function outcomesToDb(personId: number, group: string, rec: OutcomeRecord) {
+  const rows: { personId: number; group: string; year: number; outcomeType: string; hasIt: boolean; detail: string | null; moneyNote: string | null }[] = []
+  for (const year of [1, 2, 3]) {
+    for (const type of OUTCOME_TYPES) {
+      const hasIt = !!rec[`y${year}${type}`]
+      const detail = (rec[`y${year}${type}Text`] as string) || null
+      const moneyNote = type === 'Money' ? ((rec[`y${year}${type}Note`] as string) || null) : null
+      if (hasIt || detail) rows.push({ personId, group, year, outcomeType: type, hasIt, detail, moneyNote })
+    }
+  }
+  return rows
 }
 
 export type CreatePersonInput = {
@@ -37,19 +29,16 @@ export type CreatePersonInput = {
     statusY1: string
     statusY2?: string
     statusY3?: string
-    noteY1?: string
-    noteY2?: string
-    noteY3?: string
-  } & OutcomeFields
+    outcomes?: OutcomeRecord
+  }
   tobacco?: {
     smokeType: string
     statusY1: string
     statusY2?: string
     statusY3?: string
     noteY1?: string
-    noteY2?: string
-    noteY3?: string
-  } & OutcomeFields
+    outcomes?: OutcomeRecord
+  }
   dnd?: {
     drinkType: string
     year1Result?: string
@@ -61,23 +50,31 @@ export type CreatePersonInput = {
 export async function createPerson(input: CreatePersonInput) {
   await requireAdmin()
 
+  const { alcohol, tobacco, dnd } = input
+  const alcOutcomes = alcohol?.outcomes ?? {}
+  const tobOutcomes = tobacco?.outcomes ?? {}
+  const { outcomes: _a, ...alcBase } = alcohol ?? { outcomes: undefined }
+  const { outcomes: _t, ...tobBase } = tobacco ?? { outcomes: undefined }
+
   const person = await prisma.person.create({
     data: {
       villageId: input.villageId,
       name: input.name,
       gender: input.gender,
-      ...(input.alcohol && {
-        alcohol: { create: input.alcohol },
-      }),
-      ...(input.tobacco && {
-        tobacco: { create: input.tobacco },
-      }),
-      ...(input.dnd && {
-        dnd: { create: input.dnd },
-      }),
+      ...(alcohol && { alcohol: { create: alcBase } }),
+      ...(tobacco && { tobacco: { create: tobBase } }),
+      ...(dnd && { dnd: { create: dnd } }),
     },
-    include: { alcohol: true, tobacco: true, dnd: true },
+    select: { id: true },
   })
+
+  const outcomeRows = [
+    ...outcomesToDb(person.id, 'alcohol', alcOutcomes),
+    ...outcomesToDb(person.id, 'tobacco', tobOutcomes),
+  ]
+  if (outcomeRows.length > 0) {
+    await prisma.personOutcome.createMany({ data: outcomeRows })
+  }
 
   revalidatePath(`/dashboard/villages/${input.villageId}`)
   return person
@@ -85,7 +82,6 @@ export async function createPerson(input: CreatePersonInput) {
 
 export async function deletePerson(id: number, villageId: number) {
   await requireAdmin()
-
   await prisma.person.delete({ where: { id } })
   revalidatePath(`/dashboard/villages/${villageId}`)
 }
@@ -93,15 +89,28 @@ export async function deletePerson(id: number, villageId: number) {
 export async function getPerson(id: number) {
   return prisma.person.findUnique({
     where: { id },
-    include: { alcohol: true, tobacco: true, dnd: true },
+    include: { alcohol: true, tobacco: true, dnd: true, outcomes: true },
   })
 }
 
 export type UpdatePersonInput = {
   name?: string
   gender?: string
-  alcohol?: ({ drinkType: string; statusY1: string; statusY2?: string; statusY3?: string; noteY1?: string; noteY2?: string; noteY3?: string } & OutcomeFields) | null
-  tobacco?: ({ smokeType: string; statusY1: string; statusY2?: string; statusY3?: string; noteY1?: string; noteY2?: string; noteY3?: string } & OutcomeFields) | null
+  alcohol?: {
+    drinkType: string
+    statusY1: string
+    statusY2?: string
+    statusY3?: string
+    outcomes?: OutcomeRecord
+  } | null
+  tobacco?: {
+    smokeType: string
+    statusY1: string
+    statusY2?: string
+    statusY3?: string
+    noteY1?: string
+    outcomes?: OutcomeRecord
+  } | null
   dnd?: { drinkType: string; year1Result?: string; year2Result?: string; year3Result?: string } | null
 }
 
@@ -121,22 +130,32 @@ export async function updatePerson(id: number, villageId: number, input: UpdateP
 
     if (input.alcohol === null) {
       await tx.personAlcohol.deleteMany({ where: { personId: id } })
+      await tx.personOutcome.deleteMany({ where: { personId: id, group: 'alcohol' } })
     } else if (input.alcohol) {
+      const { outcomes: alcOutcomes, ...alcBase } = input.alcohol
       await tx.personAlcohol.upsert({
         where: { personId: id },
-        update: input.alcohol,
-        create: { personId: id, ...input.alcohol },
+        update: alcBase,
+        create: { personId: id, ...alcBase },
       })
+      await tx.personOutcome.deleteMany({ where: { personId: id, group: 'alcohol' } })
+      const rows = outcomesToDb(id, 'alcohol', alcOutcomes ?? {})
+      if (rows.length > 0) await tx.personOutcome.createMany({ data: rows })
     }
 
     if (input.tobacco === null) {
       await tx.personTobacco.deleteMany({ where: { personId: id } })
+      await tx.personOutcome.deleteMany({ where: { personId: id, group: 'tobacco' } })
     } else if (input.tobacco) {
+      const { outcomes: tobOutcomes, ...tobBase } = input.tobacco
       await tx.personTobacco.upsert({
         where: { personId: id },
-        update: input.tobacco,
-        create: { personId: id, ...input.tobacco },
+        update: tobBase,
+        create: { personId: id, ...tobBase },
       })
+      await tx.personOutcome.deleteMany({ where: { personId: id, group: 'tobacco' } })
+      const rows = outcomesToDb(id, 'tobacco', tobOutcomes ?? {})
+      if (rows.length > 0) await tx.personOutcome.createMany({ data: rows })
     }
 
     if (input.dnd === null) {
@@ -157,10 +176,6 @@ export async function getPersonsByVillage(villageId: number) {
   return prisma.person.findMany({
     where: { villageId },
     orderBy: { createdAt: 'desc' },
-    include: {
-      alcohol: true,
-      tobacco: true,
-      dnd: true,
-    },
+    include: { alcohol: true, tobacco: true, dnd: true, outcomes: true },
   })
 }

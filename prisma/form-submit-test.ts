@@ -37,19 +37,17 @@ async function main() {
 
     await tx.personAlcohol.update({
       where: { personId },
-      data: {
-        drinkType: 'เสี่ยงสูง',
-        statusY1:  'ตั้งใจเลิก',
-        statusY2:  'ลดพฤติกรรมได้',
-        statusY3:  'เลิกได้แล้ว',
-        y1Health: true,  y1HealthText: 'เริ่มรู้สึกร่างกายดีขึ้น ไม่ปวดหัว',
-        y2Health: true,  y2HealthText: 'สุขภาพดีขึ้นชัดเจน นอนหลับได้',
-        y2Money:  true,  y2MoneyText:  'ประหยัดได้ประมาณ 1,500 บาท/เดือน',
-        y3Health: true,  y3HealthText: 'หยุดดื่มได้สำเร็จ ผลเลือดปกติ',
-        y3Money:  true,  y3MoneyText:  'ประหยัดได้มากกว่า 3,000 บาท/เดือน',
-        y3Family: true,  y3FamilyText: 'ครอบครัวมีความสุข ความสัมพันธ์ดีขึ้น',
-      },
+      data: { drinkType: 'เสี่ยงสูง', statusY1: 'ตั้งใจเลิก', statusY2: 'ลดพฤติกรรมได้', statusY3: 'เลิกได้แล้ว' },
     })
+    await tx.personOutcome.deleteMany({ where: { personId, group: 'alcohol' } })
+    await tx.personOutcome.createMany({ data: [
+      { personId, group: 'alcohol', year: 1, outcomeType: 'Health', hasIt: true, detail: 'เริ่มรู้สึกร่างกายดีขึ้น ไม่ปวดหัว', moneyNote: null },
+      { personId, group: 'alcohol', year: 2, outcomeType: 'Health', hasIt: true, detail: 'สุขภาพดีขึ้นชัดเจน นอนหลับได้', moneyNote: null },
+      { personId, group: 'alcohol', year: 2, outcomeType: 'Money',  hasIt: true, detail: '1,000-2,000 บาท', moneyNote: 'ประหยัดได้ประมาณ 1,500 บาท/เดือน' },
+      { personId, group: 'alcohol', year: 3, outcomeType: 'Health', hasIt: true, detail: 'หยุดดื่มได้สำเร็จ ผลเลือดปกติ', moneyNote: null },
+      { personId, group: 'alcohol', year: 3, outcomeType: 'Money',  hasIt: true, detail: 'มากกว่า 10,000 บาท', moneyNote: 'ประหยัดได้มากกว่า 3,000 บาท/เดือน' },
+      { personId, group: 'alcohol', year: 3, outcomeType: 'Family', hasIt: true, detail: JSON.stringify(['ครอบครัวมีความสุข', 'ความสัมพันธ์ดีขึ้น']), moneyNote: null },
+    ]})
 
     // ── บุหรี่ ──
     console.log('\n[บุหรี่]')
@@ -62,17 +60,15 @@ async function main() {
 
     await tx.personTobacco.update({
       where: { personId },
-      data: {
-        smokeType: 'สูบประจำ 11-20 มวน',
-        statusY1:  'มีแนวโน้มที่จะเลิก',
-        statusY2:  'ลดพฤติกรรมได้',
-        statusY3:  'ลดพฤติกรรมได้อย่างต่อเนื่อง',
-        y1Health: true,  y1HealthText: 'รู้สึกหายใจสะดวกขึ้น',
-        y2Health: true,  y2HealthText: 'ลดเหลือ 5 มวน/วัน ปอดดีขึ้น',
-        y2Money:  true,  y2MoneyText:  'ประหยัดค่าบุหรี่ได้ 800 บาท/เดือน',
-        y3Health: true,  y3HealthText: 'ลดเหลือ 3 มวน/วัน ยังลดต่อเนื่อง',
-      },
+      data: { smokeType: 'สูบประจำ 11-20 มวน', statusY1: 'มีแนวโน้มที่จะเลิก', statusY2: 'ลดพฤติกรรมได้', statusY3: 'ลดพฤติกรรมได้อย่างต่อเนื่อง' },
     })
+    await tx.personOutcome.deleteMany({ where: { personId, group: 'tobacco' } })
+    await tx.personOutcome.createMany({ data: [
+      { personId, group: 'tobacco', year: 1, outcomeType: 'Health', hasIt: true, detail: 'รู้สึกหายใจสะดวกขึ้น', moneyNote: null },
+      { personId, group: 'tobacco', year: 2, outcomeType: 'Health', hasIt: true, detail: 'ลดเหลือ 5 มวน/วัน ปอดดีขึ้น', moneyNote: null },
+      { personId, group: 'tobacco', year: 2, outcomeType: 'Money',  hasIt: true, detail: '1,000-2,000 บาท', moneyNote: 'ประหยัดค่าบุหรี่ได้ 800 บาท/เดือน' },
+      { personId, group: 'tobacco', year: 3, outcomeType: 'Health', hasIt: true, detail: 'ลดเหลือ 3 มวน/วัน ยังลดต่อเนื่อง', moneyNote: null },
+    ]})
 
     // ── ดื่มไม่ขับ ──
     console.log('\n[ดื่มไม่ขับ]')
@@ -104,8 +100,7 @@ async function main() {
   console.log('  Y1:', after?.alcohol?.statusY1)
   console.log('  Y2:', after?.alcohol?.statusY2)
   console.log('  Y3:', after?.alcohol?.statusY3)
-  console.log('  y3Health:', after?.alcohol?.y3HealthText)
-  console.log('  y3Family:', after?.alcohol?.y3FamilyText)
+  console.log('  status Y3:', after?.alcohol?.statusY3)
 
   console.log('[บุหรี่]')
   console.log('  Y1:', after?.tobacco?.statusY1)

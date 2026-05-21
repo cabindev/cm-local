@@ -87,19 +87,14 @@ const MONEY_RANGES = [
 ]
 
 type Outcomes = Record<string, boolean | string>
+type PersonOutcome = { group: string; year: number; outcomeType: string; hasIt: boolean; detail: string | null; moneyNote: string | null }
 
-function extractOutcomes(rec: Record<string, unknown> | null): Outcomes {
-  if (!rec) return {}
+function extractOutcomes(outcomes: PersonOutcome[] | null | undefined, group: string): Outcomes {
   const out: Outcomes = {}
-  for (const { key } of OUTCOMES) {
-    for (const y of [1, 2, 3]) {
-      const bk = `y${y}${key}`
-      const tk = `y${y}${key}Text`
-      const nk = `y${y}${key}Note`
-      if (rec[bk] !== undefined) out[bk] = rec[bk] as boolean
-      if (rec[tk] !== undefined && rec[tk] !== null) out[tk] = rec[tk] as string
-      if (rec[nk] !== undefined && rec[nk] !== null) out[nk] = rec[nk] as string
-    }
+  for (const o of (outcomes ?? []).filter((o) => o.group === group)) {
+    out[`y${o.year}${o.outcomeType}`] = o.hasIt
+    if (o.detail) out[`y${o.year}${o.outcomeType}Text`] = o.detail
+    if (o.moneyNote) out[`y${o.year}${o.outcomeType}Note`] = o.moneyNote
   }
   return out
 }
@@ -257,7 +252,7 @@ export default function PersonEditForm({ person, villageId }: { person: PersonDa
   const [alcStatus, setAlcStatus]   = useState((person.alcohol?.statusY1 as string) ?? 'ตั้งใจเลิก')
   const [alcStatus2, setAlcStatus2] = useState((person.alcohol?.statusY2 as string) ?? '')
   const [alcStatus3, setAlcStatus3] = useState((person.alcohol?.statusY3 as string) ?? '')
-  const [alcOutcomes, setAlcOutcomes] = useState<Outcomes>(() => extractOutcomes(person.alcohol))
+  const [alcOutcomes, setAlcOutcomes] = useState<Outcomes>(() => extractOutcomes((person as any).outcomes, 'alcohol'))
 
   // Tobacco
   const rawSmoke = (person.tobacco?.smokeType as string) ?? 'สูบประจำ'
@@ -274,7 +269,7 @@ export default function PersonEditForm({ person, villageId }: { person: PersonDa
   const [tobStatus, setTobStatus]     = useState((person.tobacco?.statusY1 as string) ?? 'ตั้งใจเลิก')
   const [tobStatus2, setTobStatus2]   = useState((person.tobacco?.statusY2 as string) ?? '')
   const [tobStatus3, setTobStatus3]   = useState((person.tobacco?.statusY3 as string) ?? '')
-  const [tobOutcomes, setTobOutcomes] = useState<Outcomes>(() => extractOutcomes(person.tobacco))
+  const [tobOutcomes, setTobOutcomes] = useState<Outcomes>(() => extractOutcomes((person as any).outcomes, 'tobacco'))
 
   // DND
   const [hasDnd, setHasDnd]   = useState(!!person.dnd)
@@ -295,7 +290,7 @@ export default function PersonEditForm({ person, villageId }: { person: PersonDa
           name: name.trim(),
           gender,
           alcohol: hasAlcohol
-            ? { drinkType, statusY1: alcStatus, statusY2: alcStatus2 || undefined, statusY3: alcStatus3 || undefined, ...alcOutcomes }
+            ? { drinkType, statusY1: alcStatus, statusY2: alcStatus2 || undefined, statusY3: alcStatus3 || undefined, outcomes: alcOutcomes }
             : null,
           tobacco: hasTobacco
             ? {
@@ -304,7 +299,7 @@ export default function PersonEditForm({ person, villageId }: { person: PersonDa
                 noteY1: smokeType === 'นานๆ ครั้ง'
                   ? [smokeSocial ? `เวลาสังสรรค์${smokeSocialText ? ': ' + smokeSocialText : ''}` : '', smokeStress ? `เวลาเครียด${smokeStressText ? ': ' + smokeStressText : ''}` : ''].filter(Boolean).join('\n') || undefined
                   : undefined,
-                ...tobOutcomes,
+                outcomes: tobOutcomes,
               }
             : null,
           dnd: hasDnd

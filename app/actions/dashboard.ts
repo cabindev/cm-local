@@ -20,7 +20,7 @@ export async function getDashboardStats() {
   const persons = await prisma.person.findMany({
     select: {
       id: true, villageId: true,
-      alcohol: { select: { statusY1: true, statusY2: true, statusY3: true, noteY1: true, noteY2: true, noteY3: true } },
+      alcohol: { select: { statusY1: true, statusY2: true, statusY3: true } },
       tobacco: { select: { statusY1: true, statusY2: true, statusY3: true } },
       dnd:     { select: { year1Result: true, year2Result: true, year3Result: true } },
     },

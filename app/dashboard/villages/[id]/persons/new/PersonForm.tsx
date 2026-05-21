@@ -294,7 +294,7 @@ export default function PersonForm({ villageId }: { villageId: number }) {
           villageId,
           name: name.trim(),
           gender,
-          ...(hasAlcohol && { alcohol: { drinkType, statusY1: alcStatus, statusY2: alcStatus2 || undefined, statusY3: alcStatus3 || undefined, ...alcOutcomes } }),
+          ...(hasAlcohol && { alcohol: { drinkType, statusY1: alcStatus, statusY2: alcStatus2 || undefined, statusY3: alcStatus3 || undefined, outcomes: alcOutcomes } }),
           ...(hasTobacco && {
             tobacco: {
               smokeType: smokeType === 'สูบประจำ' && smokeQty ? `สูบประจำ ${smokeQty}` : smokeType,
@@ -305,7 +305,7 @@ export default function PersonForm({ villageId }: { villageId: number }) {
                     smokeStress ? `เวลาเครียด${smokeStressText ? ': ' + smokeStressText : ''}` : '',
                   ].filter(Boolean).join('\n') || undefined
                 : undefined,
-              ...tobOutcomes,
+              outcomes: tobOutcomes,
             },
           }),
           ...(hasDnd && {

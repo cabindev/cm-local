@@ -10,7 +10,7 @@ export async function proxy(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
-  const isAdmin = token?.role === 'ADMIN' || token?.role === 'SUPERADMIN'
+  const isAdmin = token?.role === 'ADMIN'
 
   if (pathname.startsWith('/dashboard') && (!token || !isAdmin)) {
     return NextResponse.redirect(new URL('/auth/signin', request.url));

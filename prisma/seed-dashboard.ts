@@ -224,32 +224,24 @@ async function main() {
         const hasY2 = bool(0.70)
         const hasY3 = hasY2 && bool(0.65)
 
-        // Outcomes Y1
-        const alcOutcome: Record<string, boolean> = {
-          y1Money: bool(0.4), y1Health: bool(0.6), y1Family: bool(0.5),
-          y1Work: bool(0.3), y1Accepted: bool(0.4), y1Property: bool(0.2), y1Other: bool(0.2),
-        }
-        const alcOutcome2: Record<string, boolean> = hasY2 ? {
-          y2Money: bool(0.5), y2Health: bool(0.7), y2Family: bool(0.6),
-          y2Work: bool(0.4), y2Accepted: bool(0.5), y2Property: bool(0.3), y2Other: bool(0.2),
-        } : {}
-        const alcOutcome3: Record<string, boolean> = hasY3 ? {
-          y3Money: bool(0.6), y3Health: bool(0.8), y3Family: bool(0.7),
-          y3Work: bool(0.5), y3Accepted: bool(0.6), y3Property: bool(0.4), y3Other: bool(0.3),
-        } : {}
-
         await prisma.personAlcohol.create({
           data: {
-            personId: person.id, drinkType,
-            statusY1,
+            personId: person.id, drinkType, statusY1,
             statusY2: hasY2 ? pick(ALC_STATUS_Y2) : null,
             statusY3: hasY3 ? pick(ALC_STATUS_Y3) : null,
-            noteY1: `ให้คำปรึกษาครั้งที่ 1`,
-            noteY2: hasY2 ? `ติดตามผล ปีที่ 2` : null,
-            noteY3: hasY3 ? `ติดตามผล ปีที่ 3` : null,
-            ...alcOutcome, ...alcOutcome2, ...alcOutcome3,
           },
         })
+
+        const OTYPES = ['Money', 'Health', 'Family', 'Work', 'Accepted', 'Property', 'Other']
+        const alcRows = []
+        for (const year of [1, 2, 3]) {
+          if (year === 2 && !hasY2) continue
+          if (year === 3 && !hasY3) continue
+          for (const type of OTYPES) {
+            if (bool(0.4)) alcRows.push({ personId: person.id, group: 'alcohol', year, outcomeType: type, hasIt: true, detail: null, moneyNote: null })
+          }
+        }
+        if (alcRows.length > 0) await prisma.personOutcome.createMany({ data: alcRows })
       }
 
       // Tobacco
@@ -258,29 +250,26 @@ async function main() {
         const statusY1  = pick(TOB_STATUS_Y1)
         const hasY2     = bool(0.65)
         const hasY3     = hasY2 && bool(0.60)
-        const tobOutcome: Record<string, boolean> = {
-          y1Health: bool(0.7), y1Money: bool(0.4), y1Family: bool(0.5),
-          y1Work: bool(0.3), y1Accepted: bool(0.4), y1Property: bool(0.2), y1Other: bool(0.2),
-        }
-        const tobOutcome2: Record<string, boolean> = hasY2 ? {
-          y2Health: bool(0.75), y2Money: bool(0.5), y2Family: bool(0.55),
-        } : {}
-        const tobOutcome3: Record<string, boolean> = hasY3 ? {
-          y3Health: bool(0.8), y3Money: bool(0.6), y3Family: bool(0.65),
-        } : {}
 
         await prisma.personTobacco.create({
           data: {
-            personId: person.id, smokeType,
-            statusY1,
+            personId: person.id, smokeType, statusY1,
             statusY2: hasY2 ? pick(TOB_STATUS_Y2) : null,
             statusY3: hasY3 ? pick(TOB_STATUS_Y3) : null,
-            noteY1: `ให้คำแนะนำเลิกสูบบุหรี่`,
-            noteY2: hasY2 ? `ติดตามผล ปีที่ 2` : null,
-            noteY3: hasY3 ? `ติดตามผล ปีที่ 3` : null,
-            ...tobOutcome, ...tobOutcome2, ...tobOutcome3,
+            noteY1: smokeType === 'นานๆ ครั้ง' ? 'เวลาสังสรรค์' : null,
           },
         })
+
+        const OTYPES = ['Health', 'Money', 'Family', 'Work', 'Accepted', 'Property', 'Other']
+        const tobRows = []
+        for (const year of [1, 2, 3]) {
+          if (year === 2 && !hasY2) continue
+          if (year === 3 && !hasY3) continue
+          for (const type of OTYPES) {
+            if (bool(0.4)) tobRows.push({ personId: person.id, group: 'tobacco', year, outcomeType: type, hasIt: true, detail: null, moneyNote: null })
+          }
+        }
+        if (tobRows.length > 0) await prisma.personOutcome.createMany({ data: tobRows })
       }
 
       // DND

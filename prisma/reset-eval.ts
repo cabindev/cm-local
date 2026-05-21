@@ -5,46 +5,18 @@ async function main() {
   // Reset Y2/Y3 ทุกคนในหมู่บ้าน 4 ให้เป็น null
   await p.personAlcohol.updateMany({
     where: { person: { villageId: 4 } },
-    data: {
-      statusY2: null, statusY3: null,
-      noteY2: null, noteY3: null,
-      y2Money: false, y2MoneyText: null,
-      y2Property: false, y2PropertyText: null,
-      y2Family: false, y2FamilyText: null,
-      y2Health: false, y2HealthText: null,
-      y2Work: false, y2WorkText: null,
-      y2Accepted: false, y2AcceptedText: null,
-      y2Other: false, y2OtherText: null,
-      y3Money: false, y3MoneyText: null,
-      y3Property: false, y3PropertyText: null,
-      y3Family: false, y3FamilyText: null,
-      y3Health: false, y3HealthText: null,
-      y3Work: false, y3WorkText: null,
-      y3Accepted: false, y3AcceptedText: null,
-      y3Other: false, y3OtherText: null,
-    },
+    data: { statusY2: null, statusY3: null },
+  })
+  await p.personOutcome.deleteMany({
+    where: { person: { villageId: 4 }, group: 'alcohol', year: { in: [2, 3] } },
   })
 
   await p.personTobacco.updateMany({
     where: { person: { villageId: 4 } },
-    data: {
-      statusY2: null, statusY3: null,
-      noteY2: null, noteY3: null,
-      y2Money: false, y2MoneyText: null,
-      y2Property: false, y2PropertyText: null,
-      y2Family: false, y2FamilyText: null,
-      y2Health: false, y2HealthText: null,
-      y2Work: false, y2WorkText: null,
-      y2Accepted: false, y2AcceptedText: null,
-      y2Other: false, y2OtherText: null,
-      y3Money: false, y3MoneyText: null,
-      y3Property: false, y3PropertyText: null,
-      y3Family: false, y3FamilyText: null,
-      y3Health: false, y3HealthText: null,
-      y3Work: false, y3WorkText: null,
-      y3Accepted: false, y3AcceptedText: null,
-      y3Other: false, y3OtherText: null,
-    },
+    data: { statusY2: null, statusY3: null },
+  })
+  await p.personOutcome.deleteMany({
+    where: { person: { villageId: 4 }, group: 'tobacco', year: { in: [2, 3] } },
   })
 
   await p.personDnd.updateMany({

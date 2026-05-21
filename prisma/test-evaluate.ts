@@ -21,26 +21,20 @@ async function main() {
   console.log('บุหรี่ Y2 → ลดพฤติกรรมได้')
   console.log('บุหรี่ Y3 → ลดพฤติกรรมได้อย่างต่อเนื่อง')
 
-  await p.personAlcohol.update({
-    where: { personId },
-    data: {
-      statusY2: 'ลดพฤติกรรมได้',
-      statusY3: 'เลิกได้แล้ว',
-      y2Health: true, y2HealthText: 'ร่างกายแข็งแรงขึ้น ไม่ป่วยบ่อย',
-      y3Health: true, y3HealthText: 'หยุดดื่มได้สำเร็จ สุขภาพดีขึ้นมาก',
-      y3Money: true,  y3MoneyText: 'ประหยัดเงินได้มากกว่า 3,000 บาท/เดือน',
-    },
-  })
+  await p.personAlcohol.update({ where: { personId }, data: { statusY2: 'ลดพฤติกรรมได้', statusY3: 'เลิกได้แล้ว' } })
+  await p.personOutcome.deleteMany({ where: { personId, group: 'alcohol', year: { in: [2, 3] } } })
+  await p.personOutcome.createMany({ data: [
+    { personId, group: 'alcohol', year: 2, outcomeType: 'Health', hasIt: true, detail: 'ร่างกายแข็งแรงขึ้น ไม่ป่วยบ่อย', moneyNote: null },
+    { personId, group: 'alcohol', year: 3, outcomeType: 'Health', hasIt: true, detail: 'หยุดดื่มได้สำเร็จ สุขภาพดีขึ้นมาก', moneyNote: null },
+    { personId, group: 'alcohol', year: 3, outcomeType: 'Money',  hasIt: true, detail: 'มากกว่า 10,000 บาท', moneyNote: 'ประหยัดเงินได้มากกว่า 3,000 บาท/เดือน' },
+  ]})
 
-  await p.personTobacco.update({
-    where: { personId },
-    data: {
-      statusY2: 'ลดพฤติกรรมได้',
-      statusY3: 'ลดพฤติกรรมได้อย่างต่อเนื่อง',
-      y2Health: true,
-      y3Health: true, y3HealthText: 'ลดสูบเหลือ 3 มวน/วัน',
-    },
-  })
+  await p.personTobacco.update({ where: { personId }, data: { statusY2: 'ลดพฤติกรรมได้', statusY3: 'ลดพฤติกรรมได้อย่างต่อเนื่อง' } })
+  await p.personOutcome.deleteMany({ where: { personId, group: 'tobacco', year: { in: [2, 3] } } })
+  await p.personOutcome.createMany({ data: [
+    { personId, group: 'tobacco', year: 2, outcomeType: 'Health', hasIt: true, detail: null, moneyNote: null },
+    { personId, group: 'tobacco', year: 3, outcomeType: 'Health', hasIt: true, detail: 'ลดสูบเหลือ 3 มวน/วัน', moneyNote: null },
+  ]})
 
   console.log('\n--- หลังประเมิน ---')
   const after = await p.person.findUnique({
@@ -49,7 +43,7 @@ async function main() {
   })
   console.log('เหล้า Y1/Y2/Y3:', after?.alcohol?.statusY1, '/', after?.alcohol?.statusY2, '/', after?.alcohol?.statusY3)
   console.log('บุหรี่ Y1/Y2/Y3:', after?.tobacco?.statusY1, '/', after?.tobacco?.statusY2, '/', after?.tobacco?.statusY3)
-  console.log('y3MoneyText:', after?.alcohol?.y3MoneyText)
+  console.log('statusY3:', after?.alcohol?.statusY3)
 
   // สรุปภาพรวมหมู่บ้าน
   const allPersons = await p.person.findMany({
