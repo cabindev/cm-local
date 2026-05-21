@@ -74,11 +74,10 @@ const authOptions: NextAuthOptions = {
 
         const now = new Date().toLocaleString('th-TH', { timeZone: 'Asia/Bangkok' })
         await sendTelegram(
-          `✅ <b>เข้าสู่ระบบ</b>\n` +
-          `👤 ${user.firstName} ${user.lastName}\n` +
-          `📧 ${user.email}\n` +
-          `🔑 ${user.role}\n` +
-          `🕐 ${now}`
+          `◉ <b>เข้าสู่ระบบ</b>\n` +
+          `${user.firstName} ${user.lastName}  ·  <code>${user.role}</code>\n` +
+          `<i>${user.email}</i>\n` +
+          `<code>${now}</code>`
         )
 
         return {

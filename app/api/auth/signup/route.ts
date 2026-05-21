@@ -60,10 +60,10 @@ export async function POST(request: NextRequest) {
 
     const now = new Date().toLocaleString('th-TH', { timeZone: 'Asia/Bangkok' })
     await sendTelegram(
-      `🆕 <b>สมัครสมาชิกใหม่</b>\n` +
-      `👤 ${firstName} ${lastName}\n` +
-      `📧 ${email}\n` +
-      `🕐 ${now}`
+      `○ <b>สมัครสมาชิก</b>\n` +
+      `${firstName} ${lastName}\n` +
+      `<i>${email}</i>\n` +
+      `<code>${now}</code>`
     )
 
     return NextResponse.json({ message: 'ลงทะเบียนสำเร็จ', userId: newUser.id }, { status: 200 });
