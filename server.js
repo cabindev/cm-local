@@ -20,7 +20,7 @@ app.prepare().then(() => {
   server.use('/manual.html', express.static(path.join(__dirname, 'public/manual.html')));
 
   // all other requests → Next.js
-  server.all('*', (req, res) => {
+  server.use((req, res) => {
     return handle(req, res);
   });
 
