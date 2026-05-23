@@ -318,7 +318,7 @@ export default function PersonEditForm({ person, villageId }: { person: PersonDa
         await deletePerson(person.id, villageId)
         router.push(`/dashboard/villages/${villageId}`)
       } catch {
-        setError('เกิดข้อผิดพลาดในการลบสมาชิก')
+        setError('เกิดข้อผิดพลาดในการลบผู้เข้าร่วมโครงการ')
       }
     })
   }
@@ -521,7 +521,7 @@ export default function PersonEditForm({ person, villageId }: { person: PersonDa
         <button type="button" onClick={() => router.back()} className="px-4 py-3 border border-gray-300 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">ยกเลิก</button>
         <button type="button" onClick={handleDelete} disabled={isPending} className="px-4 py-3 border border-red-200 text-red-600 hover:bg-red-50 rounded-xl text-sm font-medium transition-colors flex items-center gap-2">
           <Trash2 className="w-4 h-4" />
-          ลบสมาชิก
+          ลบผู้เข้าร่วมโครงการ
         </button>
         <button type="submit" disabled={isPending} className="flex-1 px-4 py-3 bg-yellow-400 hover:bg-yellow-500 disabled:opacity-50 rounded-xl text-sm font-bold text-gray-900 transition-colors">
           {isPending ? 'กำลังบันทึก...' : 'บันทึกการแก้ไข'}

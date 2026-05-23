@@ -3,7 +3,7 @@ import { prisma } from '@/app/lib/prisma'
 import { Wine, Cigarette, Car, ChevronLeft, ChevronRight } from 'lucide-react'
 import MembersFilter from './MembersFilter'
 
-export const metadata = { title: 'สมาชิก | Community Driven' }
+export const metadata = { title: "ผู้เข้าร่วมโครงการ | Community Driven" }
 
 const PAGE_SIZE = 50
 
@@ -79,7 +79,7 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-black text-gray-900">สมาชิก</h1>
+          <h1 className="text-2xl font-black text-gray-900">ผู้เข้าร่วมโครงการ</h1>
           <p className="text-sm text-gray-500 mt-0.5">
             {total.toLocaleString()} คน ใน {provinces.length} จังหวัด
           </p>
@@ -100,7 +100,7 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
       {/* List */}
       {displayed.length === 0 ? (
         <div className="bg-white rounded-2xl border border-gray-200 px-5 py-12 text-center">
-          <p className="text-sm text-gray-400">ไม่พบสมาชิกที่ตรงกับเงื่อนไข</p>
+          <p className="text-sm text-gray-400">ไม่พบผู้เข้าร่วมโครงการที่ตรงกับเงื่อนไข</p>
         </div>
       ) : (
         <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">

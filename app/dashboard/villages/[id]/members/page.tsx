@@ -24,7 +24,7 @@ export default async function VillageMembersPage({ params }: { params: Promise<{
             <div className="flex items-center gap-2 mb-1">
               <MapPin className="w-5 h-5 text-yellow-500 print:hidden" />
               <h1 className="text-xl font-black text-gray-900 print:text-2xl">
-                รายชื่อสมาชิกทั้งหมด - บ้าน{village.villageName} หมู่ {village.villageNo}
+                รายชื่อผู้เข้าร่วมโครงการทั้งหมด - บ้าน{village.villageName} หมู่ {village.villageNo}
               </h1>
             </div>
             <p className="text-sm text-gray-500">
@@ -32,7 +32,7 @@ export default async function VillageMembersPage({ params }: { params: Promise<{
             </p>
           </div>
           <div className="text-right text-sm text-gray-500">
-            <p>จำนวนสมาชิกในระบบ: <span className="font-bold text-gray-900">{village.persons.length}</span> คน</p>
+            <p>จำนวนผู้เข้าร่วมโครงการในระบบ: <span className="font-bold text-gray-900">{village.persons.length}</span> คน</p>
           </div>
         </div>
 

@@ -22,7 +22,7 @@ export default async function NewPersonPage({ params }: Props) {
       </Link>
 
       <div>
-        <h1 className="text-2xl font-black text-gray-900">สักประวัติสมาชิก</h1>
+        <h1 className="text-2xl font-black text-gray-900">เพิ่มผู้เข้าร่วมโครงการ</h1>
         <p className="text-sm text-gray-500 mt-0.5">
           บ้าน{village.villageName} หมู่ {village.villageNo} · {village.tambon} · {village.amphoe}
         </p>

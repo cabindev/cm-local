@@ -1,6 +1,8 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { getVillage } from '@/app/actions/village'
+import { getServerSession } from 'next-auth'
+import authOptions from '@/app/lib/configs/auth/authOptions'
 import { MapPin, Users, Home, Phone, ArrowLeft } from 'lucide-react'
 import DeleteVillageButton from './DeleteVillageButton'
 import MembersSidebar from './MembersSidebar'
@@ -16,6 +18,10 @@ export default async function VillageDetailPage({ params }: Props) {
   const { id } = await params
   const village = await getVillage(parseInt(id))
   if (!village) notFound()
+
+  const session = await getServerSession(authOptions)
+  const currentUserId = Number(session?.user?.id)
+  const isOwner = village.creatorId === currentUserId
 
   const screening = village.screeningResults[0] ?? null
   const multiRiskCount = village.persons.filter((p) => p.alcohol && p.tobacco && p.dnd).length
@@ -57,7 +63,7 @@ export default async function VillageDetailPage({ params }: Props) {
                   className="px-3 py-1.5 text-xs font-bold bg-gray-900 hover:bg-gray-800 text-yellow-400 rounded-lg transition-colors flex items-center gap-1.5 shadow-sm"
                 >
                   <Users className="w-3.5 h-3.5" />
-                  ดูสมาชิกทั้งหมด
+                  ดูผู้เข้าร่วมโครงการทั้งหมด
                 </Link>
                 <EvaluationTrigger />
                 <Link
@@ -66,7 +72,7 @@ export default async function VillageDetailPage({ params }: Props) {
                 >
                   แก้ไข
                 </Link>
-                <DeleteVillageButton id={village.id} />
+                {isOwner && <DeleteVillageButton id={village.id} />}
               </div>
             </div>
 

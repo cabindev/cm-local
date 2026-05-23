@@ -32,7 +32,7 @@ export default function MembersTable({ villageId, persons, villageName }: { vill
       await deletePerson(id, villageId)
       router.refresh()
     } catch {
-      alert('เกิดข้อผิดพลาดในการลบสมาชิก')
+      alert('เกิดข้อผิดพลาดในการลบผู้เข้าร่วมโครงการ')
     } finally {
       setIsDeleting(false)
     }
@@ -71,8 +71,8 @@ export default function MembersTable({ villageId, persons, villageName }: { vill
     ws['!cols'] = wscols
 
     const wb = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(wb, ws, "รายชื่อสมาชิก")
-    XLSX.writeFile(wb, `รายชื่อสมาชิก_บ้าน${villageName}.xlsx`)
+    XLSX.utils.book_append_sheet(wb, ws, "รายชื่อผู้เข้าร่วมโครงการ")
+    XLSX.writeFile(wb, `รายชื่อผู้เข้าร่วมโครงการ_บ้าน${villageName}.xlsx`)
   }
 
   return (
@@ -109,7 +109,7 @@ export default function MembersTable({ villageId, persons, villageName }: { vill
             className="flex items-center gap-1.5 px-3 py-2 bg-yellow-400 hover:bg-yellow-500 text-gray-900 text-sm font-bold rounded-xl transition-colors shadow-sm"
           >
             <Plus className="w-4 h-4" />
-            เพิ่มสมาชิก
+            เพิ่มผู้เข้าร่วมโครงการ
           </Link>
         </div>
       </div>
@@ -128,7 +128,7 @@ export default function MembersTable({ villageId, persons, villageName }: { vill
             {filtered.length === 0 ? (
               <tr>
                 <td colSpan={4} className="px-6 py-8 text-center text-gray-500">
-                  {query ? 'ไม่พบชื่อที่ค้นหา' : 'ยังไม่มีสมาชิกในระบบ'}
+                  {query ? 'ไม่พบชื่อที่ค้นหา' : 'ยังไม่มีผู้เข้าร่วมโครงการในระบบ'}
                 </td>
               </tr>
             ) : (

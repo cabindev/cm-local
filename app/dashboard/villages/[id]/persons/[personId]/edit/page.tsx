@@ -26,7 +26,7 @@ export default async function EditPersonPage({ params }: Props) {
       </Link>
 
       <div>
-        <h1 className="text-2xl font-black text-gray-900">แก้ไขข้อมูลสมาชิก</h1>
+        <h1 className="text-2xl font-black text-gray-900">แก้ไขข้อมูลผู้เข้าร่วมโครงการ</h1>
         <p className="text-sm text-gray-500 mt-0.5">{person.name} · บ้าน{village.villageName}</p>
       </div>
 

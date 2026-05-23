@@ -45,15 +45,16 @@ export default function ReportFilter({
   async function handleExport() {
     setExporting(true)
     try {
-      const params = new URLSearchParams({ q, province, amphoe, villageId, group, gender })
+      const params = new URLSearchParams({ q, province, amphoe, villageId, group, gender, tab })
       ;['q','province','amphoe','villageId','group','gender'].forEach(k => { if (!params.get(k)) params.delete(k) })
+      if (tab !== 'villages') params.delete('tab')
       const res = await fetch(`/api/report/export?${params.toString()}`)
       if (!res.ok) throw new Error('export failed')
       const blob = await res.blob()
       const url  = URL.createObjectURL(blob)
       const a    = document.createElement('a')
       a.href = url
-      a.download = `conmunity-report-${new Date().toISOString().slice(0,10)}.xlsx`
+      a.download = `conmunity-${tab === 'villages' ? 'villages' : 'persons'}-${new Date().toISOString().slice(0,10)}.xlsx`
       a.click()
       URL.revokeObjectURL(url)
     } catch { alert('เกิดข้อผิดพลาดในการ export') }
@@ -137,13 +138,14 @@ export default function ReportFilter({
               ))}
             </div>
 
-            <button onClick={handleExport} disabled={exporting || total === 0}
-              className="flex items-center gap-2 px-4 py-2 bg-yellow-400 hover:bg-yellow-500 disabled:opacity-50 text-gray-900 font-semibold text-sm rounded-lg transition-colors ml-auto">
-              {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-              Export Excel
-            </button>
           </>
         )}
+
+        <button onClick={handleExport} disabled={exporting || total === 0}
+          className="flex items-center gap-2 px-4 py-2 bg-yellow-400 hover:bg-yellow-500 disabled:opacity-50 text-gray-900 font-semibold text-sm rounded-lg transition-colors ml-auto">
+          {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+          Export Excel
+        </button>
       </div>
 
       {total > 0 && (

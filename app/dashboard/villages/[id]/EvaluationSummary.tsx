@@ -68,7 +68,7 @@ function CriteriaModal({ onClose }: { onClose: () => void }) {
                 <span className="flex items-center gap-1.5 text-xs font-semibold text-blue-800">
                   <span className="w-2 h-2 rounded-full bg-blue-400" />กลุ่มบุหรี่
                 </span>
-                <span className="text-xs font-bold text-blue-600">เป้า 15%</span>
+                <span className="text-xs font-bold text-blue-600">เป้า 10%</span>
               </div>
               <table className="w-full text-xs">
                 <thead><tr className="border-b border-blue-50 bg-gray-50">
@@ -376,7 +376,7 @@ export default function EvaluationSummary({
             <GroupSection
               label="กลุ่มบุหรี่" colorDot="bg-blue-400"
               members={tobPersons.map((p) => ({ id: p.id, name: p.name, statusY3: p.tobacco?.statusY3 ?? null }))}
-              kpiTarget={15} villageId={villageId}
+              kpiTarget={10} villageId={villageId}
               pendingNames={tobPending}
               pendingY2Names={tobPendingY2}
             />

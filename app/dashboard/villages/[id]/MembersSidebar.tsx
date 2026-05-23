@@ -76,7 +76,7 @@ export default function MembersSidebar({ villageId, persons }: { villageId: numb
     try {
       await deletePerson(id, villageId)
     } catch {
-      alert('เกิดข้อผิดพลาดในการลบสมาชิก')
+      alert('เกิดข้อผิดพลาดในการลบผู้เข้าร่วมโครงการ')
     }
   }
 
@@ -85,7 +85,7 @@ export default function MembersSidebar({ villageId, persons }: { villageId: numb
       <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
         <div className="bg-gray-900 px-4 py-3 flex items-center justify-between">
           <div>
-            <p className="text-sm font-bold text-white">สมาชิกในหมู่บ้าน</p>
+            <p className="text-sm font-bold text-white">ผู้เข้าร่วมโครงการ</p>
             <p className="text-xs text-gray-400">{persons.length} คน</p>
           </div>
           <div className="flex items-center gap-1.5">
@@ -101,7 +101,7 @@ export default function MembersSidebar({ villageId, persons }: { villageId: numb
             <Link
               href={`/dashboard/villages/${villageId}/persons/new`}
               className="w-7 h-7 bg-yellow-400 hover:bg-yellow-500 rounded-lg flex items-center justify-center transition-colors"
-              title="สักประวัติสมาชิก"
+              title="เพิ่มผู้เข้าร่วมโครงการ"
             >
               <Plus className="w-4 h-4 text-gray-900" />
             </Link>
@@ -126,12 +126,12 @@ export default function MembersSidebar({ villageId, persons }: { villageId: numb
         {persons.length === 0 ? (
           <div className="px-4 py-8 text-center">
             <User className="w-8 h-8 text-gray-200 mx-auto mb-2" />
-            <p className="text-xs text-gray-400">ยังไม่มีสมาชิก</p>
+            <p className="text-xs text-gray-400">ยังไม่มีผู้เข้าร่วมโครงการ</p>
             <Link
               href={`/dashboard/villages/${villageId}/persons/new`}
               className="inline-block mt-3 text-xs font-semibold text-yellow-600 hover:underline"
             >
-              + สักประวัติสมาชิก
+              + เพิ่มผู้เข้าร่วมโครงการ
             </Link>
           </div>
         ) : (
@@ -168,7 +168,7 @@ export default function MembersSidebar({ villageId, persons }: { villageId: numb
                         type="button"
                         onClick={() => handleDelete(p.id, p.name)}
                         className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-md bg-gray-100 hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors"
-                        title="ลบสมาชิก"
+                        title="ลบผู้เข้าร่วมโครงการ"
                       >
                         <Trash2 className="w-3 h-3" />
                       </button>
@@ -242,7 +242,7 @@ export default function MembersSidebar({ villageId, persons }: { villageId: numb
               className="flex items-center justify-center gap-1.5 w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold text-sm py-2 rounded-lg transition-colors"
             >
               <Plus className="w-4 h-4" />
-              สักประวัติสมาชิก
+              เพิ่มผู้เข้าร่วมโครงการ
             </Link>
           </div>
         )}

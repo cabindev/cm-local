@@ -61,7 +61,13 @@ export async function updateVillage(
 }
 
 export async function deleteVillage(id: number) {
-  await requireAdmin()
+  const session = await requireAdmin()
+
+  const village = await prisma.village.findUnique({ where: { id }, select: { creatorId: true } })
+  if (!village) throw new Error('ไม่พบหมู่บ้าน')
+  if (village.creatorId !== Number(session.user.id)) {
+    throw new Error('ไม่มีสิทธิ์ลบหมู่บ้านที่สร้างโดยผู้ใช้อื่น')
+  }
 
   await prisma.village.delete({ where: { id } })
   revalidatePath('/dashboard/villages')

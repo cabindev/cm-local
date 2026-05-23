@@ -10,6 +10,7 @@ const PAGE_SIZE = 100
 type SP = {
   q?: string; province?: string; amphoe?: string; villageId?: string
   group?: string; gender?: string; tab?: string; page?: string
+  sort?: string; dir?: string
 }
 
 function buildWhere(q: string, province: string, amphoe: string, villageId: string, group: string, gender: string) {
@@ -27,6 +28,23 @@ function buildWhere(q: string, province: string, amphoe: string, villageId: stri
   }
 }
 
+function SortTh({ label, col, sort, dir, params, className = '' }: {
+  label: string; col: string; sort: string; dir: string
+  params: Record<string, string>; className?: string
+}) {
+  const active = sort === col
+  const nextDir = active && dir === 'asc' ? 'desc' : 'asc'
+  const p = new URLSearchParams({ ...params, sort: col, dir: nextDir })
+  return (
+    <th className={`px-3 py-3 font-semibold cursor-pointer select-none hover:bg-gray-800 transition-colors ${className}`}>
+      <a href={`/dashboard/report?${p.toString()}`} className="flex items-center gap-1">
+        {label}
+        <span className="text-[10px] opacity-60">{active ? (dir === 'asc' ? '↑' : '↓') : '↕'}</span>
+      </a>
+    </th>
+  )
+}
+
 function Tick({ ok }: { ok: boolean }) {
   return ok
     ? <CheckCircle2 className="w-4 h-4 text-yellow-500 mx-auto" />
@@ -37,6 +55,7 @@ export default async function ReportPage({ searchParams }: { searchParams: Promi
   const {
     q = '', province = '', amphoe = '', villageId = '',
     group = '', gender = '', tab = 'persons', page = '0',
+    sort = 'zone', dir = 'asc',
   } = await searchParams
 
   const currentPage = Number(page)
@@ -73,7 +92,7 @@ export default async function ReportPage({ searchParams }: { searchParams: Promi
         where,
         include: {
           village: { select: { id: true, villageName: true, villageNo: true, tambon: true, amphoe: true, province: true, zone: true } },
-          alcohol: true, tobacco: true, dnd: true,
+          alcohol: true, tobacco: true, dnd: true, outcomes: true,
         },
         orderBy: { createdAt: 'desc' },
         take: PAGE_SIZE, skip,
@@ -188,12 +207,14 @@ export default async function ReportPage({ searchParams }: { searchParams: Promi
                           <td className="px-3 py-2.5">{dnd?.year3Result ?? <span className="text-gray-200">—</span>}</td>
                           {OUTCOMES.flatMap((k) =>
                             [1,2,3].map((y) => {
-                              const bk = `y${y}${k}`, tk = `y${y}${k}Text`
-                              const checked = alc?.[bk] || tob?.[bk]
-                              const text = (alc?.[tk] || tob?.[tk]) as string | undefined
+                              const outcome = (p as any).outcomes?.find((o: any) =>
+                                o.year === y && o.outcomeType === k && o.hasIt
+                              )
                               return (
                                 <td key={`${k}${y}`} className="px-3 py-2.5 border-l border-gray-50">
-                                  {checked ? <span className="text-green-700 font-medium">{text || '✓'}</span> : <span className="text-gray-200">—</span>}
+                                  {outcome
+                                    ? <span className="text-green-700 font-medium">{outcome.detail || '✓'}</span>
+                                    : <span className="text-gray-200">—</span>}
                                 </td>
                               )
                             })
@@ -253,9 +274,18 @@ export default async function ReportPage({ searchParams }: { searchParams: Promi
     ...(villageId ? { id: Number(villageId) } : {}),
   }
 
+  const sortDir = (dir === 'desc' ? 'desc' : 'asc') as 'asc' | 'desc'
+  const villageOrderBy =
+    sort === 'persons'    ? { persons: { _count: sortDir } } :
+    sort === 'population' ? { actualPopulation: sortDir }    :
+    sort === 'village'    ? { villageName: sortDir }         :
+    sort === 'amphoe'     ? { amphoe: sortDir }              :
+    sort === 'province'   ? { province: sortDir }            :
+    { zone: sortDir }
+
   const allVillages = await prisma.village.findMany({
     where: villageWhere,
-    orderBy: { zone: 'asc' },
+    orderBy: villageOrderBy,
     include: {
       screeningResults: true,
       communityBackgrounds: true,
@@ -284,11 +314,12 @@ export default async function ReportPage({ searchParams }: { searchParams: Promi
             <thead className="bg-gray-900 text-white">
               <tr>
                 <th className="sticky left-0 z-10 bg-gray-900 text-center px-3 py-3 font-semibold text-gray-400 w-10">#</th>
-                <th className="sticky left-10 z-10 bg-gray-900 text-left px-4 py-3 font-semibold min-w-36 border-r border-gray-700">หมู่บ้าน</th>
-                <th className="text-left px-3 py-3 font-semibold text-gray-300 min-w-28">จังหวัด</th>
-                <th className="text-left px-3 py-3 font-semibold text-gray-300 min-w-20">ภาค</th>
-                <th className="text-right px-3 py-3 font-semibold text-gray-300 min-w-20">ประชากร</th>
-                <th className="text-right px-3 py-3 font-semibold text-gray-300 min-w-20">สมาชิก</th>
+                <SortTh label="หมู่บ้าน" col="village" sort={sort} dir={dir} params={{ tab:'villages', ...(province?{province}:{}), ...(amphoe?{amphoe}:{}), ...(villageId?{villageId}:{}) }} className="sticky left-10 z-10 bg-gray-900 text-left min-w-36 border-r border-gray-700" />
+                <th className="text-left px-3 py-3 font-semibold text-gray-300 min-w-24">อำเภอ</th>
+                <SortTh label="จังหวัด" col="province" sort={sort} dir={dir} params={{ tab:'villages', ...(province?{province}:{}), ...(amphoe?{amphoe}:{}), ...(villageId?{villageId}:{}) }} className="text-left text-gray-300 min-w-28" />
+                <SortTh label="ภาค" col="zone" sort={sort} dir={dir} params={{ tab:'villages', ...(province?{province}:{}), ...(amphoe?{amphoe}:{}), ...(villageId?{villageId}:{}) }} className="text-left text-gray-300 min-w-20" />
+                <SortTh label="ประชากร" col="population" sort={sort} dir={dir} params={{ tab:'villages', ...(province?{province}:{}), ...(amphoe?{amphoe}:{}), ...(villageId?{villageId}:{}) }} className="text-right text-gray-300 min-w-20" />
+                <SortTh label="สมาชิก" col="persons" sort={sort} dir={dir} params={{ tab:'villages', ...(province?{province}:{}), ...(amphoe?{amphoe}:{}), ...(villageId?{villageId}:{}) }} className="text-right text-gray-300 min-w-20" />
                 <th className="text-center px-3 py-3 font-semibold text-purple-300 border-l border-gray-700 min-w-24">ปฏิทินชุมชน</th>
                 <th className="text-center px-3 py-3 font-semibold text-purple-300 min-w-24">สถานที่เสี่ยง</th>
                 <th className="text-center px-3 py-3 font-semibold text-purple-300 min-w-28">นโยบายมีส่วนร่วม</th>
@@ -302,9 +333,11 @@ export default async function ReportPage({ searchParams }: { searchParams: Promi
                 <th className="text-center px-3 py-3 font-semibold text-green-300 min-w-20">นโยบาย</th>
                 <th className="text-center px-3 py-3 font-semibold text-green-300 min-w-20">กติกา</th>
                 <th className="text-center px-3 py-3 font-semibold text-green-300 min-w-20">งานประเพณี</th>
+                <th className="text-center px-3 py-3 font-semibold text-green-300 min-w-24">ประเพณีปลอดเหล้า</th>
                 <th className="text-center px-3 py-3 font-semibold text-green-300 min-w-20">ร้านค้า</th>
                 <th className="text-center px-3 py-3 font-semibold text-green-300 min-w-20">ไม่ขายเหล้า</th>
-                <th className="text-center px-3 py-3 font-semibold text-green-300 min-w-20">ห้ามดื่ม</th>
+                <th className="text-center px-3 py-3 font-semibold text-green-300 min-w-24">สถานที่ห้ามดื่ม</th>
+                <th className="text-center px-3 py-3 font-semibold text-green-300 min-w-20">ห้ามดื่มห้ามขาย</th>
                 <th className="text-center px-3 py-3 font-semibold text-blue-300 border-l border-gray-700 min-w-24">สถานศึกษา</th>
                 <th className="text-center px-3 py-3 font-semibold text-blue-300 min-w-20">วัด</th>
                 <th className="text-center px-3 py-3 font-semibold text-blue-300 min-w-20">อบต.</th>
@@ -333,6 +366,7 @@ export default async function ReportPage({ searchParams }: { searchParams: Promi
                         บ้าน{v.villageName} ม.{v.villageNo}
                       </a>
                     </td>
+                    <td className="px-3 py-2.5 text-gray-600">{v.amphoe}</td>
                     <td className="px-3 py-2.5 text-gray-600">{v.province}</td>
                     <td className="px-3 py-2.5 text-gray-500">{v.zone}</td>
                     <td className="px-3 py-2.5 text-right text-gray-700">{v.actualPopulation.toLocaleString()}</td>
@@ -352,8 +386,10 @@ export default async function ReportPage({ searchParams }: { searchParams: Promi
                     <td className="px-3 py-2.5"><Tick ok={!!em.funeral?.hasPolicy} /></td>
                     <td className="px-3 py-2.5"><Tick ok={!!em.funeral?.hasCommunityRule} /></td>
                     <td className="px-3 py-2.5"><Tick ok={!!em.tradition?.hasItem} /></td>
+                    <td className="px-3 py-2.5"><Tick ok={!!em.tradition?.hasTraditionEvent} /></td>
                     <td className="px-3 py-2.5"><Tick ok={!!em.shop?.hasItem} /></td>
                     <td className="px-3 py-2.5"><Tick ok={!!em.shop?.noAlcohol} /></td>
+                    <td className="px-3 py-2.5"><Tick ok={!!em.nodrinkzone?.hasNoDrinkSite} /></td>
                     <td className="px-3 py-2.5"><Tick ok={!!em.nodrinkzone?.hasItem} /></td>
                     <td className="px-3 py-2.5 border-l border-gray-100"><Tick ok={!!om.school?.hasParticipation} /></td>
                     <td className="px-3 py-2.5"><Tick ok={!!om.temple?.hasParticipation} /></td>

@@ -280,7 +280,7 @@ export default function EvaluateClient({
   if (persons.length === 0) {
     return (
       <div className="bg-white rounded-2xl border border-gray-200 p-10 text-center">
-        <p className="text-gray-400 text-sm">ยังไม่มีสมาชิกในหมู่บ้านนี้</p>
+        <p className="text-gray-400 text-sm">ยังไม่มีผู้เข้าร่วมโครงการในหมู่บ้านนี้</p>
       </div>
     )
   }
