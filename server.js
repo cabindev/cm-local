@@ -1,17 +1,31 @@
-const { createServer } = require('http')
-const { parse } = require('url')
-const next = require('next')
+const express = require('express');
+const next = require('next');
+const path = require('path');
 
-const app = next({ dev: false })
-const handle = app.getRequestHandler()
-const port = process.env.PORT || 3000
+const dev = process.env.NODE_ENV !== 'production';
+const app = next({ dev });
+const handle = app.getRequestHandler();
+const port = process.env.PORT || 3000;
 
 app.prepare().then(() => {
-  createServer((req, res) => {
-    const parsedUrl = parse(req.url, true)
-    handle(req, res, parsedUrl)
-  }).listen(port, err => {
-    if (err) throw err
-    console.log(`> Ready on http://localhost:${port}`)
-  })
-})
+  const server = express();
+
+  // serve uploaded profile images
+  server.use('/img', express.static(path.join(__dirname, 'public/img')));
+
+  // serve community document uploads
+  server.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
+
+  // serve manual HTML
+  server.use('/manual.html', express.static(path.join(__dirname, 'public/manual.html')));
+
+  // all other requests → Next.js
+  server.all('*', (req, res) => {
+    return handle(req, res);
+  });
+
+  server.listen(port, (err) => {
+    if (err) throw err;
+    console.log(`> Ready on http://localhost:${port}`);
+  });
+});
