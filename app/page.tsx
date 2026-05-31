@@ -2,7 +2,7 @@ import { getServerSession } from 'next-auth'
 import authOptions from '@/app/lib/configs/auth/authOptions'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { MapPin, BarChart2, Users, Shield } from 'lucide-react'
+import { Shield, MapPin, BarChart2, Users, FileSpreadsheet } from 'lucide-react'
 import SignOutButton from '@/app/components/auth/SignOutButton'
 
 export default async function Home() {
@@ -13,34 +13,30 @@ export default async function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 flex flex-col">
+    <div className="min-h-screen flex flex-col bg-[#0a0a0a] text-white">
 
       {/* Navbar */}
-      <nav className="flex items-center justify-between px-6 py-4 border-b border-gray-800">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-yellow-400 rounded-lg flex items-center justify-center">
-            <span className="text-gray-900 font-black text-xs">CM</span>
-          </div>
-          <span className="text-white font-bold">Community Driven</span>
-        </div>
+      <nav className="flex items-center justify-between px-8 py-5 border-b border-white/[0.06]">
         <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-yellow-400 rounded-lg flex items-center justify-center">
+            <span className="text-black font-black text-xs">CM</span>
+          </div>
+          <span className="font-semibold text-white tracking-tight">Community Driven</span>
+        </div>
+        <div className="flex items-center gap-2">
           {session ? (
             <div className="flex items-center gap-3">
-              <span className="text-gray-400 text-sm">สวัสดี {session.user.firstName}</span>
+              <span className="text-sm text-white/40">{session.user.firstName}</span>
               <SignOutButton />
             </div>
           ) : (
             <>
-              <Link
-                href="/auth/signin"
-                className="px-4 py-1.5 border border-gray-600 text-gray-300 rounded-lg text-sm hover:border-gray-400 hover:text-white transition-colors"
-              >
+              <Link href="/auth/signin"
+                className="px-4 py-2 text-sm text-white/50 hover:text-white transition-colors">
                 เข้าสู่ระบบ
               </Link>
-              <Link
-                href="/auth/signup"
-                className="px-4 py-1.5 bg-yellow-400 text-gray-900 rounded-lg text-sm font-semibold hover:bg-yellow-500 transition-colors"
-              >
+              <Link href="/auth/signup"
+                className="px-4 py-2 bg-yellow-400 text-black text-sm font-semibold rounded-lg hover:bg-yellow-300 transition-colors">
                 สมัครสมาชิก
               </Link>
             </>
@@ -49,100 +45,70 @@ export default async function Home() {
       </nav>
 
       {/* Hero */}
-      <main className="flex-1 flex flex-col items-center justify-center px-6 text-center py-20">
-        <div className="w-16 h-16 bg-yellow-400 rounded-2xl flex items-center justify-center mx-auto mb-6">
-          <MapPin className="w-8 h-8 text-gray-900" />
-        </div>
-        <h1 className="text-4xl sm:text-5xl font-black text-white mb-4 leading-tight">
-          Community Driven
+      <main className="flex-1 flex flex-col items-center justify-center px-8 text-center py-24">
+        <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black tracking-tight leading-[1.05] mb-6">
+          Community
+          <br />
+          <span className="text-yellow-400">Driven</span>
         </h1>
-        <p className="text-gray-400 text-lg max-w-md mb-3">
-          ระบบบันทึกข้อมูลโครงการ
-        </p>
-        <p className="text-yellow-400 font-semibold text-xl mb-10">
-          กพร
+
+        <p className="text-white/40 text-lg max-w-sm leading-relaxed mb-10">
+          ระบบบันทึกและติดตามข้อมูลโครงการชุมชนสุขภาวะ ครอบคลุม 3 ปี
         </p>
 
         {!session ? (
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Link
-              href="/auth/signup"
-              className="px-8 py-3 bg-yellow-400 text-gray-900 font-bold rounded-xl hover:bg-yellow-500 transition-colors text-sm"
-            >
-              สมัครสมาชิก
-            </Link>
-            <Link
-              href="/auth/signin"
-              className="px-8 py-3 border border-gray-600 text-gray-300 font-medium rounded-xl hover:border-yellow-400 hover:text-yellow-400 transition-colors text-sm"
-            >
+          <div className="flex flex-col sm:flex-row items-center gap-3">
+            <Link href="/auth/signin"
+              className="px-8 py-3 bg-yellow-400 text-black font-bold rounded-xl hover:bg-yellow-300 transition-colors text-sm">
               เข้าสู่ระบบ
+            </Link>
+            <Link href="/auth/signup"
+              className="px-8 py-3 border border-white/10 text-white/60 font-medium rounded-xl hover:border-white/20 hover:text-white/80 transition-colors text-sm">
+              สมัครสมาชิก
             </Link>
           </div>
         ) : (
-          <div className="bg-gray-800 rounded-xl px-6 py-4 text-center">
-            <p className="text-gray-400 text-sm mb-1">บัญชีของคุณยังไม่มีสิทธิ์เข้าถึงระบบ</p>
-            <p className="text-gray-500 text-xs">กรุณาติดต่อผู้ดูแลระบบเพื่อขอสิทธิ์</p>
+          <div className="border border-white/[0.08] rounded-xl px-6 py-4 text-center bg-white/[0.02]">
+            <p className="text-white/40 text-sm mb-1">บัญชีของคุณยังรอการอนุมัติสิทธิ์</p>
+            <p className="text-white/25 text-xs">กรุณาติดต่อผู้ดูแลระบบ</p>
           </div>
         )}
       </main>
 
+      {/* Divider */}
+      <div className="border-t border-white/[0.05] mx-8" />
+
       {/* Features */}
-      <section className="px-6 pb-16 max-w-4xl mx-auto w-full">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <section className="px-8 py-16 max-w-4xl mx-auto w-full">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {[
-            {
-              icon: <MapPin className="w-5 h-5 text-yellow-500" />,
-              title: 'บันทึกข้อมูลหมู่บ้าน',
-              desc: 'จัดเก็บข้อมูลพื้นที่โครงการพร้อมระบบค้นหา',
-            },
-            {
-              icon: <BarChart2 className="w-5 h-5 text-yellow-500" />,
-              title: 'ติดตามผล 3 ปี',
-              desc: 'บันทึกผลคัดกรอง ผู้เข้าร่วม และผลติดตาม 3/6 เดือน',
-            },
-            {
-              icon: <Users className="w-5 h-5 text-yellow-500" />,
-              title: 'ครอบคลุมทุกมิติ',
-              desc: 'เหล้า บุหรี่ ไม่ดื่มไม่ขับ สภาพแวดล้อม และการมีส่วนร่วม',
-            },
-          ].map((f) => (
-            <div key={f.title} className="bg-gray-800 rounded-xl p-5 border border-gray-700">
-              <div className="w-9 h-9 bg-gray-700 rounded-lg flex items-center justify-center mb-3">
-                {f.icon}
-              </div>
-              <h3 className="text-white font-semibold text-sm mb-1">{f.title}</h3>
-              <p className="text-gray-400 text-xs leading-relaxed">{f.desc}</p>
+            { icon: MapPin,          label: 'บันทึกหมู่บ้าน'   },
+            { icon: BarChart2,       label: 'ผลคัดกรอง'       },
+            { icon: Users,           label: 'ติดตามรายบุคคล'  },
+            { icon: FileSpreadsheet, label: 'Export รายงาน'   },
+          ].map(({ icon: Icon, label }) => (
+            <div key={label}
+              className="flex flex-col items-center gap-2.5 py-6 px-4 rounded-xl border border-white/[0.06] bg-white/[0.02] text-center">
+              <Icon className="w-5 h-5 text-yellow-400/70" />
+              <span className="text-white/50 text-xs font-medium">{label}</span>
             </div>
           ))}
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-gray-800 py-8 px-6">
-        <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center sm:items-start justify-between gap-6">
-          {/* Brand */}
-          <div className="flex flex-col items-center sm:items-start gap-2">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 bg-yellow-400 rounded-lg flex items-center justify-center">
-                <span className="text-gray-900 font-black text-xs">CM</span>
-              </div>
-              <span className="text-white font-bold text-sm">Community Driven</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-gray-500 text-xs">
-              <Shield className="w-3 h-3 shrink-0" />
-              <span>เฉพาะผู้ดูแลระบบเท่านั้นที่สามารถเข้าถึงข้อมูลได้</span>
-            </div>
+      <footer className="border-t border-white/[0.05] px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-white/20 text-xs">
+        <div className="flex items-center gap-2">
+          <div className="w-5 h-5 bg-yellow-400 rounded-md flex items-center justify-center">
+            <span className="text-black font-black text-[8px]">CM</span>
           </div>
-
-          {/* Address */}
-          <div className="text-center sm:text-right">
-            <p className="text-gray-500 text-xs leading-relaxed">
-              110/287-288 ม.6 ซอยโพธิ์แก้ว แยก 4<br />
-              ถ.โพธิ์แก้ว แขวงคลองกุ่ม เขตบึงกุ่ม<br />
-              กรุงเทพมหานคร 10240
-            </p>
-          </div>
+          <span>Community Driven</span>
         </div>
+        <div className="flex items-center gap-1.5">
+          <Shield className="w-3 h-3" />
+          <span>เฉพาะผู้มีสิทธิ์เท่านั้น</span>
+        </div>
+        <span>110/287-288 ม.6 คลองกุ่ม บึงกุ่ม กทม. 10240</span>
       </footer>
     </div>
   )
