@@ -1,1 +1,0 @@
-ALTER TABLE `CommunityOrg` ADD COLUMN `orgName` VARCHAR(191) NULL;
