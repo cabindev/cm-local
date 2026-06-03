@@ -8,7 +8,7 @@ import SignOutButton from '@/app/components/auth/SignOutButton'
 export default async function Home() {
   const session = await getServerSession(authOptions)
 
-  if (session?.user.role === 'ADMIN') {
+  if (session?.user.role === 'ADMIN' || session?.user.role === 'SUPERADMIN') {
     redirect('/dashboard')
   }
 

@@ -79,7 +79,7 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-black text-gray-900">ผู้เข้าร่วมโครงการ</h1>
+          <h1 className="text-xl font-semibold text-gray-900">ผู้เข้าร่วมโครงการ</h1>
           <p className="text-sm text-gray-500 mt-0.5">
             {total.toLocaleString()} คน ใน {provinces.length} จังหวัด
           </p>
@@ -92,7 +92,7 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
       {/* Result count */}
       {(q || group || province || status) && (
         <p className="text-xs text-gray-400">
-          พบ <span className="font-semibold text-gray-700">{total.toLocaleString()}</span> คน
+          พบ <span className="font-normal text-gray-600">{total.toLocaleString()}</span> คน
           {currentPage > 0 && ` · หน้า ${currentPage + 1}/${totalPages}`}
         </p>
       )}
@@ -115,22 +115,22 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
                   >
                     {/* Index & Avatar */}
                     <div className="flex flex-col items-center gap-1">
-                      <span className="text-[10px] font-bold text-gray-300 group-hover:text-yellow-600 transition-colors">
+                      <span className="text-[10px] font-normal text-gray-300 group-hover:text-yellow-600 transition-colors">
                         {skip + idx + 1}
                       </span>
                       <div className="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center flex-shrink-0">
-                        <span className="text-xs font-bold text-yellow-700">{p.name.charAt(0)}</span>
+                        <span className="text-xs font-medium text-yellow-700">{p.name.charAt(0)}</span>
                       </div>
                     </div>
 
                     {/* Info */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-sm font-semibold text-gray-900 group-hover:text-yellow-700 transition-colors">
+                        <span className="text-sm font-normal text-gray-900 group-hover:text-yellow-700 transition-colors">
                           {p.name}
                         </span>
                         {incomplete && (
-                          <span className="text-[10px] font-bold bg-yellow-100 text-yellow-700 border border-yellow-200 px-1.5 py-0.5 rounded-full leading-none">
+                          <span className="text-[10px] font-medium bg-yellow-100 text-yellow-700 border border-yellow-200 px-1.5 py-0.5 rounded-full leading-none">
                             ยังไม่ครบ
                           </span>
                         )}
@@ -143,19 +143,19 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
                     {/* Group badges */}
                     <div className="flex items-center gap-1.5 flex-shrink-0">
                       {p.alcohol && (
-                        <span className="inline-flex items-center gap-1 text-[11px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium">
+                        <span className="inline-flex items-center gap-1 text-[11px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-normal">
                           <Wine className="w-3 h-3" />
                           {p.alcohol.statusY3 ?? p.alcohol.statusY2 ?? p.alcohol.statusY1}
                         </span>
                       )}
                       {p.tobacco && (
-                        <span className="inline-flex items-center gap-1 text-[11px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">
+                        <span className="inline-flex items-center gap-1 text-[11px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-normal">
                           <Cigarette className="w-3 h-3" />
                           {p.tobacco.statusY3 ?? p.tobacco.statusY2 ?? p.tobacco.statusY1}
                         </span>
                       )}
                       {p.dnd && (
-                        <span className="inline-flex items-center gap-1 text-[11px] bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-medium">
+                        <span className="inline-flex items-center gap-1 text-[11px] bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-normal">
                           <Car className="w-3 h-3" />
                           ดื่มไม่ขับ
                         </span>

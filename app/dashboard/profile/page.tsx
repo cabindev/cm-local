@@ -54,7 +54,7 @@ export default async function ProfilePage() {
       <div className="flex items-center justify-between -mt-2">
         <p className="text-[11px] text-gray-500 font-light">{user.email}</p>
         <span className="text-[10px] font-semibold text-gray-900 bg-yellow-400 px-2.5 py-1 rounded-full">
-          {user.role === 'ADMIN' ? 'ผู้ดูแลระบบ' : 'สมาชิก'}
+          {user.role === 'SUPERADMIN' ? 'ซุปเปอร์แอดมิน' : user.role === 'ADMIN' ? 'ผู้ดูแลระบบ' : 'สมาชิก'}
         </span>
       </div>
       {(user.province || user.zone) && (

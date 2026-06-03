@@ -24,6 +24,7 @@ export type CreatePersonInput = {
   villageId: number
   name: string
   gender: string
+  consentGiven: boolean
   alcohol?: {
     drinkType: string
     statusY1: string
@@ -61,6 +62,8 @@ export async function createPerson(input: CreatePersonInput) {
       villageId: input.villageId,
       name: input.name,
       gender: input.gender,
+      consentGiven: input.consentGiven,
+      consentAt: input.consentGiven ? new Date() : null,
       ...(alcohol && { alcohol: { create: alcBase } }),
       ...(tobacco && { tobacco: { create: tobBase } }),
       ...(dnd && { dnd: { create: dnd } }),

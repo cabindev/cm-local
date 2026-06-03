@@ -29,9 +29,8 @@ function ChartLegend() {
 export default function ZoneBarChart({ data }: { data: ZoneData[] }) {
   return (
     <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-      <div className="bg-gray-900 px-5 py-4">
-        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">ภาพรวม</p>
-        <p className="text-sm font-medium text-white mt-0.5">จำนวนสมาชิกแยกตามภาค</p>
+      <div className="px-5 py-4 border-b border-gray-100">
+        <p className="text-sm font-semibold text-gray-900">สมาชิกแยกตามภาค</p>
       </div>
       <div className="p-4 min-w-0">
         <ResponsiveContainer width="100%" height={220} minWidth={0}>

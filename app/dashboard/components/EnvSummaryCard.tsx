@@ -26,9 +26,9 @@ export default function EnvSummaryCard({ env, total }: Props) {
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-      <div className="bg-gray-900 px-5 py-4">
-        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">สภาพแวดล้อม</p>
-        <p className="text-sm font-medium text-white mt-0.5">จำนวนหมู่บ้านที่มีองค์ประกอบแวดล้อม</p>
+      <div className="px-5 py-4 border-b border-gray-100">
+        <p className="text-sm font-semibold text-gray-900">สภาพแวดล้อม</p>
+        <p className="text-xs text-gray-400 mt-0.5">จำนวนหมู่บ้านที่มีองค์ประกอบแวดล้อม</p>
       </div>
       <div className="divide-y divide-gray-50">
         {rows.map(({ label, count, sub }) => {
@@ -42,7 +42,7 @@ export default function EnvSummaryCard({ env, total }: Props) {
                     : <Circle className="w-4 h-4 text-gray-200 flex-shrink-0" />}
                   <span className="text-sm text-gray-700">{label}</span>
                 </div>
-                <span className="text-sm font-bold text-gray-900">{count}<span className="text-xs font-normal text-gray-400 ml-1">/ {total} หมู่บ้าน</span></span>
+                <span className="text-sm font-normal text-gray-900">{count}<span className="text-xs text-gray-400 ml-1">/ {total} หมู่บ้าน</span></span>
               </div>
               <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden ml-6">
                 <div className="h-full bg-yellow-400 rounded-full transition-all duration-500"
@@ -52,7 +52,7 @@ export default function EnvSummaryCard({ env, total }: Props) {
                 <div className="ml-6 mt-2 flex gap-4">
                   {sub.map(({ label: sl, n }) => (
                     <span key={sl} className="text-xs text-gray-500">
-                      {sl}: <span className="font-semibold text-gray-700">{n}</span>
+                      {sl}: <span className="font-normal text-gray-600">{n}</span>
                     </span>
                   ))}
                 </div>

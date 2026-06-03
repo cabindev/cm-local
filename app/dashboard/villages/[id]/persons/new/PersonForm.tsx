@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { createPerson } from '@/app/actions/person'
 import { Wine, Cigarette, Car, Plus, X } from 'lucide-react'
+import ConsentModal from './ConsentModal'
 
 const DRINK_TYPES    = ['เสี่ยงต่ำ', 'เสี่ยงสูง', 'อันตราย', 'ติดสุรา']
 const SMOKE_TYPES    = ['สูบประจำ', 'นานๆ ครั้ง']
@@ -249,6 +250,7 @@ export default function PersonForm({ villageId }: { villageId: number }) {
   const router     = useRouter()
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState('')
+  const [consentConfirmed, setConsentConfirmed] = useState(false)
   const [name, setName]   = useState('')
   const [gender, setGender] = useState('')
 
@@ -294,6 +296,7 @@ export default function PersonForm({ villageId }: { villageId: number }) {
           villageId,
           name: name.trim(),
           gender,
+          consentGiven: true,
           ...(hasAlcohol && { alcohol: { drinkType, statusY1: alcStatus, statusY2: alcStatus2 || undefined, statusY3: alcStatus3 || undefined, outcomes: alcOutcomes } }),
           ...(hasTobacco && {
             tobacco: {
@@ -327,6 +330,8 @@ export default function PersonForm({ villageId }: { villageId: number }) {
   const selectCls = 'w-full px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-yellow-400'
 
   return (
+    <>
+      {!consentConfirmed && <ConsentModal onConfirm={() => setConsentConfirmed(true)} />}
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* ── ข้อมูลพื้นฐาน ── */}
       <div className="bg-white rounded-2xl border border-gray-200 p-5">
@@ -578,5 +583,6 @@ export default function PersonForm({ villageId }: { villageId: number }) {
         </button>
       </div>
     </form>
+    </>
   )
 }

@@ -2,6 +2,7 @@
 
 import { useState, FormEvent } from 'react'
 import Link from 'next/link'
+import { signIn } from 'next-auth/react'
 import { compressImage } from '@/app/lib/compressImage'
 
 interface FormData {
@@ -58,7 +59,7 @@ export default function SignUpForm() {
 
       const res = await fetch('/api/auth/signup', { method: 'POST', body: data })
       if (res.ok) {
-        window.location.href = '/auth/signin'
+        await signIn('credentials', { email: formData.email, password: formData.password, callbackUrl: '/' })
       } else {
         const result = await res.json()
         setError(result.error || 'เกิดข้อผิดพลาด')
@@ -136,8 +137,8 @@ export default function SignUpForm() {
           )}
 
           <button type="submit" disabled={isLoading}
-            className={`w-full py-2.5 rounded-lg text-sm font-bold transition-colors ${
-              isLoading ? 'bg-yellow-200 text-gray-400 cursor-not-allowed' : 'bg-yellow-400 hover:bg-yellow-300 text-gray-900'
+            className={`w-full py-2.5 rounded-lg text-sm font-bold transition-colors bg-yellow-400 hover:bg-yellow-300 text-gray-900 ${
+              isLoading ? 'opacity-50 cursor-not-allowed' : ''
             }`}>
             {isLoading ? 'กำลังดำเนินการ...' : 'สมัครสมาชิก'}
           </button>

@@ -133,12 +133,14 @@ model CommunityOrg {
 }
 
 model Person {
-  id        Int             @id @default(autoincrement())
-  villageId Int
-  name      String
-  gender    String?
-  createdAt DateTime        @default(now())
-  village   Village         @relation(fields: [villageId], references: [id], onDelete: Cascade)
+  id           Int             @id @default(autoincrement())
+  villageId    Int
+  name         String
+  gender       String?
+  consentGiven Boolean         @default(false)
+  consentAt    DateTime?
+  createdAt    DateTime        @default(now())
+  village      Village         @relation(fields: [villageId], references: [id], onDelete: Cascade)
   alcohol   PersonAlcohol?
   dnd       PersonDnd?
   tobacco   PersonTobacco?
@@ -197,4 +199,5 @@ model PersonDnd {
 enum Role {
   MEMBER
   ADMIN
+  SUPERADMIN
 }

@@ -12,7 +12,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   useEffect(() => {
     if (status === 'unauthenticated') router.push('/auth/signin')
-    if (status === 'authenticated' && session?.user?.role !== 'ADMIN') router.push('/auth/signin')
+    if (status === 'authenticated' && session?.user?.role !== 'ADMIN' && session?.user?.role !== 'SUPERADMIN') router.push('/auth/signin')
   }, [status, session, router])
 
   if (status === 'loading') {
@@ -23,7 +23,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     )
   }
 
-  if (!session || session.user.role !== 'ADMIN') return null
+  if (!session || (session.user.role !== 'ADMIN' && session.user.role !== 'SUPERADMIN')) return null
 
   return (
     <DashboardProvider>

@@ -3,6 +3,6 @@ import authOptions from '@/app/lib/configs/auth/authOptions'
 
 export async function requireAdmin() {
   const session = await getServerSession(authOptions)
-  if (!session || session.user.role !== 'ADMIN') throw new Error('Unauthorized')
+  if (!session || (session.user.role !== 'ADMIN' && session.user.role !== 'SUPERADMIN')) throw new Error('Unauthorized')
   return session
 }

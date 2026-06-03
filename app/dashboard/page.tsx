@@ -21,8 +21,8 @@ function KpiCard({ icon: Icon, label, value, sub, accent = false }: {
         <Icon className="w-5 h-5 text-gray-900" />
       </div>
       <div>
-        <p className="text-2xl font-black text-gray-900">{value}</p>
-        <p className={`text-sm font-medium ${accent ? 'text-gray-800' : 'text-gray-600'}`}>{label}</p>
+        <p className="text-xl font-semibold text-gray-900">{value}</p>
+        <p className={`text-sm font-normal ${accent ? 'text-gray-800' : 'text-gray-600'}`}>{label}</p>
         {sub && <p className={`text-xs mt-0.5 ${accent ? 'text-yellow-800' : 'text-gray-400'}`}>{sub}</p>}
       </div>
     </div>

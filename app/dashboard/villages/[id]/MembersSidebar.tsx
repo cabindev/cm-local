@@ -83,19 +83,19 @@ export default function MembersSidebar({ villageId, persons }: { villageId: numb
   return (
     <div className="w-64 flex-shrink-0 space-y-3 sticky top-6">
       <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-        <div className="bg-gray-900 px-4 py-3 flex items-center justify-between">
+        <div className="px-4 py-3 flex items-center justify-between border-b border-gray-100">
           <div>
-            <p className="text-sm font-bold text-white">ผู้เข้าร่วมโครงการ</p>
+            <p className="text-sm font-semibold text-gray-900">ผู้เข้าร่วมโครงการ</p>
             <p className="text-xs text-gray-400">{persons.length} คน</p>
           </div>
           <div className="flex items-center gap-1.5">
             {persons.length > 0 && (
               <Link
                 href={`/dashboard/villages/${villageId}/evaluate`}
-                className="w-7 h-7 bg-gray-700 hover:bg-yellow-400 rounded-lg flex items-center justify-center transition-colors group"
+                className="w-7 h-7 bg-gray-100 hover:bg-yellow-400 rounded-lg flex items-center justify-center transition-colors group"
                 title="ประเมินแบบรายการ"
               >
-                <ClipboardList className="w-4 h-4 text-gray-300 group-hover:text-gray-900" />
+                <ClipboardList className="w-4 h-4 text-gray-500 group-hover:text-gray-900" />
               </Link>
             )}
             <Link

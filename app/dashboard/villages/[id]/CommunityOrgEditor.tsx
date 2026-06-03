@@ -109,18 +109,18 @@ export default function CommunityOrgEditor({
 
   return (
     <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-      <div className="bg-gray-900 px-5 py-4 flex items-start justify-between">
+      <div className="px-5 py-4 flex items-start justify-between border-b border-gray-100">
         <div>
           <div className="flex items-center gap-2">
-            <Users className="w-4 h-4 text-yellow-400" />
-            <p className="font-bold text-white text-sm">การมีส่วนร่วมของชุมชน</p>
+            <Users className="w-4 h-4 text-yellow-500" />
+            <p className="font-semibold text-gray-900 text-sm">การมีส่วนร่วมของชุมชน</p>
           </div>
           <p className="text-xs text-gray-400 mt-0.5">หน่วยงานที่มีส่วนร่วม — บันทึกอัตโนมัติ</p>
         </div>
         <div className="flex items-center gap-1.5 mt-0.5">
-          {globalSaving && <Loader2 className="w-3.5 h-3.5 animate-spin text-yellow-400" />}
+          {globalSaving && <Loader2 className="w-3.5 h-3.5 animate-spin text-yellow-500" />}
           {globalSaved && !globalSaving && (
-            <span className="flex items-center gap-1 text-xs text-green-400 font-medium">
+            <span className="flex items-center gap-1 text-xs text-green-600 font-medium">
               <CheckCheck className="w-3.5 h-3.5" />บันทึกแล้ว
             </span>
           )}
@@ -139,7 +139,7 @@ export default function CommunityOrgEditor({
                     ? <CheckSquare className="w-5 h-5 text-yellow-500" />
                     : <Square className="w-5 h-5 text-gray-300 hover:text-gray-400" />}
                 </button>
-                <span className={`text-sm font-medium flex-1 ${row.hasParticipation ? 'text-gray-900' : 'text-gray-500'}`}>{label}</span>
+                <span className={`text-sm font-normal flex-1 ${row.hasParticipation ? 'text-gray-800' : 'text-gray-400'}`}>{label}</span>
                 <div className="w-5 flex justify-center">
                   {row.saving && <Loader2 className="w-3.5 h-3.5 animate-spin text-yellow-500" />}
                   {row.saved  && <CheckCheck className="w-3.5 h-3.5 text-green-500" />}

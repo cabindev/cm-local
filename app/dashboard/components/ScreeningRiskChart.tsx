@@ -13,9 +13,9 @@ export default function ScreeningRiskChart({ alc, tob, dnd, screened }: Props) {
   if (screened === 0) {
     return (
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <div className="bg-gray-900 px-5 py-4">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">ผลคัดกรอง</p>
-          <p className="text-sm font-medium text-white mt-0.5">สัดส่วนกลุ่มเสี่ยงรวมทุกหมู่บ้าน</p>
+        <div className="px-5 py-4 border-b border-gray-100">
+          <p className="text-sm font-semibold text-gray-900">ผลคัดกรอง</p>
+          <p className="text-xs text-gray-400 mt-0.5">สัดส่วนกลุ่มเสี่ยงรวมทุกหมู่บ้าน</p>
         </div>
         <div className="flex items-center justify-center h-32 text-sm text-gray-400">ยังไม่มีข้อมูลคัดกรอง</div>
       </div>
@@ -46,9 +46,9 @@ export default function ScreeningRiskChart({ alc, tob, dnd, screened }: Props) {
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-      <div className="bg-gray-900 px-5 py-4">
-        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">ผลคัดกรอง</p>
-        <p className="text-sm font-medium text-white mt-0.5">สัดส่วนกลุ่มเสี่ยงรวมทุกหมู่บ้าน ({screened.toLocaleString()} คน)</p>
+      <div className="px-5 py-4 border-b border-gray-100">
+        <p className="text-sm font-semibold text-gray-900">ผลคัดกรอง</p>
+        <p className="text-xs text-gray-400 mt-0.5">สัดส่วนกลุ่มเสี่ยงรวมทุกหมู่บ้าน ({screened.toLocaleString()} คน)</p>
       </div>
 
       <div className="grid grid-cols-3 divide-x divide-gray-100 px-4 pt-4 pb-2">
@@ -58,7 +58,7 @@ export default function ScreeningRiskChart({ alc, tob, dnd, screened }: Props) {
           { label: 'ดื่มแล้วขับ',      pct: dndPct, count: dnd.drinkDrive, color: 'text-gray-700' },
         ].map(({ label, pct, count, color }) => (
           <div key={label} className="text-center px-2">
-            <p className={`text-3xl font-black ${color}`}>{pct}<span className="text-base font-semibold">%</span></p>
+            <p className={`text-2xl font-semibold ${color}`}>{pct}<span className="text-sm font-normal">%</span></p>
             <p className="text-xs text-gray-500 mt-0.5">{label}</p>
             <p className="text-xs text-gray-400">{count.toLocaleString()} คน</p>
           </div>

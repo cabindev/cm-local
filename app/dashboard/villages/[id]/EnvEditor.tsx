@@ -220,11 +220,11 @@ export default function EnvEditor({
   return (
     <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
       {/* Header */}
-      <div className="bg-gray-900 px-5 py-4 flex items-start justify-between">
+      <div className="px-5 py-4 flex items-start justify-between border-b border-gray-100">
         <div>
           <div className="flex items-center gap-2">
-            <Scale className="w-4 h-4 text-yellow-400" />
-            <p className="font-bold text-white text-sm">สภาพแวดล้อม</p>
+            <Scale className="w-4 h-4 text-yellow-500" />
+            <p className="font-semibold text-gray-900 text-sm">สภาพแวดล้อม</p>
           </div>
           <p className="text-xs text-gray-400 mt-0.5">องค์ประกอบแวดล้อม — บันทึกอัตโนมัติ</p>
         </div>
@@ -234,14 +234,14 @@ export default function EnvEditor({
           ).length
           return (
             <div className="flex items-center gap-1.5 mt-0.5">
-              {globalSaving && <Loader2 className="w-3.5 h-3.5 animate-spin text-yellow-400" />}
+              {globalSaving && <Loader2 className="w-3.5 h-3.5 animate-spin text-yellow-500" />}
               {!globalSaving && missingFile > 0 && (
-                <span className="flex items-center gap-1 text-xs text-orange-400 font-medium">
+                <span className="flex items-center gap-1 text-xs text-orange-500 font-medium">
                   <AlertCircle className="w-3.5 h-3.5" />ยังไม่มีไฟล์ {missingFile} รายการ
                 </span>
               )}
               {!globalSaving && missingFile === 0 && globalSaved && (
-                <span className="flex items-center gap-1 text-xs text-green-400 font-medium">
+                <span className="flex items-center gap-1 text-xs text-green-600 font-medium">
                   <CheckCheck className="w-3.5 h-3.5" />บันทึกแล้ว
                 </span>
               )}
@@ -264,7 +264,7 @@ export default function EnvEditor({
                     ? <CheckSquare className="w-5 h-5 text-yellow-500" />
                     : <Square className="w-5 h-5 text-gray-300 hover:text-gray-400" />}
                 </button>
-                <span className={`text-sm font-medium flex-1 ${row.hasItem ? 'text-gray-900' : 'text-gray-500'}`}>{label}</span>
+                <span className={`text-sm font-normal flex-1 ${row.hasItem ? 'text-gray-800' : 'text-gray-400'}`}>{label}</span>
                 <div className="w-5 flex justify-center">
                   {row.saving && <Loader2 className="w-3.5 h-3.5 animate-spin text-yellow-500" />}
                   {row.saved  && <CheckCheck className="w-3.5 h-3.5 text-green-500" />}
@@ -430,7 +430,7 @@ function PolicyRow({
         {checked
           ? <CheckSquare className="w-4 h-4 text-yellow-500" />
           : <Square className="w-4 h-4 text-gray-300 hover:text-gray-400" />}
-        <span className={checked ? 'text-gray-900 font-medium' : 'text-gray-500'}>{label}</span>
+        <span className={checked ? 'text-gray-800 font-normal' : 'text-gray-500'}>{label}</span>
       </button>
 
       {fileUrl ? (
@@ -481,7 +481,7 @@ function SubToggle({ checked, label, onChange }: { checked: boolean; label: stri
       {checked
         ? <CheckSquare className="w-4 h-4 text-yellow-500 flex-shrink-0" />
         : <Square className="w-4 h-4 text-gray-300 hover:text-gray-400 flex-shrink-0" />}
-      <span className={checked ? 'text-gray-900 font-medium' : 'text-gray-500'}>{label}</span>
+      <span className={checked ? 'text-gray-800 font-normal' : 'text-gray-500'}>{label}</span>
     </button>
   )
 }

@@ -21,9 +21,9 @@ export default function OrgParticipationChart({ orgParticipation, total }: Props
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-      <div className="bg-gray-900 px-5 py-4">
-        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">การมีส่วนร่วม</p>
-        <p className="text-sm font-medium text-white mt-0.5">หน่วยงานที่เข้าร่วมโครงการ</p>
+      <div className="px-5 py-4 border-b border-gray-100">
+        <p className="text-sm font-semibold text-gray-900">การมีส่วนร่วม</p>
+        <p className="text-xs text-gray-400 mt-0.5">หน่วยงานที่เข้าร่วมโครงการ</p>
       </div>
       <div className="px-5 py-4 space-y-3">
         {rows.map(({ key, label, count }) => {
@@ -32,7 +32,7 @@ export default function OrgParticipationChart({ orgParticipation, total }: Props
             <div key={key}>
               <div className="flex items-center justify-between mb-1">
                 <span className="text-sm text-gray-700">{label}</span>
-                <span className="text-sm font-bold text-gray-900 tabular-nums">
+                <span className="text-sm font-normal text-gray-900 tabular-nums">
                   {count}
                   <span className="text-xs font-normal text-gray-400 ml-1">({pct}%)</span>
                 </span>

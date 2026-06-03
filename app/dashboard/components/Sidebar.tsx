@@ -45,7 +45,7 @@ function NavItem({ item, collapsed, onClick }: NavItemProps) {
       {!collapsed && (
         <div className="ml-3">
           <div>{item.name}</div>
-          <div className={`text-xs ${isActive ? 'text-gray-700' : 'text-gray-500'}`}>{item.description}</div>
+          <div className={`text-xs ${isActive ? 'text-gray-900' : 'text-gray-500'}`}>{item.description}</div>
         </div>
       )}
     </Link>
@@ -85,7 +85,7 @@ export default function Sidebar({ user }: SidebarProps) {
     { name: 'โปรไฟล์', href: '/dashboard/profile', icon: User, description: 'ข้อมูลส่วนตัว' },
   ]
 
-  if (user.role === 'ADMIN') {
+  if (user.role === 'ADMIN' || user.role === 'SUPERADMIN') {
     systemMenu.push({
       name: 'จัดการผู้ใช้งาน',
       href: '/dashboard/users',

@@ -113,11 +113,11 @@ export default function CommunityBackgroundEditor({
 
   return (
     <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-      <div className="bg-gray-900 px-5 py-4 flex items-start justify-between">
+      <div className="px-5 py-4 flex items-start justify-between border-b border-gray-100">
         <div>
           <div className="flex items-center gap-2">
-            <FileText className="w-4 h-4 text-yellow-400" />
-            <p className="font-bold text-white text-sm">ข้อมูลพื้นฐาน</p>
+            <FileText className="w-4 h-4 text-yellow-500" />
+            <p className="font-semibold text-gray-900 text-sm">ข้อมูลพื้นฐาน</p>
           </div>
           <p className="text-xs text-gray-400 mt-0.5">ข้อมูลประวัติชุมชน — เลือกหัวข้อที่มีและแนบไฟล์</p>
         </div>
@@ -125,14 +125,14 @@ export default function CommunityBackgroundEditor({
           const incomplete = Object.values(rows).filter(r => r.hasItem && !r.fileUrl).length
           return (
             <div className="flex items-center gap-1.5 mt-0.5">
-              {globalSaving && <Loader2 className="w-3.5 h-3.5 animate-spin text-yellow-400" />}
+              {globalSaving && <Loader2 className="w-3.5 h-3.5 animate-spin text-yellow-500" />}
               {!globalSaving && incomplete > 0 && (
-                <span className="flex items-center gap-1 text-xs text-orange-400 font-medium">
+                <span className="flex items-center gap-1 text-xs text-orange-500 font-medium">
                   <AlertCircle className="w-3.5 h-3.5" />ยังไม่มีไฟล์ {incomplete} รายการ
                 </span>
               )}
               {!globalSaving && incomplete === 0 && globalSaved && (
-                <span className="flex items-center gap-1 text-xs text-green-400 font-medium">
+                <span className="flex items-center gap-1 text-xs text-green-600 font-medium">
                   <CheckCheck className="w-3.5 h-3.5" />บันทึกแล้ว
                 </span>
               )}
@@ -171,7 +171,7 @@ export default function CommunityBackgroundEditor({
 
                 {/* Label */}
                 <div className="flex-1 min-w-0">
-                  <p className={`text-sm font-medium ${row.hasItem ? 'text-gray-900' : 'text-gray-500'}`}>
+                  <p className={`text-sm font-normal ${row.hasItem ? 'text-gray-800' : 'text-gray-400'}`}>
                     {label}
                   </p>
 

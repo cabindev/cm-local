@@ -8,7 +8,7 @@ function YearBar({ year, count, total, color }: YearBarProps) {
     <div>
       <div className="flex justify-between items-center mb-1">
         <span className="text-[11px] text-gray-500">ปีที่ {year}</span>
-        <span className="text-[11px] font-semibold text-gray-700">
+        <span className="text-[11px] font-normal text-gray-600">
           {count.toLocaleString()} คน
           <span className="text-gray-400 font-normal ml-1">({pct}%)</span>
         </span>
@@ -34,14 +34,14 @@ function GroupCard({ g }: { g: GroupData }) {
   return (
     <div className={`rounded-xl border ${g.border} ${g.bg} p-4 space-y-3`}>
       <div>
-        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{g.label}</p>
+        <p className="text-xs font-medium text-gray-500">{g.label}</p>
         <div className="flex items-baseline gap-2 mt-1">
-          <p className="text-2xl font-bold text-gray-900 leading-none">
+          <p className="text-lg font-semibold text-gray-900 leading-none">
             {g.total.toLocaleString()}
             <span className="text-xs font-normal text-gray-400 ml-1">คนสมัครทั้งหมด</span>
           </p>
           {g.deceased > 0 && (
-            <span className="text-xs font-semibold text-gray-500 bg-gray-200 px-1.5 py-0.5 rounded-full">
+            <span className="text-xs font-normal text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded-full">
               เสียชีวิต {g.deceased}
             </span>
           )}
@@ -72,9 +72,9 @@ export default function ProgressFunnel(p: Props) {
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-      <div className="bg-gray-900 px-5 py-4">
-        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">ผลติดตาม</p>
-        <p className="text-sm font-medium text-white mt-0.5">ความคืบหน้าแยกตามปี</p>
+      <div className="px-5 py-4 border-b border-gray-100">
+        <p className="text-sm font-semibold text-gray-900">ผลติดตาม</p>
+        <p className="text-xs text-gray-400 mt-0.5">ความคืบหน้าแยกตามปี</p>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4">
         {groups.map((g) => <GroupCard key={g.label} g={g} />)}

@@ -30,8 +30,10 @@ export default function SignInForm() {
       } else {
         const session = await getSession()
         const firstName = (session?.user as any)?.firstName ?? ''
+        const role = session?.user?.role
         setWelcome(firstName)
-        setTimeout(() => router.replace('/dashboard/profile'), 1500)
+        const dest = (role === 'ADMIN' || role === 'SUPERADMIN') ? '/dashboard' : '/'
+        setTimeout(() => router.replace(dest), 1500)
       }
     } catch {
       setError('เกิดข้อผิดพลาด โปรดลองอีกครั้ง')
@@ -96,7 +98,7 @@ export default function SignInForm() {
           </div>
 
           {error && (
-            <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded">
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
               <p className="text-sm text-red-700">{error}</p>
             </div>
           )}
@@ -104,10 +106,8 @@ export default function SignInForm() {
           <button
             type="submit"
             disabled={isLoading}
-            className={`w-full flex justify-center py-2.5 px-4 rounded-md text-sm font-bold transition-colors ${
-              isLoading
-                ? 'bg-yellow-200 text-gray-400 cursor-not-allowed'
-                : 'bg-yellow-400 text-gray-900 hover:bg-yellow-500'
+            className={`w-full flex justify-center py-2.5 px-4 rounded-md text-sm font-bold transition-colors bg-yellow-400 text-gray-900 hover:bg-yellow-500 ${
+              isLoading ? 'opacity-50 cursor-not-allowed' : ''
             }`}
           >
             {isLoading ? 'กำลังดำเนินการ...' : 'เข้าสู่ระบบ'}

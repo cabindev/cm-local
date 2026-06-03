@@ -33,7 +33,7 @@ function InputRow({
 }) {
   return (
     <div className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0 px-4">
-      <span className="text-sm text-gray-700">{label}</span>
+      <span className="text-sm text-gray-500 font-normal">{label}</span>
       <input
         type="number"
         min="0"
@@ -50,9 +50,9 @@ function InputRow({
 function CalcFooter({ label, value, total, color }: { label: string; value: number; total: number; color: string }) {
   return (
     <div className={`${color} px-4 py-3`}>
-      <p className="text-sm font-bold">{label}</p>
-      <p className="text-xs opacity-60 mt-0.5">คำนวณจากตัวเลขคัดกรอง {total} คน</p>
-      <p className="text-2xl font-black mt-1">{Math.max(0, value).toLocaleString()} <span className="text-sm font-normal">คน</span></p>
+      <p className="text-xs font-medium text-gray-700">{label}</p>
+      <p className="text-xs text-gray-400 mt-0.5">คำนวณจากตัวเลขคัดกรอง {total} คน</p>
+      <p className="text-lg font-semibold text-gray-900 mt-1">{Math.max(0, value).toLocaleString()} <span className="text-xs font-normal text-gray-500">คน</span></p>
     </div>
   )
 }
@@ -95,37 +95,37 @@ export default function ScreeningEditor({
 
   return (
     <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-      {/* Header */}
-      <div className="bg-gray-900 px-5 py-4 flex items-start justify-between">
+      {/* Header + screened count in one row */}
+      <div className="px-5 py-3 grid grid-cols-3 items-center gap-4 border-b border-gray-100">
         <div>
-          <p className="font-bold text-white text-sm">ผลคัดกรอง</p>
+          <p className="font-semibold text-gray-900 text-sm">ผลคัดกรอง</p>
           <p className="text-xs text-gray-400 mt-0.5">ผลการคัดกรองประชากร — บันทึกอัตโนมัติ</p>
         </div>
-        <div className="flex items-center gap-1.5 mt-0.5">
-          {isPending && <Loader2 className="w-3.5 h-3.5 animate-spin text-yellow-400" />}
+
+        <div className="flex flex-col items-center gap-1">
+          <p className="text-xs text-gray-400">จำนวนคนคัดกรองทั้งหมด</p>
+          <div className="flex items-baseline gap-2">
+            <input
+              type="number"
+              min="0"
+              value={data.screenedCount === 0 ? '' : data.screenedCount}
+              placeholder="0"
+              onChange={(e) => set('screenedCount', parseInt(e.target.value) || 0)}
+              onBlur={handleBlur}
+              className="w-14 text-center px-2 py-1 border border-gray-200 rounded-lg text-sm font-semibold text-gray-800 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+            />
+            <span className="text-sm font-semibold text-gray-900">{data.screenedCount.toLocaleString()}</span>
+            <span className="text-xs text-gray-400">คน</span>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-end gap-1.5">
+          {isPending && <Loader2 className="w-3.5 h-3.5 animate-spin text-yellow-500" />}
           {saved && !isPending && (
-            <span className="flex items-center gap-1 text-xs text-green-400 font-medium">
+            <span className="flex items-center gap-1 text-xs text-green-600 font-medium">
               <CheckCheck className="w-3.5 h-3.5" />บันทึกแล้ว
             </span>
           )}
-        </div>
-      </div>
-
-      {/* Screened total */}
-      <div className="flex flex-col items-center py-5 border-b border-gray-100">
-        <p className="text-xs text-gray-400 mb-2">จำนวนคนคัดกรองทั้งหมด</p>
-        <div className="flex items-baseline gap-3">
-          <input
-            type="number"
-            min="0"
-            value={data.screenedCount === 0 ? '' : data.screenedCount}
-            placeholder="0"
-            onChange={(e) => set('screenedCount', parseInt(e.target.value) || 0)}
-            onBlur={handleBlur}
-            className="w-28 text-center px-3 py-2 border border-gray-200 rounded-xl text-base font-semibold text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400"
-          />
-          <span className="text-3xl font-black text-gray-900">{data.screenedCount.toLocaleString()}</span>
-          <span className="text-gray-500 text-sm">คน</span>
         </div>
       </div>
 
@@ -134,8 +134,8 @@ export default function ScreeningEditor({
 
         {/* Alcohol */}
         <div>
-          <div className="bg-yellow-400 px-4 py-3">
-            <p className="font-bold text-gray-900 text-sm">กลุ่มแอลกอฮอล์</p>
+          <div className="bg-gray-50 border-b border-gray-100 px-4 py-3">
+            <p className="font-semibold text-gray-700 text-sm">กลุ่มแอลกอฮอล์</p>
           </div>
           <InputRow label="จำนวนคนดื่มแบบเสี่ยงต่ำ"   value={data.alcoholRiskLow}  onChange={(v) => set('alcoholRiskLow', v)}  onBlur={handleBlur} />
           <InputRow label="จำนวนคนที่ดื่มแบบเสี่ยง"   value={data.alcoholRisk}     onChange={(v) => set('alcoholRisk', v)}     onBlur={handleBlur} />
@@ -146,8 +146,8 @@ export default function ScreeningEditor({
 
         {/* Tobacco */}
         <div>
-          <div className="bg-yellow-600 px-4 py-3">
-            <p className="font-bold text-white text-sm">กลุ่มบุหรี่</p>
+          <div className="bg-gray-50 border-b border-gray-100 px-4 py-3">
+            <p className="font-semibold text-gray-700 text-sm">กลุ่มบุหรี่</p>
           </div>
           <InputRow label="จำนวนคนสูบ" value={data.tobaccoCount} onChange={(v) => set('tobaccoCount', v)} onBlur={handleBlur} />
           <CalcFooter label="จำนวนคนไม่สูบ" value={tobaccoNone} total={data.screenedCount} color="bg-yellow-50 text-yellow-900" />
@@ -155,8 +155,8 @@ export default function ScreeningEditor({
 
         {/* DND */}
         <div>
-          <div className="bg-gray-800 px-4 py-3">
-            <p className="font-bold text-white text-sm">กลุ่มการขับขี่หลังดื่ม</p>
+          <div className="bg-gray-50 border-b border-gray-100 px-4 py-3">
+            <p className="font-semibold text-gray-700 text-sm">กลุ่มการขับขี่หลังดื่ม</p>
           </div>
           <InputRow label="จำนวนคนดื่มแล้วขับ" value={data.drinkAndDrive}  onChange={(v) => set('drinkAndDrive', v)}  onBlur={handleBlur} />
           <InputRow label="จำนวนคนดื่มไม่ขับ"  value={data.drinkNotDriveN} onChange={(v) => set('drinkNotDriveN', v)} onBlur={handleBlur} />
