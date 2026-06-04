@@ -4,10 +4,11 @@ import { useState, useTransition } from 'react'
 import { toggleUserRole } from '@/app/actions/user'
 import { ShieldCheck } from 'lucide-react'
 
-export default function RoleToggle({ userId, initialRole, currentUserId }: {
+export default function RoleToggle({ userId, initialRole, currentUserId, currentUserRole }: {
   userId: number
   initialRole: string
   currentUserId: number
+  currentUserRole: string
 }) {
   const [isPending, startTransition] = useTransition()
   const [role, setRole] = useState(initialRole)
@@ -25,7 +26,9 @@ export default function RoleToggle({ userId, initialRole, currentUserId }: {
   }
 
   const isAdmin = role === 'ADMIN'
-  const isDisabled = userId === currentUserId || isPending
+  // ADMIN ไม่สามารถ toggle ADMIN ด้วยกันได้
+  const cannotToggle = currentUserRole === 'ADMIN' && role === 'ADMIN'
+  const isDisabled = userId === currentUserId || isPending || cannotToggle
 
   async function handleToggle() {
     if (isDisabled) return

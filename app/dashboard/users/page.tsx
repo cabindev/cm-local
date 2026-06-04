@@ -20,6 +20,7 @@ export default async function UsersPage() {
   })
 
   const currentUserId = Number(session.user.id)
+  const currentUserRole = session.user.role as string
 
   return (
     <div className="max-w-4xl mx-auto space-y-4">
@@ -27,7 +28,7 @@ export default async function UsersPage() {
         <h1 className="text-2xl font-black text-gray-900">จัดการผู้ใช้งาน</h1>
         <p className="text-sm text-gray-500 mt-0.5">กำหนดสิทธิ์การเข้าถึงข้อมูลระบบ (Admin / Member)</p>
       </div>
-      <UsersClient initialUsers={users} currentUserId={currentUserId} />
+      <UsersClient initialUsers={users} currentUserId={currentUserId} currentUserRole={currentUserRole} />
     </div>
   )
 }

@@ -80,9 +80,10 @@ function EditModal({ user, onClose, onSave }: {
   )
 }
 
-export default function UsersClient({ initialUsers, currentUserId }: {
+export default function UsersClient({ initialUsers, currentUserId, currentUserRole }: {
   initialUsers: UserRow[]
   currentUserId: number
+  currentUserRole: string
 }) {
   const [users, setUsers] = useState(initialUsers)
   const [search, setSearch] = useState('')
@@ -114,7 +115,12 @@ export default function UsersClient({ initialUsers, currentUserId }: {
     setUsers(prev => prev.map(u => u.id === id ? { ...u, firstName, lastName } : u))
   }
 
-  const canManage = (u: UserRow) => u.role !== 'SUPERADMIN' && u.id !== currentUserId
+  const canManage = (u: UserRow) => {
+    if (u.id === currentUserId) return false
+    if (currentUserRole === 'SUPERADMIN') return u.role !== 'SUPERADMIN'
+    // ADMIN สามารถจัดการได้เฉพาะ MEMBER เท่านั้น
+    return u.role === 'MEMBER'
+  }
 
   return (
     <>
@@ -183,7 +189,7 @@ export default function UsersClient({ initialUsers, currentUserId }: {
                 </td>
                 <td className="px-6 py-4 text-center">
                   <div className="flex flex-col items-center gap-1">
-                    <RoleToggle userId={u.id} initialRole={u.role} currentUserId={currentUserId} />
+                    <RoleToggle userId={u.id} initialRole={u.role} currentUserId={currentUserId} currentUserRole={currentUserRole} />
                     {u.role !== 'SUPERADMIN' && (
                       <span className={`text-[10px] font-bold uppercase ${u.role === 'ADMIN' ? 'text-gray-900' : 'text-gray-500'}`}>
                         {u.role}
