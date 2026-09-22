@@ -26,6 +26,8 @@ export default function VillageForm() {
     const registeredPopulation = parseInt(fd.get('registeredPopulation') as string) || 0
     const actualPopulation = parseInt(fd.get('actualPopulation') as string) || 0
     const householdCount = parseInt(fd.get('householdCount') as string) || 0
+    const isKpiVillage = fd.get('isKpiVillage') === 'on'
+    const isQualityVillage = fd.get('isQualityVillage') === 'on'
 
     if (!villageName || !villageNo || !coordinator || !selected) {
       setError('กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน')
@@ -50,6 +52,8 @@ export default function VillageForm() {
           registeredPopulation,
           actualPopulation,
           householdCount,
+          isKpiVillage,
+          isQualityVillage,
         })
         router.push(`/dashboard/villages/${v.id}`)
       } catch {
@@ -93,6 +97,30 @@ export default function VillageForm() {
               className={inputCls}
               required
             />
+          </div>
+        </div>
+
+        <div className="space-y-1.5">
+          <p className="text-sm font-medium text-gray-700">ประเภทหมู่บ้าน</p>
+          <div className="grid grid-cols-2 gap-4">
+            {[
+              { name: 'isKpiVillage', label: 'หมู่บ้านสู้เหล้าประเมิน กพร.' },
+              { name: 'isQualityVillage', label: 'หมู่บ้านสู้เหล้าคุณภาพ' },
+            ].map(({ name, label }) => (
+              <label
+                key={name}
+                htmlFor={name}
+                className="flex items-center gap-2.5 px-3 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-700 cursor-pointer hover:bg-gray-50 has-[:checked]:border-yellow-400 has-[:checked]:bg-yellow-50 transition-colors"
+              >
+                <input
+                  id={name}
+                  name={name}
+                  type="checkbox"
+                  className="w-4 h-4 rounded border-gray-300 accent-yellow-400"
+                />
+                {label}
+              </label>
+            ))}
           </div>
         </div>
       </section>

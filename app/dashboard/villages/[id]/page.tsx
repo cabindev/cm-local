@@ -11,6 +11,7 @@ import ScreeningEditor from './ScreeningEditor'
 import EnvEditor from './EnvEditor'
 import CommunityOrgEditor from './CommunityOrgEditor'
 import EvaluationPanel, { EvaluationTrigger } from './EvaluationPanel'
+import VillageTypeBadges from '../VillageTypeBadges'
 
 type Props = { params: Promise<{ id: string }> }
 
@@ -60,6 +61,10 @@ export default async function VillageDetailPage({ params }: Props) {
                   <span className="bg-yellow-400 text-gray-900 text-xs font-semibold px-2 py-0.5 rounded-md">
                     {village.zone}
                   </span>
+                  <VillageTypeBadges
+                    isKpiVillage={village.isKpiVillage}
+                    isQualityVillage={village.isQualityVillage}
+                  />
                   {multiRiskCount > 0 && (
                     <span className="bg-red-50 text-red-600 text-xs font-medium px-2 py-0.5 rounded-md border border-red-100">
                       กลุ่มเสี่ยงรวม {multiRiskCount} คน

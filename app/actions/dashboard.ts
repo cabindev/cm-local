@@ -5,10 +5,27 @@ import { requireAdmin } from '@/app/lib/auth'
 
 const ORG_KEYS = ['school', 'temple', 'localAdmin', 'villageAdmin', 'hospital', 'orgGroup'] as const
 
-export async function getDashboardStats() {
+export type VillageTypeFilter = 'kpi' | 'quality'
+
+export async function getDashboardStats(type?: VillageTypeFilter) {
   await requireAdmin()
 
+  const villageWhere =
+    type === 'kpi'     ? { isKpiVillage: true } :
+    type === 'quality' ? { isQualityVillage: true } :
+    {}
+
+  // นับแยกกลุ่มจากหมู่บ้านทั้งหมด (ไม่ขึ้นกับตัวกรอง)
+  const [allCount, kpiCount, qualityCount, untypedCount] = await Promise.all([
+    prisma.village.count(),
+    prisma.village.count({ where: { isKpiVillage: true } }),
+    prisma.village.count({ where: { isQualityVillage: true } }),
+    prisma.village.count({ where: { isKpiVillage: false, isQualityVillage: false } }),
+  ])
+  const typeCounts = { all: allCount, kpi: kpiCount, quality: qualityCount, untyped: untypedCount }
+
   const villages = await prisma.village.findMany({
+    where: villageWhere,
     include: {
       screeningResults: true,
       envItems: true,
@@ -18,6 +35,7 @@ export async function getDashboardStats() {
   })
 
   const persons = await prisma.person.findMany({
+    where: type ? { village: villageWhere } : undefined,
     select: {
       id: true, villageId: true,
       alcohol: { select: { statusY1: true, statusY2: true, statusY3: true } },
@@ -148,6 +166,7 @@ export async function getDashboardStats() {
   }
 
   return {
+    typeCounts,
     villageCount, personCount, populationTotal, screenedTotal, coveragePct, screeningVillages,
     alc, tob, dnd,
     byZone,

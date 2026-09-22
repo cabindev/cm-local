@@ -16,6 +16,8 @@ export async function createVillage(data: {
   registeredPopulation?: number
   actualPopulation?: number
   householdCount?: number
+  isKpiVillage?: boolean
+  isQualityVillage?: boolean
 }) {
   const session = await requireAdmin()
 
@@ -50,6 +52,8 @@ export async function updateVillage(
     registeredPopulation?: number
     actualPopulation?: number
     householdCount?: number
+    isKpiVillage?: boolean
+    isQualityVillage?: boolean
   }
 ) {
   await requireAdmin()

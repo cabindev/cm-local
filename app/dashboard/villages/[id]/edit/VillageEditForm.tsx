@@ -12,6 +12,7 @@ type Village = {
   tambon: string; amphoe: string; province: string; zone: string
   coordinator: string; phone: string | null
   registeredPopulation: number; actualPopulation: number; householdCount: number
+  isKpiVillage: boolean; isQualityVillage: boolean
 }
 
 export default function VillageEditForm({ village }: { village: Village }) {
@@ -26,6 +27,8 @@ export default function VillageEditForm({ village }: { village: Village }) {
   const [regPop, setRegPop]           = useState(village.registeredPopulation)
   const [actPop, setActPop]           = useState(village.actualPopulation)
   const [households, setHouseholds]   = useState(village.householdCount)
+  const [isKpi, setIsKpi]             = useState(village.isKpiVillage)
+  const [isQuality, setIsQuality]     = useState(village.isQualityVillage)
 
   const { search, setSearch, selected, setSelected, showDropdown, setShowDropdown, filtered, selectTambon } =
     useTambonSearch({ TAMBON_T: village.tambon, AMPHOE_T: village.amphoe, CHANGWAT_T: village.province })
@@ -44,6 +47,7 @@ export default function VillageEditForm({ village }: { village: Village }) {
           tambon: selected.TAMBON_T, amphoe: selected.AMPHOE_T, province: selected.CHANGWAT_T, zone,
           coordinator, phone: phone || undefined,
           registeredPopulation: regPop, actualPopulation: actPop, householdCount: households,
+          isKpiVillage: isKpi, isQualityVillage: isQuality,
         })
         router.push(`/dashboard/villages/${village.id}`)
       } catch { setError('เกิดข้อผิดพลาด กรุณาลองใหม่') }
@@ -62,6 +66,23 @@ export default function VillageEditForm({ village }: { village: Village }) {
         <div className="space-y-1.5">
           <label className="text-sm font-semibold text-gray-700">หมู่ที่ <span className="text-red-500">*</span></label>
           <input value={villageNo} onChange={(e) => setVillageNo(e.target.value)} className={inputCls} required />
+        </div>
+      </div>
+
+      <div className="space-y-1.5">
+        <p className="text-sm font-semibold text-gray-700">ประเภทหมู่บ้าน</p>
+        <div className="grid grid-cols-2 gap-4">
+          {[
+            { label: 'หมู่บ้านสู้เหล้าประเมิน กพร.', val: isKpi, set: setIsKpi },
+            { label: 'หมู่บ้านสู้เหล้าคุณภาพ',      val: isQuality, set: setIsQuality },
+          ].map(({ label, val, set }) => (
+            <label key={label}
+              className="flex items-center gap-2.5 px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 cursor-pointer hover:bg-gray-50 has-[:checked]:border-yellow-400 has-[:checked]:bg-yellow-50 transition-colors">
+              <input type="checkbox" checked={val} onChange={(e) => set(e.target.checked)}
+                className="w-4 h-4 rounded border-gray-300 accent-yellow-400" />
+              {label}
+            </label>
+          ))}
         </div>
       </div>
 

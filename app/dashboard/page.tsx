@@ -1,4 +1,5 @@
-import { getDashboardStats } from '@/app/actions/dashboard'
+import Link from 'next/link'
+import { getDashboardStats, type VillageTypeFilter } from '@/app/actions/dashboard'
 import { Users, MapPin, ClipboardList, TrendingUp } from 'lucide-react'
 import ZoneBarChart from './components/ZoneBarChart'
 import ProgressFunnel from './components/ProgressFunnel'
@@ -29,8 +30,20 @@ function KpiCard({ icon: Icon, label, value, sub, accent = false }: {
   )
 }
 
-export default async function DashboardPage() {
-  const s = await getDashboardStats()
+const TYPE_TABS: { key: VillageTypeFilter | undefined; label: string; dot?: string; active: string }[] = [
+  { key: undefined, label: 'ทั้งหมด',       active: 'bg-gray-900 text-white border-gray-900' },
+  { key: 'kpi',     label: 'ม.ประเมิน กพร.', dot: 'bg-yellow-400', active: 'bg-yellow-50 text-yellow-800 border-yellow-300' },
+  { key: 'quality', label: 'ม.คุณภาพ',     dot: 'bg-sky-400',    active: 'bg-sky-50 text-sky-800 border-sky-300' },
+]
+
+type Props = { searchParams: Promise<{ type?: string }> }
+
+export default async function DashboardPage({ searchParams }: Props) {
+  const { type: rawType } = await searchParams
+  const type: VillageTypeFilter | undefined =
+    rawType === 'kpi' || rawType === 'quality' ? rawType : undefined
+  const s = await getDashboardStats(type)
+  const tc = s.typeCounts
 
   const zoneChartData = s.byZone.map(z => ({
     zone: z.zone,
@@ -43,9 +56,31 @@ export default async function DashboardPage() {
   return (
     <div className="max-w-6xl mx-auto space-y-6">
 
+      {/* ตัวกรองประเภทหมู่บ้าน */}
+      <div className="flex flex-wrap items-center gap-2">
+        {TYPE_TABS.map((t) => {
+          const isActive = t.key === type
+          const count = t.key ? tc[t.key] : tc.all
+          return (
+            <Link
+              key={t.label}
+              href={t.key ? `/dashboard?type=${t.key}` : '/dashboard'}
+              aria-current={isActive ? 'page' : undefined}
+              className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border text-sm transition-colors ${
+                isActive ? t.active : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+              }`}
+            >
+              {t.dot && <span className={`w-2 h-2 rounded-full ${t.dot}`} />}
+              {t.label}
+              <span className={`text-xs ${isActive ? 'opacity-80' : 'text-gray-400'}`}>({count})</span>
+            </Link>
+          )
+        })}
+      </div>
+
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <KpiCard icon={MapPin}        label="หมู่บ้าน"       value={s.villageCount}                 sub={`${s.byZone.length} ภาค`}                                         accent />
+        <KpiCard icon={MapPin}        label="หมู่บ้าน"       value={s.villageCount}                 sub={type ? `${s.byZone.length} ภาค` : `ม.กพร. ${tc.kpi} · ม.คุณภาพ ${tc.quality} · ยังไม่ระบุ ${tc.untyped}`} accent />
         <KpiCard icon={Users}         label="สมาชิกทั้งหมด"  value={s.personCount.toLocaleString()}  sub="ที่ลงทะเบียน" />
         <KpiCard icon={ClipboardList} label="คัดกรองแล้ว"    value={s.screenedTotal.toLocaleString()} sub={`จากประชากร ${s.populationTotal.toLocaleString()} คน`} />
         <KpiCard icon={TrendingUp}    label="Coverage"       value={`${s.coveragePct}%`}            sub={`${s.screeningVillages} หมู่บ้านมีข้อมูล`} />

@@ -45,6 +45,8 @@ model Village {
   registeredPopulation Int                   @default(0)
   actualPopulation     Int                   @default(0)
   householdCount       Int                   @default(0)
+  isKpiVillage         Boolean               @default(false)
+  isQualityVillage     Boolean               @default(false)
   creatorId            Int?
   createdAt            DateTime              @default(now())
   updatedAt            DateTime              @updatedAt
