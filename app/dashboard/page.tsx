@@ -1,5 +1,7 @@
-import Link from 'next/link'
-import { getDashboardStats, type VillageTypeFilter } from '@/app/actions/dashboard'
+import { getDashboardStats } from '@/app/actions/dashboard'
+import { getProvinceStats } from '@/app/actions/map'
+import VillageTypeTabs, { parseVillageType } from './components/VillageTypeTabs'
+import DashboardMiniMap from './components/DashboardMiniMap'
 import { Users, MapPin, ClipboardList, TrendingUp } from 'lucide-react'
 import ZoneBarChart from './components/ZoneBarChart'
 import ProgressFunnel from './components/ProgressFunnel'
@@ -30,19 +32,12 @@ function KpiCard({ icon: Icon, label, value, sub, accent = false }: {
   )
 }
 
-const TYPE_TABS: { key: VillageTypeFilter | undefined; label: string; dot?: string; active: string }[] = [
-  { key: undefined, label: 'ทั้งหมด',       active: 'bg-gray-900 text-white border-gray-900' },
-  { key: 'kpi',     label: 'หมู่บ้านประเมิน กพร.', dot: 'bg-yellow-400', active: 'bg-yellow-50 text-yellow-800 border-yellow-300' },
-  { key: 'quality', label: 'หมู่บ้านสู้เหล้าคุณภาพ',     dot: 'bg-sky-400',    active: 'bg-sky-50 text-sky-800 border-sky-300' },
-]
-
 type Props = { searchParams: Promise<{ type?: string }> }
 
 export default async function DashboardPage({ searchParams }: Props) {
   const { type: rawType } = await searchParams
-  const type: VillageTypeFilter | undefined =
-    rawType === 'kpi' || rawType === 'quality' ? rawType : undefined
-  const s = await getDashboardStats(type)
+  const type = parseVillageType(rawType)
+  const [s, provinceStats] = await Promise.all([getDashboardStats(type), getProvinceStats(type)])
   const tc = s.typeCounts
 
   const zoneChartData = s.byZone.map(z => ({
@@ -57,26 +52,7 @@ export default async function DashboardPage({ searchParams }: Props) {
     <div className="max-w-6xl mx-auto space-y-6">
 
       {/* ตัวกรองประเภทหมู่บ้าน */}
-      <div className="flex flex-wrap items-center gap-2">
-        {TYPE_TABS.map((t) => {
-          const isActive = t.key === type
-          const count = t.key ? tc[t.key] : tc.all
-          return (
-            <Link
-              key={t.label}
-              href={t.key ? `/dashboard?type=${t.key}` : '/dashboard'}
-              aria-current={isActive ? 'page' : undefined}
-              className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border text-sm transition-colors ${
-                isActive ? t.active : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
-              }`}
-            >
-              {t.dot && <span className={`w-2 h-2 rounded-full ${t.dot}`} />}
-              {t.label}
-              <span className={`text-xs ${isActive ? 'opacity-80' : 'text-gray-400'}`}>({count})</span>
-            </Link>
-          )
-        })}
-      </div>
+      <VillageTypeTabs basePath="/dashboard" type={type} counts={tc} />
 
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -99,10 +75,11 @@ export default async function DashboardPage({ searchParams }: Props) {
         dndTotal={s.outcomes.dndTotal} dndY1={s.outcomes.dndY1} dndY2={s.outcomes.dndY2} dndY3={s.outcomes.dndY3} dndDeceased={s.outcomes.dndDeceased}
       />
 
-      {/* Org + Zone */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      {/* Org + Zone + Map */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <OrgParticipationChart orgParticipation={s.orgParticipation} total={s.villageCount} />
         <ZoneBarChart data={zoneChartData} />
+        <DashboardMiniMap stats={provinceStats} type={type} />
       </div>
 
     </div>

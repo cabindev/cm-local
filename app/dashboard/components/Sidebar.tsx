@@ -15,6 +15,7 @@ import {
   Users,
   TableProperties,
   ShieldCheck,
+  Map as MapIcon,
 } from 'lucide-react'
 
 interface NavItemProps {
@@ -73,6 +74,7 @@ export default function Sidebar({ user }: SidebarProps) {
 
   const overviewMenu = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, description: 'สรุปข้อมูลโครงการ' },
+    { name: 'แผนที่',    href: '/dashboard/map', icon: MapIcon,       description: 'หมู่บ้านรายจังหวัด' },
   ]
 
   const dataMenu = [

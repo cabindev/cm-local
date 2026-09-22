@@ -47,3 +47,24 @@ input:-webkit-autofill:active {
   box-shadow: 0 0 0px 1000px white inset;
   transition: background-color 5000s ease-in-out 0s;
 }
+
+/* ── Leaflet (dashboard/map) ─────────────────────────────────────────────── */
+/* selector ซ้ำ 2 ชั้นเพื่อชนะ background: #ddd ของ leaflet.css */
+.leaflet-container.leaflet-container { font-family: inherit; background: #ffffff; isolation: isolate; }
+
+/* ป้ายชื่อจังหวัด + จำนวน กลาง polygon (dashboard/map)
+   iconSize เป็น 0 จึงจัดกึ่งกลางด้วย translate */
+.cm-prov-label { background: none; border: none; }
+.cm-prov {
+  display: inline-block;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  line-height: 1.15;
+  white-space: nowrap;
+  pointer-events: none;
+  color: #111827;
+  text-shadow: 0 0 3px #fff, 0 0 3px #fff, 0 0 3px #fff;
+}
+.cm-prov b { display: block; font-size: 11px; font-weight: 600; }
+.cm-prov i { display: block; font-size: 12px; font-weight: 600; font-style: normal; }
+.cm-prov-on-dark { color: #ffffff; text-shadow: 0 0 3px rgba(0,0,0,.6), 0 0 3px rgba(0,0,0,.6); }
