@@ -32,8 +32,8 @@ function KpiCard({ icon: Icon, label, value, sub, accent = false }: {
 
 const TYPE_TABS: { key: VillageTypeFilter | undefined; label: string; dot?: string; active: string }[] = [
   { key: undefined, label: 'ทั้งหมด',       active: 'bg-gray-900 text-white border-gray-900' },
-  { key: 'kpi',     label: 'ม.ประเมิน กพร.', dot: 'bg-yellow-400', active: 'bg-yellow-50 text-yellow-800 border-yellow-300' },
-  { key: 'quality', label: 'ม.คุณภาพ',     dot: 'bg-sky-400',    active: 'bg-sky-50 text-sky-800 border-sky-300' },
+  { key: 'kpi',     label: 'หมู่บ้านประเมิน กพร.', dot: 'bg-yellow-400', active: 'bg-yellow-50 text-yellow-800 border-yellow-300' },
+  { key: 'quality', label: 'หมู่บ้านสู้เหล้าคุณภาพ',     dot: 'bg-sky-400',    active: 'bg-sky-50 text-sky-800 border-sky-300' },
 ]
 
 type Props = { searchParams: Promise<{ type?: string }> }
@@ -80,7 +80,7 @@ export default async function DashboardPage({ searchParams }: Props) {
 
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <KpiCard icon={MapPin}        label="หมู่บ้าน"       value={s.villageCount}                 sub={type ? `${s.byZone.length} ภาค` : `ม.กพร. ${tc.kpi} · ม.คุณภาพ ${tc.quality} · ยังไม่ระบุ ${tc.untyped}`} accent />
+        <KpiCard icon={MapPin}        label="หมู่บ้าน"       value={s.villageCount}                 sub={type ? `${s.byZone.length} ภาค` : `กพร. ${tc.kpi} · คุณภาพ ${tc.quality} · ยังไม่ระบุ ${tc.untyped}`} accent />
         <KpiCard icon={Users}         label="สมาชิกทั้งหมด"  value={s.personCount.toLocaleString()}  sub="ที่ลงทะเบียน" />
         <KpiCard icon={ClipboardList} label="คัดกรองแล้ว"    value={s.screenedTotal.toLocaleString()} sub={`จากประชากร ${s.populationTotal.toLocaleString()} คน`} />
         <KpiCard icon={TrendingUp}    label="Coverage"       value={`${s.coveragePct}%`}            sub={`${s.screeningVillages} หมู่บ้านมีข้อมูล`} />

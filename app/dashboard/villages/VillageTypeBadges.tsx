@@ -10,12 +10,12 @@ export default function VillageTypeBadges({ isKpiVillage, isQualityVillage, shor
     <>
       {isKpiVillage && (
         <span className={`${base} bg-yellow-50 text-yellow-700 border-yellow-200`}>
-          {short ? 'ม.ประเมิน กพร.' : 'หมู่บ้านสู้เหล้าประเมิน กพร.'}
+          {short ? 'หมู่บ้านประเมิน กพร.' : 'หมู่บ้านสู้เหล้าประเมิน กพร.'}
         </span>
       )}
       {isQualityVillage && (
         <span className={`${base} bg-sky-50 text-sky-700 border-sky-100`}>
-          {short ? 'ม.คุณภาพ' : 'หมู่บ้านสู้เหล้าคุณภาพ'}
+          {short ? 'หมู่บ้านสู้เหล้าคุณภาพ' : 'หมู่บ้านสู้เหล้าคุณภาพ'}
         </span>
       )}
     </>
