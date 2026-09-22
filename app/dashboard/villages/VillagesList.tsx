@@ -78,7 +78,7 @@ export default function VillagesList({ villages }: { villages: Village[] }) {
               <div>
                 <div className="flex items-center gap-2 mb-0.5">
                   <span className="text-xs font-semibold bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">ล่าสุด</span>
-                  <VillageTypeBadges isKpiVillage={latest.isKpiVillage} isQualityVillage={latest.isQualityVillage} short />
+                  <VillageTypeBadges isKpiVillage={latest.isKpiVillage} isQualityVillage={latest.isQualityVillage} short showUntyped />
                 </div>
                 <p className="text-base font-black text-gray-900 group-hover:text-yellow-600 transition-colors">
                   บ้าน{latest.villageName}
@@ -125,7 +125,7 @@ export default function VillagesList({ villages }: { villages: Village[] }) {
                   </div>
                   <div className="flex items-center gap-3 flex-shrink-0 ml-3">
                     <div className="hidden sm:flex items-center gap-1.5">
-                      <VillageTypeBadges isKpiVillage={v.isKpiVillage} isQualityVillage={v.isQualityVillage} short />
+                      <VillageTypeBadges isKpiVillage={v.isKpiVillage} isQualityVillage={v.isQualityVillage} short showUntyped />
                     </div>
                     <div className="flex items-center gap-1 text-xs text-gray-400">
                       <Users className="w-3 h-3" />

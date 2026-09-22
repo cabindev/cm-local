@@ -107,3 +107,19 @@ export async function getVillage(id: number) {
     },
   })
 }
+
+export async function updateVillageTypes(
+  updates: { id: number; isKpiVillage: boolean; isQualityVillage: boolean }[]
+) {
+  await requireAdmin()
+
+  await prisma.$transaction(
+    updates.map(({ id, isKpiVillage, isQualityVillage }) =>
+      prisma.village.update({ where: { id }, data: { isKpiVillage, isQualityVillage } })
+    )
+  )
+  revalidatePath('/dashboard')
+  revalidatePath('/dashboard/villages')
+  revalidatePath('/dashboard/villages/types')
+  return { updated: updates.length }
+}
