@@ -18,13 +18,15 @@ const STATUS = [
 ]
 
 export default function MembersFilter({
-  provinces,
-  q, group, province, status,
+  provinces, amphoes,
+  q, group, province, amphoe, status,
 }: {
   provinces: string[]
+  amphoes: string[]
   q: string
   group: string
   province: string
+  amphoe: string
   status: string
 }) {
   const router = useRouter()
@@ -36,6 +38,7 @@ export default function MembersFilter({
     const params = new URLSearchParams(searchParams.toString())
     if (value) params.set(key, value)
     else params.delete(key)
+    if (key === 'province') params.delete('amphoe')
     params.delete('page')
     startTransition(() => router.push(`${pathname}?${params.toString()}`))
   }, [searchParams, pathname, router])
@@ -95,11 +98,33 @@ export default function MembersFilter({
         <select
           value={province}
           onChange={(e) => update('province', e.target.value)}
+          aria-label="กรองตามจังหวัด"
           className="px-3 py-2 text-xs border border-gray-200 rounded-lg bg-white text-gray-600 focus:outline-none focus:ring-2 focus:ring-yellow-400"
         >
           <option value="">ทุกจังหวัด</option>
           {provinces.map((p) => <option key={p} value={p}>{p}</option>)}
         </select>
+
+        {/* อำเภอ */}
+        <select
+          value={amphoe}
+          onChange={(e) => update('amphoe', e.target.value)}
+          aria-label="กรองตามอำเภอ"
+          className="px-3 py-2 text-xs border border-gray-200 rounded-lg bg-white text-gray-600 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+        >
+          <option value="">ทุกอำเภอ</option>
+          {amphoes.map((a) => <option key={a} value={a}>{a}</option>)}
+        </select>
+
+        {(q || group || province || amphoe || status) && (
+          <button
+            type="button"
+            onClick={() => startTransition(() => router.push(pathname))}
+            className="px-3 py-2 text-xs text-yellow-700 hover:underline"
+          >
+            ล้างตัวกรอง
+          </button>
+        )}
       </div>
     </div>
   )

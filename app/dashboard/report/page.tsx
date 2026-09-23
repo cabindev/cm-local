@@ -1,5 +1,6 @@
 import { prisma } from '@/app/lib/prisma'
 import ReportFilter from './ReportFilter'
+import ColumnToggles, { type ColumnGroup } from './ColumnToggles'
 import Link from 'next/link'
 import { ChevronLeft, ChevronRight, CheckCircle2, XCircle } from 'lucide-react'
 
@@ -10,8 +11,34 @@ const PAGE_SIZE = 100
 type SP = {
   q?: string; province?: string; amphoe?: string; villageId?: string
   group?: string; gender?: string; tab?: string; page?: string
-  sort?: string; dir?: string
+  sort?: string; dir?: string; cols?: string; vcols?: string
 }
+
+// กลุ่มคอลัมน์ที่เปิด/ปิดได้ — ตารางมีหลายสิบคอลัมน์ ถ้าโชว์หมดต้องเลื่อนแนวนอนยาวมาก
+const PERSON_GROUPS: ColumnGroup[] = [
+  { key: 'area', label: 'พื้นที่',     dot: 'bg-gray-400' },
+  { key: 'alc',  label: 'เหล้า',       dot: 'bg-amber-400' },
+  { key: 'tob',  label: 'บุหรี่',      dot: 'bg-blue-400' },
+  { key: 'dnd',  label: 'ดื่มไม่ขับ',  dot: 'bg-orange-400' },
+  { key: 'out',  label: 'ผลลัพธ์',     dot: 'bg-green-400' },
+]
+const VILLAGE_GROUPS: ColumnGroup[] = [
+  { key: 'bg',     label: 'ประวัติชุมชน',   dot: 'bg-purple-400' },
+  { key: 'screen', label: 'ผลคัดกรอง',      dot: 'bg-amber-400' },
+  { key: 'env',    label: 'สภาพแวดล้อม',    dot: 'bg-green-400' },
+  { key: 'org',    label: 'การมีส่วนร่วม',  dot: 'bg-blue-400' },
+]
+
+function parseCols(raw: string | undefined, groups: ColumnGroup[]) {
+  const all = groups.map((g) => g.key)
+  if (raw === undefined) return all
+  const picked = raw.split(',').filter((k) => all.includes(k))
+  return picked
+}
+
+// หัวตารางแบบสว่าง — สีเข้มสงวนไว้ให้ sidebar เท่านั้น
+const TH = 'px-3 py-2.5 font-medium text-gray-500'
+const THL = `${TH} text-left`
 
 function buildWhere(q: string, province: string, amphoe: string, villageId: string, group: string, gender: string) {
   return {
@@ -36,7 +63,7 @@ function SortTh({ label, col, sort, dir, params, className = '' }: {
   const nextDir = active && dir === 'asc' ? 'desc' : 'asc'
   const p = new URLSearchParams({ ...params, sort: col, dir: nextDir })
   return (
-    <th className={`px-3 py-3 font-normal cursor-pointer select-none hover:bg-gray-800 transition-colors ${className}`}>
+    <th className={`px-3 py-2.5 font-medium text-gray-500 cursor-pointer select-none hover:bg-gray-100 transition-colors ${className}`}>
       <a href={`/dashboard/report?${p.toString()}`} className="flex items-center gap-1">
         {label}
         <span className="text-[10px] opacity-60">{active ? (dir === 'asc' ? '↑' : '↓') : '↕'}</span>
@@ -55,8 +82,11 @@ export default async function ReportPage({ searchParams }: { searchParams: Promi
   const {
     q = '', province = '', amphoe = '', villageId = '',
     group = '', gender = '', tab = 'persons', page = '0',
-    sort = 'zone', dir = 'asc',
+    sort = 'zone', dir = 'asc', cols, vcols,
   } = await searchParams
+
+  const personCols = parseCols(cols, PERSON_GROUPS)
+  const villageCols = parseCols(vcols, VILLAGE_GROUPS)
 
   const currentPage = Number(page)
   const skip = currentPage * PAGE_SIZE
@@ -122,6 +152,8 @@ export default async function ReportPage({ searchParams }: { searchParams: Promi
           group={group} gender={gender} tab={tab} total={total}
         />
 
+        <ColumnToggles param="cols" groups={PERSON_GROUPS} active={personCols} />
+
         {persons.length === 0 ? (
           <div className="bg-white rounded-2xl border border-gray-200 px-5 py-12 text-center">
             <p className="text-sm text-gray-400">ไม่พบข้อมูลที่ตรงกับเงื่อนไข</p>
@@ -131,35 +163,49 @@ export default async function ReportPage({ searchParams }: { searchParams: Promi
             <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-xs whitespace-nowrap">
-                  <thead className="bg-gray-900 text-white">
-                    <tr>
-                      <th className="sticky left-0 z-10 bg-gray-900 text-center px-3 py-3 font-normal text-gray-400 w-12">#</th>
-                      <th className="sticky left-12 z-10 bg-gray-900 text-left px-4 py-3 font-normal min-w-40 border-r border-gray-700">ชื่อ-สกุล</th>
-                      <th className="text-center px-3 py-3 font-normal text-gray-300 w-14">เพศ</th>
-                      <th className="text-left px-3 py-3 font-normal text-gray-300 min-w-28">หมู่บ้าน</th>
-                      <th className="text-left px-3 py-3 font-normal text-gray-300 min-w-24">ตำบล</th>
-                      <th className="text-left px-3 py-3 font-normal text-gray-300 min-w-24">อำเภอ</th>
-                      <th className="text-left px-3 py-3 font-normal text-gray-300 min-w-28">จังหวัด</th>
-                      <th className="text-left px-3 py-3 font-normal text-gray-300 min-w-20">ภาค</th>
-                      <th className="text-left px-3 py-3 font-normal text-amber-300 border-l border-gray-700 min-w-24">เหล้า-ประเภท</th>
-                      <th className="text-left px-3 py-3 font-normal text-amber-300 min-w-32">เหล้า-ปี1</th>
-                      <th className="text-left px-3 py-3 font-normal text-amber-300 min-w-32">เหล้า-ปี2</th>
-                      <th className="text-left px-3 py-3 font-normal text-amber-300 min-w-36">เหล้า-ปี3</th>
-                      <th className="text-left px-3 py-3 font-normal text-blue-300 border-l border-gray-700 min-w-28">บุหรี่-ประเภท</th>
-                      <th className="text-left px-3 py-3 font-normal text-blue-300 min-w-32">บุหรี่-ปี1</th>
-                      <th className="text-left px-3 py-3 font-normal text-blue-300 min-w-32">บุหรี่-ปี2</th>
-                      <th className="text-left px-3 py-3 font-normal text-blue-300 min-w-36">บุหรี่-ปี3</th>
-                      <th className="text-left px-3 py-3 font-normal text-orange-300 border-l border-gray-700 min-w-40">ดื่มไม่ขับ-ประเภท</th>
-                      <th className="text-left px-3 py-3 font-normal text-orange-300 min-w-40">ดื่มไม่ขับ-ปี1</th>
-                      <th className="text-left px-3 py-3 font-normal text-orange-300 min-w-40">ดื่มไม่ขับ-ปี2</th>
-                      <th className="text-left px-3 py-3 font-normal text-orange-300 min-w-40">ดื่มไม่ขับ-ปี3</th>
-                      {OUTCOMES.flatMap((k) =>
-                        [1,2,3].map((y) => (
-                          <th key={`${k}${y}`} className="text-left px-3 py-3 font-normal text-green-300 border-l border-gray-700 min-w-24">
-                            {OUTCOME_TH[k]}-ปี{y}
-                          </th>
-                        ))
-                      )}
+                  <thead className="bg-gray-50 border-b border-gray-200 sticky top-0 z-20">
+                    {/* แถวบน: ชื่อกลุ่มคอลัมน์ · แถวล่าง: ชื่อคอลัมน์จริง */}
+                    <tr className="text-[11px] text-gray-400">
+                      <th className="sticky left-0 z-10 bg-gray-50 w-12" />
+                      <th className="sticky left-12 z-10 bg-gray-50 border-r border-gray-200" />
+                      {personCols.includes('area') && <th colSpan={6} className="px-3 py-1.5 text-left font-medium border-l border-gray-200">พื้นที่</th>}
+                      {personCols.includes('alc') && <th colSpan={4} className="px-3 py-1.5 text-left font-medium text-amber-600 border-l border-gray-200">เหล้า</th>}
+                      {personCols.includes('tob') && <th colSpan={4} className="px-3 py-1.5 text-left font-medium text-blue-600 border-l border-gray-200">บุหรี่</th>}
+                      {personCols.includes('dnd') && <th colSpan={4} className="px-3 py-1.5 text-left font-medium text-orange-600 border-l border-gray-200">ดื่มไม่ขับ</th>}
+                      {personCols.includes('out') && <th colSpan={3} className="px-3 py-1.5 text-left font-medium text-green-600 border-l border-gray-200">ผลลัพธ์ที่เกิดขึ้น</th>}
+                    </tr>
+                    <tr className="border-t border-gray-100">
+                      <th className={`sticky left-0 z-10 bg-gray-50 text-center ${TH} w-12`}>#</th>
+                      <th className={`sticky left-12 z-10 bg-gray-50 ${THL} min-w-40 border-r border-gray-200`}>ชื่อ-สกุล</th>
+                      {personCols.includes('area') && <>
+                        <th className={`${TH} text-center w-14 border-l border-gray-200`}>เพศ</th>
+                        <th className={`${THL} min-w-28`}>หมู่บ้าน</th>
+                        <th className={`${THL} min-w-24`}>ตำบล</th>
+                        <th className={`${THL} min-w-24`}>อำเภอ</th>
+                        <th className={`${THL} min-w-28`}>จังหวัด</th>
+                        <th className={`${THL} min-w-20`}>ภาค</th>
+                      </>}
+                      {personCols.includes('alc') && <>
+                        <th className={`${THL} min-w-24 border-l border-gray-200`}>ประเภท</th>
+                        <th className={`${THL} min-w-32`}>ปี 1</th>
+                        <th className={`${THL} min-w-32`}>ปี 2</th>
+                        <th className={`${THL} min-w-36`}>ปี 3</th>
+                      </>}
+                      {personCols.includes('tob') && <>
+                        <th className={`${THL} min-w-28 border-l border-gray-200`}>ประเภท</th>
+                        <th className={`${THL} min-w-32`}>ปี 1</th>
+                        <th className={`${THL} min-w-32`}>ปี 2</th>
+                        <th className={`${THL} min-w-36`}>ปี 3</th>
+                      </>}
+                      {personCols.includes('dnd') && <>
+                        <th className={`${THL} min-w-40 border-l border-gray-200`}>ประเภท</th>
+                        <th className={`${THL} min-w-40`}>ปี 1</th>
+                        <th className={`${THL} min-w-40`}>ปี 2</th>
+                        <th className={`${THL} min-w-40`}>ปี 3</th>
+                      </>}
+                      {personCols.includes('out') && [1, 2, 3].map((y) => (
+                        <th key={y} className={`${THL} min-w-44 ${y === 1 ? 'border-l border-gray-200' : ''}`}>ปี {y}</th>
+                      ))}
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50">
@@ -169,56 +215,63 @@ export default async function ReportPage({ searchParams }: { searchParams: Promi
                       const tob = p.tobacco as Record<string,unknown> | null
                       const dnd = p.dnd
                       const bg = i % 2 === 1 ? 'bg-gray-50' : 'bg-white'
+                      const dash = <span className="text-gray-300">—</span>
 
                       return (
                         <tr key={p.id} className={`hover:bg-yellow-50 transition-colors ${bg}`}>
-                          <td className={`sticky left-0 z-10 text-center px-3 py-2.5 text-gray-400 font-mono ${bg}`}>{rowNo}</td>
-                          <td className={`sticky left-12 z-10 px-4 py-2.5 font-medium border-r border-gray-100 ${bg}`}>
+                          <td className={`sticky left-0 z-10 text-center px-3 py-2.5 text-gray-400 tabular-nums ${bg}`}>{rowNo}</td>
+                          <td className={`sticky left-12 z-10 px-4 py-2.5 border-r border-gray-100 ${bg}`}>
                             <a href={`/dashboard/villages/${p.village.id}/persons/${p.id}/edit`}
                               className="text-gray-900 hover:text-yellow-700 transition-colors">{p.name}</a>
                           </td>
-                          <td className="px-3 py-2.5 text-center">
-                            <span className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-normal ${p.gender === 'ชาย' ? 'bg-blue-100 text-blue-700' : 'bg-pink-100 text-pink-700'}`}>
-                              {p.gender}
-                            </span>
-                          </td>
-                          <td className="px-3 py-2.5 text-gray-700">บ้าน{p.village.villageName} ม.{p.village.villageNo}</td>
-                          <td className="px-3 py-2.5 text-gray-600">{p.village.tambon}</td>
-                          <td className="px-3 py-2.5 text-gray-600">{p.village.amphoe}</td>
-                          <td className="px-3 py-2.5 text-gray-600">{p.village.province}</td>
-                          <td className="px-3 py-2.5 text-gray-500">{p.village.zone}</td>
-                          <td className="px-3 py-2.5 border-l border-gray-100">
-                            {alc ? <span className="text-amber-700">{alc.drinkType as string}</span> : <span className="text-gray-200">—</span>}
-                          </td>
-                          <td className="px-3 py-2.5">{alc ? <span className="text-gray-700">{alc.statusY1 as string}</span> : <span className="text-gray-200">—</span>}</td>
-                          <td className="px-3 py-2.5">{(alc?.statusY2 as string) ? <span className="text-gray-700">{alc!.statusY2 as string}</span> : <span className="text-gray-200">—</span>}</td>
-                          <td className="px-3 py-2.5">{(alc?.statusY3 as string) ? <span className="font-normal text-gray-700">{alc!.statusY3 as string}</span> : <span className="text-gray-200">—</span>}</td>
-                          <td className="px-3 py-2.5 border-l border-gray-100">
-                            {tob ? <span className="text-blue-700">{tob.smokeType as string}</span> : <span className="text-gray-200">—</span>}
-                          </td>
-                          <td className="px-3 py-2.5">{tob ? <span className="text-gray-700">{tob.statusY1 as string}</span> : <span className="text-gray-200">—</span>}</td>
-                          <td className="px-3 py-2.5">{(tob?.statusY2 as string) ? <span className="text-gray-700">{tob!.statusY2 as string}</span> : <span className="text-gray-200">—</span>}</td>
-                          <td className="px-3 py-2.5">{(tob?.statusY3 as string) ? <span className="font-normal text-gray-700">{tob!.statusY3 as string}</span> : <span className="text-gray-200">—</span>}</td>
-                          <td className="px-3 py-2.5 border-l border-gray-100">
-                            {dnd ? <span className="text-orange-700">{dnd.drinkType}</span> : <span className="text-gray-200">—</span>}
-                          </td>
-                          <td className="px-3 py-2.5">{dnd?.year1Result ?? <span className="text-gray-200">—</span>}</td>
-                          <td className="px-3 py-2.5">{dnd?.year2Result ?? <span className="text-gray-200">—</span>}</td>
-                          <td className="px-3 py-2.5">{dnd?.year3Result ?? <span className="text-gray-200">—</span>}</td>
-                          {OUTCOMES.flatMap((k) =>
-                            [1,2,3].map((y) => {
-                              const outcome = (p as any).outcomes?.find((o: any) =>
-                                o.year === y && o.outcomeType === k && o.hasIt
-                              )
-                              return (
-                                <td key={`${k}${y}`} className="px-3 py-2.5 border-l border-gray-50">
-                                  {outcome
-                                    ? <span className="text-green-700 font-medium">{outcome.detail || '✓'}</span>
-                                    : <span className="text-gray-200">—</span>}
-                                </td>
-                              )
-                            })
-                          )}
+                          {personCols.includes('area') && <>
+                            <td className="px-3 py-2.5 text-center border-l border-gray-100">
+                              <span className={`inline-block px-1.5 py-0.5 rounded text-[10px] ${p.gender === 'ชาย' ? 'bg-blue-50 text-blue-700' : 'bg-pink-50 text-pink-700'}`}>
+                                {p.gender}
+                              </span>
+                            </td>
+                            <td className="px-3 py-2.5 text-gray-700">บ้าน{p.village.villageName} ม.{p.village.villageNo}</td>
+                            <td className="px-3 py-2.5 text-gray-600">{p.village.tambon}</td>
+                            <td className="px-3 py-2.5 text-gray-600">{p.village.amphoe}</td>
+                            <td className="px-3 py-2.5 text-gray-600">{p.village.province}</td>
+                            <td className="px-3 py-2.5 text-gray-500">{p.village.zone}</td>
+                          </>}
+                          {personCols.includes('alc') && <>
+                            <td className="px-3 py-2.5 border-l border-gray-100">{alc ? <span className="text-amber-700">{alc.drinkType as string}</span> : dash}</td>
+                            <td className="px-3 py-2.5 text-gray-700">{(alc?.statusY1 as string) || dash}</td>
+                            <td className="px-3 py-2.5 text-gray-700">{(alc?.statusY2 as string) || dash}</td>
+                            <td className="px-3 py-2.5 text-gray-700">{(alc?.statusY3 as string) || dash}</td>
+                          </>}
+                          {personCols.includes('tob') && <>
+                            <td className="px-3 py-2.5 border-l border-gray-100">{tob ? <span className="text-blue-700">{tob.smokeType as string}</span> : dash}</td>
+                            <td className="px-3 py-2.5 text-gray-700">{(tob?.statusY1 as string) || dash}</td>
+                            <td className="px-3 py-2.5 text-gray-700">{(tob?.statusY2 as string) || dash}</td>
+                            <td className="px-3 py-2.5 text-gray-700">{(tob?.statusY3 as string) || dash}</td>
+                          </>}
+                          {personCols.includes('dnd') && <>
+                            <td className="px-3 py-2.5 border-l border-gray-100">{dnd ? <span className="text-orange-700">{dnd.drinkType}</span> : dash}</td>
+                            <td className="px-3 py-2.5 text-gray-700">{dnd?.year1Result || dash}</td>
+                            <td className="px-3 py-2.5 text-gray-700">{dnd?.year2Result || dash}</td>
+                            <td className="px-3 py-2.5 text-gray-700">{dnd?.year3Result || dash}</td>
+                          </>}
+                          {/* ผลลัพธ์ 7 ด้าน × 3 ปี เดิมกิน 21 คอลัมน์ — ยุบเหลือปีละคอลัมน์ แสดงเป็นป้าย */}
+                          {personCols.includes('out') && [1, 2, 3].map((y) => {
+                            const hits = p.outcomes.filter((o) => o.year === y && o.hasIt)
+                            return (
+                              <td key={y} className={`px-3 py-2.5 ${y === 1 ? 'border-l border-gray-100' : ''}`}>
+                                {hits.length === 0 ? dash : (
+                                  <span className="flex flex-wrap gap-1 max-w-44 whitespace-normal">
+                                    {hits.map((o) => (
+                                      <span key={o.id} title={o.detail || undefined}
+                                        className="inline-block px-1.5 py-0.5 rounded bg-green-50 text-green-700 text-[10px] border border-green-100">
+                                        {OUTCOME_TH[o.outcomeType] ?? o.outcomeType}
+                                      </span>
+                                    ))}
+                                  </span>
+                                )}
+                              </td>
+                            )
+                          })}
                         </tr>
                       )
                     })}
@@ -283,17 +336,39 @@ export default async function ReportPage({ searchParams }: { searchParams: Promi
     sort === 'province'   ? { province: sortDir }            :
     { zone: sortDir }
 
-  const allVillages = await prisma.village.findMany({
-    where: villageWhere,
-    orderBy: villageOrderBy,
-    include: {
-      screeningResults: true,
-      communityBackgrounds: true,
-      envItems: true,
-      communityOrgs: true,
-      _count: { select: { persons: true } },
-    },
-  })
+  const [allVillages, villageTotal] = await Promise.all([
+    prisma.village.findMany({
+      where: villageWhere,
+      orderBy: villageOrderBy,
+      take: PAGE_SIZE, skip,
+      include: {
+        screeningResults: true,
+        communityBackgrounds: true,
+        envItems: true,
+        communityOrgs: true,
+        _count: { select: { persons: true } },
+      },
+    }),
+    prisma.village.count({ where: villageWhere }),
+  ])
+  const villageTotalPages = Math.ceil(villageTotal / PAGE_SIZE)
+  const SORT_PARAMS = {
+    tab: 'villages',
+    ...(province ? { province } : {}),
+    ...(amphoe ? { amphoe } : {}),
+    ...(villageId ? { villageId } : {}),
+    ...(vcols !== undefined ? { vcols: villageCols.join(',') } : {}),
+  }
+
+  const buildVillageHref = (pageNo: number) => {
+    const params = new URLSearchParams({ tab: 'villages', sort, dir })
+    if (province) params.set('province', province)
+    if (amphoe) params.set('amphoe', amphoe)
+    if (villageId) params.set('villageId', villageId)
+    if (vcols !== undefined) params.set('vcols', villageCols.join(','))
+    if (pageNo > 0) params.set('page', String(pageNo))
+    return `/dashboard/report?${params.toString()}`
+  }
 
   return (
     <div className="max-w-full space-y-4">
@@ -305,45 +380,64 @@ export default async function ReportPage({ searchParams }: { searchParams: Promi
       <ReportFilter
         provinces={provinces} amphoes={amphoes} villages={villages}
         q={q} province={province} amphoe={amphoe} villageId={villageId}
-        group={group} gender={gender} tab={tab} total={allVillages.length}
+        group={group} gender={gender} tab={tab} total={villageTotal}
       />
+
+      <ColumnToggles param="vcols" groups={VILLAGE_GROUPS} active={villageCols} />
 
       <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-xs whitespace-nowrap">
-            <thead className="bg-gray-900 text-white">
-              <tr>
-                <th className="sticky left-0 z-10 bg-gray-900 text-center px-3 py-3 font-normal text-gray-400 w-10">#</th>
-                <SortTh label="หมู่บ้าน" col="village" sort={sort} dir={dir} params={{ tab:'villages', ...(province?{province}:{}), ...(amphoe?{amphoe}:{}), ...(villageId?{villageId}:{}) }} className="sticky left-10 z-10 bg-gray-900 text-left min-w-36 border-r border-gray-700" />
-                <th className="text-left px-3 py-3 font-normal text-gray-300 min-w-24">อำเภอ</th>
-                <SortTh label="จังหวัด" col="province" sort={sort} dir={dir} params={{ tab:'villages', ...(province?{province}:{}), ...(amphoe?{amphoe}:{}), ...(villageId?{villageId}:{}) }} className="text-left text-gray-300 min-w-28" />
-                <SortTh label="ภาค" col="zone" sort={sort} dir={dir} params={{ tab:'villages', ...(province?{province}:{}), ...(amphoe?{amphoe}:{}), ...(villageId?{villageId}:{}) }} className="text-left text-gray-300 min-w-20" />
-                <SortTh label="ประชากร" col="population" sort={sort} dir={dir} params={{ tab:'villages', ...(province?{province}:{}), ...(amphoe?{amphoe}:{}), ...(villageId?{villageId}:{}) }} className="text-right text-gray-300 min-w-20" />
-                <SortTh label="สมาชิก" col="persons" sort={sort} dir={dir} params={{ tab:'villages', ...(province?{province}:{}), ...(amphoe?{amphoe}:{}), ...(villageId?{villageId}:{}) }} className="text-right text-gray-300 min-w-20" />
-                <th className="text-center px-3 py-3 font-normal text-purple-300 border-l border-gray-700 min-w-24">ปฏิทินชุมชน</th>
-                <th className="text-center px-3 py-3 font-normal text-purple-300 min-w-24">สถานที่เสี่ยง</th>
-                <th className="text-center px-3 py-3 font-normal text-purple-300 min-w-28">นโยบายมีส่วนร่วม</th>
-                <th className="text-center px-3 py-3 font-normal text-purple-300 min-w-28">นโยบายพัฒนา</th>
-                <th className="text-center px-3 py-3 font-normal text-purple-300 min-w-24">ประวัติชุมชน</th>
-                <th className="text-right px-3 py-3 font-normal text-amber-300 border-l border-gray-700 min-w-20">คัดกรอง</th>
-                <th className="text-right px-3 py-3 font-normal text-amber-300 min-w-20">เหล้า%</th>
-                <th className="text-right px-3 py-3 font-normal text-amber-300 min-w-20">บุหรี่%</th>
-                <th className="text-right px-3 py-3 font-normal text-amber-300 min-w-20">ขับเมา%</th>
-                <th className="text-center px-3 py-3 font-normal text-green-300 border-l border-gray-700 min-w-20">งานศพ</th>
-                <th className="text-center px-3 py-3 font-normal text-green-300 min-w-20">นโยบาย</th>
-                <th className="text-center px-3 py-3 font-normal text-green-300 min-w-20">กติกา</th>
-                <th className="text-center px-3 py-3 font-normal text-green-300 min-w-20">งานประเพณี</th>
-                <th className="text-center px-3 py-3 font-normal text-green-300 min-w-24">ประเพณีปลอดเหล้า</th>
-                <th className="text-center px-3 py-3 font-normal text-green-300 min-w-20">ร้านค้า</th>
-                <th className="text-center px-3 py-3 font-normal text-green-300 min-w-20">ไม่ขายเหล้า</th>
-                <th className="text-center px-3 py-3 font-normal text-green-300 min-w-24">สถานที่ห้ามดื่ม</th>
-                <th className="text-center px-3 py-3 font-normal text-green-300 min-w-20">ห้ามดื่มห้ามขาย</th>
-                <th className="text-center px-3 py-3 font-normal text-blue-300 border-l border-gray-700 min-w-24">สถานศึกษา</th>
-                <th className="text-center px-3 py-3 font-normal text-blue-300 min-w-20">วัด</th>
-                <th className="text-center px-3 py-3 font-normal text-blue-300 min-w-20">อบต.</th>
-                <th className="text-center px-3 py-3 font-normal text-blue-300 min-w-20">กำนัน</th>
-                <th className="text-center px-3 py-3 font-normal text-blue-300 min-w-20">รพ.สต.</th>
-                <th className="text-center px-3 py-3 font-normal text-blue-300 min-w-24">กลุ่มองค์กร</th>
+            <thead className="bg-gray-50 border-b border-gray-200 sticky top-0 z-20">
+              <tr className="text-[11px] text-gray-400">
+                <th className="sticky left-0 z-10 bg-gray-50 w-10" />
+                <th className="sticky left-10 z-10 bg-gray-50 border-r border-gray-200" />
+                <th colSpan={5} className="px-3 py-1.5 text-left font-medium border-l border-gray-200">ข้อมูลพื้นฐาน</th>
+                {villageCols.includes('bg') && <th colSpan={5} className="px-3 py-1.5 text-left font-medium text-purple-600 border-l border-gray-200">ประวัติชุมชน</th>}
+                {villageCols.includes('screen') && <th colSpan={4} className="px-3 py-1.5 text-left font-medium text-amber-600 border-l border-gray-200">ผลคัดกรอง</th>}
+                {villageCols.includes('env') && <th colSpan={9} className="px-3 py-1.5 text-left font-medium text-green-600 border-l border-gray-200">สภาพแวดล้อม</th>}
+                {villageCols.includes('org') && <th colSpan={6} className="px-3 py-1.5 text-left font-medium text-blue-600 border-l border-gray-200">การมีส่วนร่วม</th>}
+              </tr>
+              <tr className="border-t border-gray-100">
+                <th className={`sticky left-0 z-10 bg-gray-50 text-center ${TH} w-10`}>#</th>
+                <SortTh label="หมู่บ้าน" col="village" sort={sort} dir={dir} params={SORT_PARAMS} className="sticky left-10 z-10 bg-gray-50 text-left min-w-36 border-r border-gray-200" />
+                <th className={`${THL} min-w-24 border-l border-gray-200`}>อำเภอ</th>
+                <SortTh label="จังหวัด" col="province" sort={sort} dir={dir} params={SORT_PARAMS} className="text-left min-w-28" />
+                <SortTh label="ภาค" col="zone" sort={sort} dir={dir} params={SORT_PARAMS} className="text-left min-w-20" />
+                <SortTh label="ประชากร" col="population" sort={sort} dir={dir} params={SORT_PARAMS} className="text-right min-w-20" />
+                <SortTh label="สมาชิก" col="persons" sort={sort} dir={dir} params={SORT_PARAMS} className="text-right min-w-20" />
+                {villageCols.includes('bg') && <>
+                  <th className={`${TH} text-center min-w-24 border-l border-gray-200`}>ปฏิทินชุมชน</th>
+                  <th className={`${TH} text-center min-w-24`}>สถานที่เสี่ยง</th>
+                  <th className={`${TH} text-center min-w-28`}>นโยบายมีส่วนร่วม</th>
+                  <th className={`${TH} text-center min-w-28`}>นโยบายพัฒนา</th>
+                  <th className={`${TH} text-center min-w-24`}>ประวัติชุมชน</th>
+                </>}
+                {villageCols.includes('screen') && <>
+                  <th className={`${TH} text-right min-w-20 border-l border-gray-200`}>คัดกรอง</th>
+                  <th className={`${TH} text-right min-w-20`}>เหล้า%</th>
+                  <th className={`${TH} text-right min-w-20`}>บุหรี่%</th>
+                  <th className={`${TH} text-right min-w-20`}>ขับเมา%</th>
+                </>}
+                {villageCols.includes('env') && <>
+                  <th className={`${TH} text-center min-w-20 border-l border-gray-200`}>งานศพ</th>
+                  <th className={`${TH} text-center min-w-20`}>นโยบาย</th>
+                  <th className={`${TH} text-center min-w-20`}>กติกา</th>
+                  <th className={`${TH} text-center min-w-20`}>งานประเพณี</th>
+                  <th className={`${TH} text-center min-w-24`}>ประเพณีปลอดเหล้า</th>
+                  <th className={`${TH} text-center min-w-20`}>ร้านค้า</th>
+                  <th className={`${TH} text-center min-w-20`}>ไม่ขายเหล้า</th>
+                  <th className={`${TH} text-center min-w-24`}>สถานที่ห้ามดื่ม</th>
+                  <th className={`${TH} text-center min-w-20`}>ห้ามดื่มห้ามขาย</th>
+                </>}
+                {villageCols.includes('org') && <>
+                  <th className={`${TH} text-center min-w-24 border-l border-gray-200`}>สถานศึกษา</th>
+                  <th className={`${TH} text-center min-w-20`}>วัด</th>
+                  <th className={`${TH} text-center min-w-20`}>อบต.</th>
+                  <th className={`${TH} text-center min-w-20`}>กำนัน</th>
+                  <th className={`${TH} text-center min-w-20`}>รพ.สต.</th>
+                  <th className={`${TH} text-center min-w-24`}>กลุ่มองค์กร</th>
+                </>}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
@@ -360,43 +454,51 @@ export default async function ReportPage({ searchParams }: { searchParams: Promi
 
                 return (
                   <tr key={v.id} className={`hover:bg-yellow-50 transition-colors ${bg}`}>
-                    <td className={`sticky left-0 z-10 text-center px-3 py-2.5 text-gray-400 ${bg}`}>{i+1}</td>
-                    <td className={`sticky left-10 z-10 px-4 py-2.5 font-medium border-r border-gray-100 ${bg}`}>
+                    <td className={`sticky left-0 z-10 text-center px-3 py-2.5 text-gray-400 tabular-nums ${bg}`}>{skip + i + 1}</td>
+                    <td className={`sticky left-10 z-10 px-4 py-2.5 border-r border-gray-100 ${bg}`}>
                       <a href={`/dashboard/villages/${v.id}`} className="text-gray-900 hover:text-yellow-700">
                         บ้าน{v.villageName} ม.{v.villageNo}
                       </a>
                     </td>
-                    <td className="px-3 py-2.5 text-gray-600">{v.amphoe}</td>
+                    <td className="px-3 py-2.5 text-gray-600 border-l border-gray-100">{v.amphoe}</td>
                     <td className="px-3 py-2.5 text-gray-600">{v.province}</td>
                     <td className="px-3 py-2.5 text-gray-500">{v.zone}</td>
-                    <td className="px-3 py-2.5 text-right text-gray-700">{v.actualPopulation.toLocaleString()}</td>
-                    <td className="px-3 py-2.5 text-right text-gray-700">{v._count.persons}</td>
-                    <td className="px-3 py-2.5 border-l border-gray-100"><Tick ok={!!bm.communityCalendar?.hasItem} /></td>
-                    <td className="px-3 py-2.5"><Tick ok={!!bm.riskLocation?.hasItem} /></td>
-                    <td className="px-3 py-2.5"><Tick ok={!!bm.participationPolicy?.hasItem} /></td>
-                    <td className="px-3 py-2.5"><Tick ok={!!bm.capacityPolicy?.hasItem} /></td>
-                    <td className="px-3 py-2.5"><Tick ok={!!bm.communityHistory?.hasItem} /></td>
-                    <td className="px-3 py-2.5 text-right border-l border-gray-100">
-                      {sc > 0 ? <span className="font-normal text-gray-700">{sc.toLocaleString()}</span> : <span className="text-gray-300">—</span>}
-                    </td>
-                    <td className="px-3 py-2.5 text-right">{alcPct !== null ? <span className="text-amber-700 font-normal">{alcPct}%</span> : <span className="text-gray-300">—</span>}</td>
-                    <td className="px-3 py-2.5 text-right">{tobPct !== null ? <span className="text-amber-700 font-normal">{tobPct}%</span> : <span className="text-gray-300">—</span>}</td>
-                    <td className="px-3 py-2.5 text-right">{dndPct !== null ? <span className="text-amber-700 font-normal">{dndPct}%</span> : <span className="text-gray-300">—</span>}</td>
-                    <td className="px-3 py-2.5 border-l border-gray-100"><Tick ok={!!em.funeral?.hasItem} /></td>
-                    <td className="px-3 py-2.5"><Tick ok={!!em.funeral?.hasPolicy} /></td>
-                    <td className="px-3 py-2.5"><Tick ok={!!em.funeral?.hasCommunityRule} /></td>
-                    <td className="px-3 py-2.5"><Tick ok={!!em.tradition?.hasItem} /></td>
-                    <td className="px-3 py-2.5"><Tick ok={!!em.tradition?.hasTraditionEvent} /></td>
-                    <td className="px-3 py-2.5"><Tick ok={!!em.shop?.hasItem} /></td>
-                    <td className="px-3 py-2.5"><Tick ok={!!em.shop?.noAlcohol} /></td>
-                    <td className="px-3 py-2.5"><Tick ok={!!em.nodrinkzone?.hasNoDrinkSite} /></td>
-                    <td className="px-3 py-2.5"><Tick ok={!!em.nodrinkzone?.hasItem} /></td>
-                    <td className="px-3 py-2.5 border-l border-gray-100"><Tick ok={!!om.school?.hasParticipation} /></td>
-                    <td className="px-3 py-2.5"><Tick ok={!!om.temple?.hasParticipation} /></td>
-                    <td className="px-3 py-2.5"><Tick ok={!!om.localAdmin?.hasParticipation} /></td>
-                    <td className="px-3 py-2.5"><Tick ok={!!om.villageAdmin?.hasParticipation} /></td>
-                    <td className="px-3 py-2.5"><Tick ok={!!om.hospital?.hasParticipation} /></td>
-                    <td className="px-3 py-2.5"><Tick ok={!!om.orgGroup?.hasParticipation} /></td>
+                    <td className="px-3 py-2.5 text-right text-gray-700 tabular-nums">{v.actualPopulation.toLocaleString()}</td>
+                    <td className="px-3 py-2.5 text-right text-gray-700 tabular-nums">{v._count.persons}</td>
+                    {villageCols.includes('bg') && <>
+                      <td className="px-3 py-2.5 border-l border-gray-100"><Tick ok={!!bm.communityCalendar?.hasItem} /></td>
+                      <td className="px-3 py-2.5"><Tick ok={!!bm.riskLocation?.hasItem} /></td>
+                      <td className="px-3 py-2.5"><Tick ok={!!bm.participationPolicy?.hasItem} /></td>
+                      <td className="px-3 py-2.5"><Tick ok={!!bm.capacityPolicy?.hasItem} /></td>
+                      <td className="px-3 py-2.5"><Tick ok={!!bm.communityHistory?.hasItem} /></td>
+                    </>}
+                    {villageCols.includes('screen') && <>
+                      <td className="px-3 py-2.5 text-right border-l border-gray-100 tabular-nums">
+                        {sc > 0 ? <span className="text-gray-700">{sc.toLocaleString()}</span> : <span className="text-gray-300">—</span>}
+                      </td>
+                      <td className="px-3 py-2.5 text-right tabular-nums">{alcPct !== null ? <span className="text-amber-700">{alcPct}%</span> : <span className="text-gray-300">—</span>}</td>
+                      <td className="px-3 py-2.5 text-right tabular-nums">{tobPct !== null ? <span className="text-amber-700">{tobPct}%</span> : <span className="text-gray-300">—</span>}</td>
+                      <td className="px-3 py-2.5 text-right tabular-nums">{dndPct !== null ? <span className="text-amber-700">{dndPct}%</span> : <span className="text-gray-300">—</span>}</td>
+                    </>}
+                    {villageCols.includes('env') && <>
+                      <td className="px-3 py-2.5 border-l border-gray-100"><Tick ok={!!em.funeral?.hasItem} /></td>
+                      <td className="px-3 py-2.5"><Tick ok={!!em.funeral?.hasPolicy} /></td>
+                      <td className="px-3 py-2.5"><Tick ok={!!em.funeral?.hasCommunityRule} /></td>
+                      <td className="px-3 py-2.5"><Tick ok={!!em.tradition?.hasItem} /></td>
+                      <td className="px-3 py-2.5"><Tick ok={!!em.tradition?.hasTraditionEvent} /></td>
+                      <td className="px-3 py-2.5"><Tick ok={!!em.shop?.hasItem} /></td>
+                      <td className="px-3 py-2.5"><Tick ok={!!em.shop?.noAlcohol} /></td>
+                      <td className="px-3 py-2.5"><Tick ok={!!em.nodrinkzone?.hasNoDrinkSite} /></td>
+                      <td className="px-3 py-2.5"><Tick ok={!!em.nodrinkzone?.hasItem} /></td>
+                    </>}
+                    {villageCols.includes('org') && <>
+                      <td className="px-3 py-2.5 border-l border-gray-100"><Tick ok={!!om.school?.hasParticipation} /></td>
+                      <td className="px-3 py-2.5"><Tick ok={!!om.temple?.hasParticipation} /></td>
+                      <td className="px-3 py-2.5"><Tick ok={!!om.localAdmin?.hasParticipation} /></td>
+                      <td className="px-3 py-2.5"><Tick ok={!!om.villageAdmin?.hasParticipation} /></td>
+                      <td className="px-3 py-2.5"><Tick ok={!!om.hospital?.hasParticipation} /></td>
+                      <td className="px-3 py-2.5"><Tick ok={!!om.orgGroup?.hasParticipation} /></td>
+                    </>}
                   </tr>
                 )
               })}
@@ -404,7 +506,39 @@ export default async function ReportPage({ searchParams }: { searchParams: Promi
           </table>
         </div>
       </div>
-      <p className="text-xs text-gray-400">{allVillages.length} หมู่บ้าน</p>
+      <div className="flex items-center justify-between">
+        <p className="text-xs text-gray-500">
+          แสดง {skip + 1}–{Math.min(skip + PAGE_SIZE, villageTotal)} จาก {villageTotal.toLocaleString()} หมู่บ้าน
+        </p>
+        {villageTotalPages > 1 && (
+          <div className="flex items-center gap-1.5">
+            {currentPage > 0 && (
+              <Link href={buildVillageHref(currentPage - 1)} className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium border border-gray-200 rounded-lg hover:bg-gray-50">
+                <ChevronLeft className="w-3.5 h-3.5" />ก่อนหน้า
+              </Link>
+            )}
+            {Array.from({ length: villageTotalPages }, (_, i) => i)
+              .filter((i) => i === 0 || i === villageTotalPages - 1 || Math.abs(i - currentPage) <= 2)
+              .reduce<(number | 'gap')[]>((acc, i, idx, arr) => {
+                if (idx > 0 && i - (arr[idx - 1] as number) > 1) acc.push('gap')
+                acc.push(i); return acc
+              }, [])
+              .map((item, idx) =>
+                item === 'gap'
+                  ? <span key={`gap-${idx}`} className="px-1 text-xs text-gray-400">…</span>
+                  : <Link key={item} href={buildVillageHref(item as number)}
+                      className={`w-7 h-7 flex items-center justify-center text-xs rounded-lg transition-colors ${item === currentPage ? 'bg-gray-900 text-white font-medium' : 'border border-gray-200 hover:bg-gray-50 text-gray-600'}`}>
+                      {(item as number) + 1}
+                    </Link>
+              )}
+            {currentPage < villageTotalPages - 1 && (
+              <Link href={buildVillageHref(currentPage + 1)} className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-gray-900 text-white rounded-lg hover:bg-gray-800">
+                ถัดไป<ChevronRight className="w-3.5 h-3.5" />
+              </Link>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   )
 }
