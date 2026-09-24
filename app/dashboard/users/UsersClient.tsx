@@ -15,6 +15,7 @@ type UserRow = {
   createdAt: Date
   province: string | null
   amphoe: string | null
+  district: string | null
   zone: string | null
 }
 
@@ -87,13 +88,20 @@ export default function UsersClient({ initialUsers, currentUserId, currentUserRo
 }) {
   const [users, setUsers] = useState(initialUsers)
   const [search, setSearch] = useState('')
+  const [zoneFilter, setZoneFilter] = useState('')
   const [editTarget, setEditTarget] = useState<UserRow | null>(null)
   const [deletingId, setDeletingId] = useState<number | null>(null)
   const [isPending, startTransition] = useTransition()
 
-  const filtered = users.filter(u =>
-    `${u.firstName} ${u.lastName} ${u.email}`.toLowerCase().includes(search.toLowerCase())
-  )
+  const zones = [...new Set(users.map((u) => u.zone).filter(Boolean) as string[])].sort((a, b) => a.localeCompare(b, 'th'))
+  const noZoneCount = users.filter((u) => !u.zone).length
+
+  const filtered = users.filter((u) => {
+    const q = search.trim().toLowerCase()
+    const matchText = !q || `${u.firstName} ${u.lastName} ${u.email} ${u.province ?? ''} ${u.amphoe ?? ''} ${u.zone ?? ''}`.toLowerCase().includes(q)
+    const matchZone = !zoneFilter || (zoneFilter === 'none' ? !u.zone : u.zone === zoneFilter)
+    return matchText && matchZone
+  })
 
   function handleDelete(u: UserRow) {
     if (!confirm(`ลบ "${u.firstName} ${u.lastName}" ออกจากระบบ?\nการกระทำนี้ไม่สามารถย้อนกลับได้`)) return
@@ -133,7 +141,8 @@ export default function UsersClient({ initialUsers, currentUserId, currentUserRo
       )}
 
       {/* Search */}
-      <div className="relative">
+      <div className="flex flex-wrap items-center gap-2">
+      <div className="relative flex-1 min-w-[220px]">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
         <input
           type="text"
@@ -148,6 +157,17 @@ export default function UsersClient({ initialUsers, currentUserId, currentUserRo
           </button>
         )}
       </div>
+        <select
+          value={zoneFilter}
+          onChange={(e) => setZoneFilter(e.target.value)}
+          aria-label="กรองตามภาค"
+          className="py-2.5 px-3 text-sm border border-gray-200 rounded-xl bg-white text-gray-600 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+        >
+          <option value="">ทุกภาค</option>
+          {zones.map((z) => <option key={z} value={z}>ภาค{z}</option>)}
+          {noZoneCount > 0 && <option value="none">ยังไม่ระบุพื้นที่ ({noZoneCount})</option>}
+        </select>
+      </div>
 
       {/* Table */}
       <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
@@ -156,6 +176,7 @@ export default function UsersClient({ initialUsers, currentUserId, currentUserRo
             <tr className="bg-gray-50 border-b border-gray-100">
               <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider">ผู้ใช้งาน</th>
               <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider text-center">สิทธิ์</th>
+              <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider">พื้นที่</th>
               <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider">วันที่สมัคร</th>
               <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider text-center">จัดการ</th>
             </tr>
@@ -181,9 +202,6 @@ export default function UsersClient({ initialUsers, currentUserId, currentUserRo
                         )}
                       </div>
                       <p className="text-xs text-gray-400">{u.email}</p>
-                      {(u.province || u.zone) && (
-                        <p className="text-xs text-gray-500">{[u.amphoe, u.province, u.zone].filter(Boolean).join(' · ')}</p>
-                      )}
                     </div>
                   </div>
                 </td>
@@ -196,6 +214,22 @@ export default function UsersClient({ initialUsers, currentUserId, currentUserRo
                       </span>
                     )}
                   </div>
+                </td>
+                <td className="px-6 py-4">
+                  {u.province ? (
+                    <div className="space-y-1">
+                      {u.zone && (
+                        <span className="inline-block text-[10px] font-medium bg-yellow-50 text-yellow-700 border border-yellow-200 px-2 py-0.5 rounded-full">
+                          ภาค{u.zone}
+                        </span>
+                      )}
+                      <p className="text-xs text-gray-500">
+                        {[u.district && `ต.${u.district}`, u.amphoe && `อ.${u.amphoe}`, `จ.${u.province}`].filter(Boolean).join(' ')}
+                      </p>
+                    </div>
+                  ) : (
+                    <span className="text-xs text-gray-300">ยังไม่ระบุ</span>
+                  )}
                 </td>
                 <td className="px-6 py-4">
                   <p className="text-xs text-gray-500">

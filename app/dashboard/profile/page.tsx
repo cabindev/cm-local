@@ -48,6 +48,10 @@ export default async function ProfilePage() {
         firstName={user.firstName}
         lastName={user.lastName}
         image={user.image ?? null}
+        district={user.district ?? null}
+        amphoe={user.amphoe ?? null}
+        province={user.province ?? null}
+        zone={user.zone ?? null}
       />
 
       {/* อีเมล + role */}
@@ -57,11 +61,6 @@ export default async function ProfilePage() {
           {user.role === 'SUPERADMIN' ? 'ซุปเปอร์แอดมิน' : user.role === 'ADMIN' ? 'ผู้ดูแลระบบ' : 'สมาชิก'}
         </span>
       </div>
-      {(user.province || user.zone) && (
-        <p className="text-[11px] text-gray-500 font-light -mt-4">
-          {[user.district, user.amphoe, user.province, user.zone].filter(Boolean).join(' · ')}
-        </p>
-      )}
 
       {villages.length === 0 ? (
         <p className="text-xs text-gray-500 font-light">ยังไม่มีหมู่บ้านที่ดูแล —{' '}

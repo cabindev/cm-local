@@ -3,6 +3,7 @@
 import { prisma } from '@/app/lib/prisma'
 import { requireAdmin } from '@/app/lib/auth'
 import { revalidatePath } from 'next/cache'
+import { sendTelegram } from '@/app/lib/telegram'
 
 export async function createVillage(data: {
   villageName: string
@@ -64,17 +65,42 @@ export async function updateVillage(
   return village
 }
 
-export async function deleteVillage(id: number) {
+// ลบได้เฉพาะเจ้าของหมู่บ้าน หรือ SUPERADMIN — ข้อมูลที่ผูกอยู่ถูกลบตาม (onDelete: Cascade)
+export async function deleteVillage(id: number, confirmName?: string) {
   const session = await requireAdmin()
 
-  const village = await prisma.village.findUnique({ where: { id }, select: { creatorId: true } })
+  const village = await prisma.village.findUnique({
+    where: { id },
+    select: {
+      creatorId: true, villageName: true, villageNo: true,
+      tambon: true, amphoe: true, province: true,
+      _count: { select: { persons: true } },
+    },
+  })
   if (!village) throw new Error('ไม่พบหมู่บ้าน')
-  if (village.creatorId !== Number(session.user.id)) {
+
+  const isOwner = village.creatorId === Number(session.user.id)
+  const isSuperAdmin = session.user.role === 'SUPERADMIN'
+  if (!isOwner && !isSuperAdmin) {
     throw new Error('ไม่มีสิทธิ์ลบหมู่บ้านที่สร้างโดยผู้ใช้อื่น')
+  }
+  // กันลบพลาด — ต้องพิมพ์ชื่อหมู่บ้านให้ตรงก่อน
+  if (confirmName !== undefined && confirmName.trim() !== village.villageName) {
+    throw new Error('ชื่อหมู่บ้านที่พิมพ์ไม่ตรงกับชื่อจริง')
   }
 
   await prisma.village.delete({ where: { id } })
+
+  await sendTelegram(
+    `🗑 <b>ลบหมู่บ้าน</b>\n` +
+    `บ้าน${village.villageName} หมู่ ${village.villageNo}\n` +
+    `ต.${village.tambon} อ.${village.amphoe} จ.${village.province}\n` +
+    `สมาชิกที่ถูกลบด้วย ${village._count.persons} คน\n` +
+    `โดย ${session.user.firstName} ${session.user.lastName} · <code>${session.user.role}</code>`
+  )
+
   revalidatePath('/dashboard/villages')
+  revalidatePath('/dashboard')
 }
 
 export async function getVillages() {

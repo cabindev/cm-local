@@ -23,6 +23,7 @@ export default async function VillageDetailPage({ params }: Props) {
   const session = await getServerSession(authOptions)
   const currentUserId = Number(session?.user?.id)
   const isOwner = village.creatorId === currentUserId
+  const canDelete = isOwner || session?.user?.role === 'SUPERADMIN'
 
   const screening = village.screeningResults[0] ?? null
   const multiRiskCount = village.persons.filter((p) => p.alcohol && p.tobacco && p.dnd).length
@@ -91,7 +92,14 @@ export default async function VillageDetailPage({ params }: Props) {
                 >
                   แก้ไข
                 </Link>
-                {isOwner && <DeleteVillageButton id={village.id} />}
+                {canDelete && (
+                  <DeleteVillageButton
+                    id={village.id}
+                    villageName={village.villageName}
+                    villageNo={village.villageNo}
+                    personCount={village.persons.length}
+                  />
+                )}
               </div>
             </div>
 
